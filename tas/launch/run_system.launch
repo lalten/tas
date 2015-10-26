@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+  <master auto="start"/>
+  <param name="/use_sim_time" value="false"/>
+
+  <!-- Set up hardware -->
+  <include file="$(find tas)/launch/hardware.launch" />
+
+  <!-- Set up fake odomotry -->
+  <include file="$(find tas)/launch/odom.launch" />
+
+  <!-- Set up move base package-->
+  <include file="$(find tas)/launch/move_base.launch" />
+
+</launch>

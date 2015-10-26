@@ -1,0 +1,72 @@
+% Präambel
+\input{header}
+
+% eigene Befehle
+\input{makros}
+
+%=========================================================================================================
+% Dokumentspezifische Einstellungen, erscheinen in den PDF-Eigenschaften
+%
+
+\hypersetup{
+  pdftitle={TAS-course introduction},
+  pdfsubject={THEMA},
+  pdfauthor={Alexander Frericks},
+  %pdfkeywords={keywords}, 
+  %pdfcreator={creator}, 
+}
+
+% Problematische Silbentrennungen (funktioniert nicht mit Umlauten und ß) - klappt nicht immer!
+\hyphenation{Go-Home-Funk-tion Lenk-reg-ler Steig-ra-te Be-triebs-span-nung Mo-tor-an-steu-e-rung}
+
+% Noch ein paar Tipps:
+% Deutsche Anführungszeichen: \glqq{} bzw. \grqq{}, wobei eigentlich auch "` und "´ funktionieren sollten
+% Trennzeichen: nur hier \-, zusätzlich hier "-, mögliche Trennung ohne Bindestrich (wenn er schon existiert) ""
+% Zeilenumbruch: \\ oder \newline (\\[Höhe] mit zusätzlichem Abstand), \linebreak[n] MIT Randausgleich (n opt. Gew.)
+
+%====================================================================================================================
+\begin{document}
+
+% === Vorspann ===
+\pagenumbering{roman}
+\include{chapters/0_frontpage}
+
+%Leerseite
+%\newpage
+%\thispagestyle{empty}
+%\vspace*{\fill}
+\newpage 
+% Hier die Aufgabenstellung vom Betreuer
+\pdfbookmark[1]{Table of contents}{toc}
+\tableofcontents
+
+
+% === Hauptteil === 
+\pagenumbering{arabic}
+
+% \include{kapitel/...}
+\include{chapters/1_overview}
+\include{chapters/4_setup}
+\include{chapters/2_tas_package}
+\include{chapters/3_advanced}
+
+% === Anhang ===
+\appendix
+% Anhang
+%\include{kapitel/anhang}
+% Literaturverzeichnis
+\nocite{*} % hiermit werden auch nichtzitierte Quellen ins Literaturverzeichnis aufgenommen
+\bibliography{literature} % am besten die aus dem SVN
+
+% TODO-Liste: alle im Text mit \todo{} angemerkten Stellen werden hier aufgeführt
+% Sollten keine mehr vorhanden sein, wird die Liste ausgeblendet
+\ifthenelse{\thetodo > 0}{
+	\pdfbookmark[0]{\todolistname}{tod}
+	\listoftodo
+}{}
+
+\end{document}
+
+%
+% EOF
+%

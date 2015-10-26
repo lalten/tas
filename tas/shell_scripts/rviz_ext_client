@@ -1,0 +1,9 @@
+#!/bin/sh
+
+export ROS_HOSTNAME=frericks
+export ROS_MASTER_URI=http://vettel:11311
+
+source /opt/ros/indigo/setup.bash
+rosrun rviz rviz -d tas_rviz.rviz
+
+

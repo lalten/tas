@@ -1,0 +1,39 @@
+\select@language {english}
+\select@language {english}
+\contentsline {chapter}{\numberline {1}Overview}{2}{chapter.1}
+\contentsline {section}{\numberline {1.1}Hardware}{3}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Motors and controllers}{3}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Arduino board}{4}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}Linux-Board}{4}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}Laserscanner}{5}{subsection.1.1.4}
+\contentsline {subsection}{\numberline {1.1.5}Inertial measurement unit (IMU)}{6}{subsection.1.1.5}
+\contentsline {section}{\numberline {1.2}Software}{6}{section.1.2}
+\contentsline {chapter}{\numberline {2}Set up the hardware}{8}{chapter.2}
+\contentsline {section}{\numberline {2.1}Power from external power source}{9}{section.2.1}
+\contentsline {section}{\numberline {2.2}Power from battery}{9}{section.2.2}
+\contentsline {chapter}{\numberline {3}The TAS-package}{10}{chapter.3}
+\contentsline {section}{\numberline {3.1}Installing the TAS-package}{11}{section.3.1}
+\contentsline {section}{\numberline {3.2}Hardware drivers}{12}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}wiimote}{12}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}wii\_control}{13}{subsection.3.2.2}
+\contentsline {subsection}{\numberline {3.2.3}rosserial\_python}{13}{subsection.3.2.3}
+\contentsline {subsection}{\numberline {3.2.4}hokuyo\_node}{13}{subsection.3.2.4}
+\contentsline {subsection}{\numberline {3.2.5}xsens\_driver}{13}{subsection.3.2.5}
+\contentsline {section}{\numberline {3.3}TAS-Odometry}{14}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}hector\_mapping}{14}{subsection.3.3.1}
+\contentsline {section}{\numberline {3.4}Transformations}{15}{section.3.4}
+\contentsline {section}{\numberline {3.5}Navigation}{16}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}map\_server}{17}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}amcl}{17}{subsection.3.5.2}
+\contentsline {subsection}{\numberline {3.5.3}move\_base}{18}{subsection.3.5.3}
+\contentsline {subsection}{\numberline {3.5.4}tas\_autonomous\_control}{18}{subsection.3.5.4}
+\contentsline {chapter}{\numberline {4}Additional topics}{19}{chapter.4}
+\contentsline {section}{\numberline {4.1}Shell scripts}{19}{section.4.1}
+\contentsline {section}{\numberline {4.2}External RVIZ}{19}{section.4.2}
+\contentsline {section}{\numberline {4.3}VNC}{19}{section.4.3}
+\contentsline {section}{\numberline {4.4}Recording and playing data}{19}{section.4.4}
+\contentsline {section}{\numberline {4.5}Integrated Development Environments (IDE's)}{19}{section.4.5}
+\contentsline {section}{\numberline {4.6}Version control with git}{19}{section.4.6}
+\contentsline {section}{\numberline {4.7}Arduino code}{19}{section.4.7}
+\contentsline {section}{\numberline {4.8}Switching remote controller}{19}{section.4.8}
+\contentsline {chapter}{\nonumberline Bibliography}{20}{appendix*.21}

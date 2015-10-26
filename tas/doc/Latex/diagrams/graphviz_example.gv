@@ -1,0 +1,33 @@
+digraph G {
+/* Node main initialisieren und */
+/* Attribute für ihn setzen     */ 
+ tas_car [shape=box]
+
+ wii_control [shape=box]
+ simple_navigation_goals [shape=box]
+ tas_autonomous_control [shape=box]
+ tas_odom [shape=box]
+ tas [shape=box]
+
+ launch [shape=box, color = red]
+ shell_scripts [shape=box, color = red]
+
+ config [shape=box, color = red]
+ tas [shape=box]
+ 
+ tas_car -> wii_control
+ tas_car -> simple_navigation_goals
+ tas_car -> tas_autonomous_control
+ tas_car -> tas_odom
+ tas_car -> tas
+
+ tas -> launch 
+ tas -> shell_scripts
+
+ launch -> config
+
+
+
+
+ 
+}

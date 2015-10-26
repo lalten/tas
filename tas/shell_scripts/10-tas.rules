@@ -1,0 +1,3 @@
+KERNEL=="ttyACM[0-9]*", ACTION=="add", ATTRS{idVendor}=="15d1", ATTRS{bMaxPower}=="100mA", MODE="0666", GROUP="dialout", SYMLINK+="hokuyo_front"
+KERNEL=="ttyACM[0-9]*", ACTION=="add", ATTRS{idVendor}=="15d1", ATTRS{bMaxPower}=="500mA", MODE="0666", GROUP="dialout", SYMLINK+="hokuyo_back"
+SUBSYSTEM=="tty", ATTRS{manufacturer}=="Arduino*" , MODE="0666", GROUP="dialout", SYMLINK+="arduino"

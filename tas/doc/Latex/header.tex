@@ -1,0 +1,136 @@
+%====================================================================================================================
+% Headerdatei für einen Bericht
+%====================================================================================================================
+
+%====================================================================================================================
+% Die KOMA-Skript Dokumentklasse "scrreprt" verwenden
+
+\documentclass[
+		english,
+		% eine der beiden folgenden Optionen auswählen:
+		final,				% hiermit wird die endgültige Fassung des Dokuments erstellt
+%		draft,				% hiermit wird eine Rohfassung erstellt, 
+									% in der die Bilder nur als Rahmen erscheinen und schwarze Balken neben
+									% übervolle Boxen gezeichnet werden
+		pdftex,				% automatische PDF-Verlinkung, bessere Bildereinbindung
+		12pt,					% Standardschriftgröße
+		fleqn,				% Formeln linksbündig
+		a4paper,			% DIN-A4-Papier
+		titlepage,		% extra Titelseite verwenden
+		numbers=noenddot, % Überschriften ohne Punkt (nach DIN eigentlich mat, wenn auch Buchstaben verwendet werden)
+		bibliography=totoc			% Literaturverzeichnis im Inhaltsverzeichnis
+		%chapterprefix	% "Kapitel x" zusätzlich
+]{scrreprt}
+\pdfoptionpdfminorversion=5 % akzeptiere auch Bilder in PDF Version 1.5
+
+%====================================================================================================================
+% Pakete laden
+
+% Seitenränder und Kopf-/Fußzeilen einstellen
+\usepackage[a4paper,
+	headsep=0.5cm,
+	footskip=0.8cm,
+	left=3.5cm, right=2.5cm,
+	top=2.5cm, bottom=2.0cm]{geometry}
+% TEST: Blattgeometrie auf der ersten Seite anzeigen
+%\geometry{showframe}
+
+% Intelligente Verweise (mit automatischer Ergänzung von "auf Seite XX")
+% Achtung, nicht nach hyperref laden!!!
+% wird aktiviert, falls \vref statt \ref benutzt wird
+\usepackage{varioref}
+
+% Kopf- und Fußzeilen verändern
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% Kopfzeile: Lehrstuhlsschriftzug links, Logo rechts
+\lhead{\sffamily{\Large Lehrstuhl für Steuerungs- und Regelungstechnik\\ \small Technische Universität München}}
+\rhead{\includegraphics[height=1.25cm]{pics/lsr_logo.png}}
+\setlength{\headheight}{40pt}
+% erhöhten Platz für Kopfzeile berücksichtigen
+\addtolength{\textheight}{12pt}         % alte Höhe dazu
+\addtolength{\textheight}{-\headheight} % und neue wieder abziehen
+
+% Folgende Befehle einkommentieren, um Absätze durch Abstände zu trennen
+% Werden sie auskommentiert, so beginnt jeder Absatz mit einem Erstzeileneinzug
+% Einzug bei Absatzbeginn
+\parindent=0cm
+% Abstand zwischen Absätzen (hier gleich Zeilenabstand)
+\parskip=\baselineskip
+
+% Deutsche Trennungen, Anführungsstriche und mehr:
+\usepackage[german english]{babel}
+%\usepackage{english}
+
+% Umlaute direkt eingeben (ä,ö,ü)
+% Auf Linuxsystemen hier eher utf-8 statt latin1
+\usepackage[utf8]{inputenc}
+
+% intern: â gleich als ganzes Zeichen darstellen und nicht aus ^ und a zusammensetzen
+\usepackage[T1]{fontenc}
+
+% Zum Einbinden von Graphiken
+\usepackage{graphicx}
+\graphicspath{{pics/}}
+
+% Mathematische Symbole für
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Automatische Erstellung eines Symbolverzeichnisses
+% Dazu muss ein spezieller MakeIndex-Lauf nach jedem Erstellen erfolgen, 
+% siehe Dokumentation zu nomencl und nomentbl
+\usepackage[german]{nomentbl}
+\makenomenclature
+
+% Deutsche BiBTeX-Styles nach DIN 1505
+\usepackage{bibgerm}
+% \bibliographystyle{alphadin}          % alphabetische Kürzel
+\bibliographystyle{plaindin}				% numerische Kürzel
+
+% verlinktes Inhaltsverzeichnis, logische Seitenzahlen im PDF etc.
+\usepackage[
+	plainpages=false, 
+	pdfpagelabels, 
+	colorlinks=false, % true: Links werden farbig gedruckt (Bildschirm-Version) 
+	                  % false: Links werden schwarz gedruckt, haben aber bunte Box auf dem Bildschirm (Druckversion)
+	linkcolor=blue,   % Farbe für interne Links
+	final]
+	{hyperref}
+	
+% Pakete von Schölls Beispiel
+\usepackage{longtable}            % Für evtl. mehrseitige Tabellen
+\RequirePackage{array}
+\usepackage{dcolumn}              % in Tabellen an Dezimaltrennzeichen ausrichten
+\newcolumntype{.}[1]{D{.}{.}{-1}} % neuer Spaltentyp: .{} richtet am Dezimalpunkt zentriert aus
+\newcolumntype{d}[1]{D{.}{.}{#1}} % neuer Spaltentyp: d{x} richtet am Dezimalpunkt mit x Nachkommastellen aus
+
+\usepackage{subfig}               % Für mehrteilige Abbildungen
+\usepackage{textcomp}             % Für diverse Sonderzeichen, u.a. \textdegree für Gradzeichen
+\usepackage{booktabs}             % Für schicke Linien in z.B. Tabellen
+\usepackage[subfigure]{tocloft}   % Erstellen eigener Verzeichnisse, benötigt für das TODO-Makro
+\usepackage{ifthen}               % Entscheidungen im Quellcode
+\usepackage{color}                % in Farbe uund buuuunt!
+
+% Korrektes Setzen von Maßeinheiten, Zahlen u. a.
+\usepackage[per-mode=symbol]{siunitx}
+
+% Ein paar Einstellungen für das zu produzierende PDF
+\hypersetup{
+  pdfproducer={\pdftexbanner},
+  bookmarksnumbered=true,
+  bookmarksopen=false,
+}
+
+\usepackage{listings}
+\usepackage[font={small,color=black}, labelfont=bf,figurename=Abb.]{caption} 
+\usepackage{pxfonts}
+
+\usepackage{pgfplots}
+\usepackage{filecontents}
+\usepackage[miktex]{gnuplottex}
+
+\usepackage{wrapfig}
+
+
+\newcommand{\shellcmd}[1]{\indent\indent\texttt{\scriptsize\# #1}}

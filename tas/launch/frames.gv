@@ -1,0 +1,6 @@
+digraph G {
+"base_link" -> "base_imu"[label="Broadcaster: /base_link_to_imu\nAverage rate: 25.133 Hz\nMost recent transform: 1411380135.819 \nBuffer length: 4.894 sec\n"];
+"odom" -> "base_link"[label="Broadcaster: /tas_odom\nAverage rate: 50.203 Hz\nMost recent transform: 1411380135.810 \nBuffer length: 4.920 sec\n"];
+"map" -> "odom"[label="Broadcaster: /amcl\nAverage rate: 10.229 Hz\nMost recent transform: 1411380135.942 \nBuffer length: 4.790 sec\n"];
+"base_link" -> "laser"[label="Broadcaster: /base_link_to_laser\nAverage rate: 25.134 Hz\nMost recent transform: 1411380135.832 \nBuffer length: 4.894 sec\n"];
+}

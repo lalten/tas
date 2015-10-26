@@ -1,0 +1,39 @@
+\BOOKMARK [1][-]{toc.1}{Table of contents}{}% 1
+\BOOKMARK [0][-]{chapter.1}{1 Overview}{}% 2
+\BOOKMARK [1][-]{section.1.1}{1.1 Hardware}{chapter.1}% 3
+\BOOKMARK [2][-]{subsection.1.1.1}{1.1.1 Motors and controllers}{section.1.1}% 4
+\BOOKMARK [2][-]{subsection.1.1.2}{1.1.2 Arduino board}{section.1.1}% 5
+\BOOKMARK [2][-]{subsection.1.1.3}{1.1.3 Linux-Board}{section.1.1}% 6
+\BOOKMARK [2][-]{subsection.1.1.4}{1.1.4 Laserscanner}{section.1.1}% 7
+\BOOKMARK [2][-]{subsection.1.1.5}{1.1.5 Inertial measurement unit \(IMU\)}{section.1.1}% 8
+\BOOKMARK [1][-]{section.1.2}{1.2 Software}{chapter.1}% 9
+\BOOKMARK [0][-]{chapter.2}{2 Set up the hardware}{}% 10
+\BOOKMARK [1][-]{section.2.1}{2.1 Power from external power source}{chapter.2}% 11
+\BOOKMARK [1][-]{section.2.2}{2.2 Power from battery}{chapter.2}% 12
+\BOOKMARK [0][-]{chapter.3}{3 The TAS-package}{}% 13
+\BOOKMARK [1][-]{section.3.1}{3.1 Installing the TAS-package}{chapter.3}% 14
+\BOOKMARK [1][-]{section.3.2}{3.2 Hardware drivers}{chapter.3}% 15
+\BOOKMARK [2][-]{subsection.3.2.1}{3.2.1 wiimote}{section.3.2}% 16
+\BOOKMARK [2][-]{subsection.3.2.2}{3.2.2 wii\137control}{section.3.2}% 17
+\BOOKMARK [2][-]{subsection.3.2.3}{3.2.3 rosserial\137python}{section.3.2}% 18
+\BOOKMARK [2][-]{subsection.3.2.4}{3.2.4 hokuyo\137node}{section.3.2}% 19
+\BOOKMARK [2][-]{subsection.3.2.5}{3.2.5 xsens\137driver}{section.3.2}% 20
+\BOOKMARK [1][-]{section.3.3}{3.3 TAS-Odometry}{chapter.3}% 21
+\BOOKMARK [2][-]{subsection.3.3.1}{3.3.1 hector\137mapping}{section.3.3}% 22
+\BOOKMARK [1][-]{section.3.4}{3.4 Transformations}{chapter.3}% 23
+\BOOKMARK [1][-]{section.3.5}{3.5 Navigation}{chapter.3}% 24
+\BOOKMARK [2][-]{subsection.3.5.1}{3.5.1 map\137server}{section.3.5}% 25
+\BOOKMARK [2][-]{subsection.3.5.2}{3.5.2 amcl}{section.3.5}% 26
+\BOOKMARK [2][-]{subsection.3.5.3}{3.5.3 move\137base}{section.3.5}% 27
+\BOOKMARK [2][-]{subsection.3.5.4}{3.5.4 tas\137autonomous\137control}{section.3.5}% 28
+\BOOKMARK [0][-]{chapter.4}{4 Additional topics}{}% 29
+\BOOKMARK [1][-]{section.4.1}{4.1 Shell scripts}{chapter.4}% 30
+\BOOKMARK [1][-]{section.4.2}{4.2 External RVIZ}{chapter.4}% 31
+\BOOKMARK [1][-]{section.4.3}{4.3 VNC}{chapter.4}% 32
+\BOOKMARK [1][-]{section.4.4}{4.4 Recording and playing data}{chapter.4}% 33
+\BOOKMARK [1][-]{section.4.5}{4.5 Integrated Development Environments \(IDE's\)}{chapter.4}% 34
+\BOOKMARK [1][-]{section.4.6}{4.6 Version control with git}{chapter.4}% 35
+\BOOKMARK [1][-]{section.4.7}{4.7 Arduino code}{chapter.4}% 36
+\BOOKMARK [1][-]{section.4.8}{4.8 Switching remote controller}{chapter.4}% 37
+\BOOKMARK [0][-]{appendix*.21}{Bibliography}{}% 38
+\BOOKMARK [0][-]{tod.0}{To Do:}{}% 39

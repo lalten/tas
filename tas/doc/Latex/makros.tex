@@ -1,0 +1,40 @@
+%========================================================================================================
+% Eigene Befehle
+
+% Mathematische Schreibweisen
+% Vektoren: fettgedruckt (auskommentieren, um Vektoren mit Pfeil zu erhalten)
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+% Matrizen: auch fettgedruckt
+\newcommand{\mat}[1]{\boldsymbol{#1}}
+% partielle Ableitung
+\newcommand{\partder}[2]{\frac{\partial #1}{\partial #2}} 
+% Brüche mit schrägem Bruchstrich
+\newcommand{\nfrac}[2]{
+  \leavevmode\kern.1em%
+  \raise.5ex\hbox{\scriptsize #1}%
+  \kern-.1em/\kern-.15em%
+  \lower.25ex\hbox{\scriptsize #2}
+}
+
+% Todo-Anmerkungen machen und auflisten
+\newcommand{\todolistname}{To Do:}
+\newlistof{todo}{todo}{\todolistname}
+\newcommand{\todo}[1] {%
+  \refstepcounter{todo}
+  \textbf{\color{red} TODO: #1!}
+  \addcontentsline{todo}{todo}{#1}\par}
+
+% Verweise auf Gleichungen, Abbildungen, Kapitel
+% mit ref
+\newcommand{\refeq}[1]{~\ref{eq:#1}}
+\newcommand{\reffig}[1]{~\ref{fig:#1}}
+\newcommand{\refsec}[1]{~\ref{sec:#1}}
+\newcommand{\reftab}[1]{~\ref{tab:#1}}
+% und vref
+\newcommand{\vrefeq}[1]{~\vref{eq:#1}}
+\newcommand{\vreffig}[1]{~\vref{fig:#1}}
+\newcommand{\vrefsec}[1]{~\vref{sec:#1}}
+\newcommand{\vreftab}[1]{~\vref{tab:#1}}
+
+% nichttrennender Bindestrich
+\newcommand{\ntb}{\nobreakdash-\hspace{0pt}}

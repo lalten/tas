@@ -1,0 +1,34 @@
+# move_base parameter file
+
+
+TrajectoryPlannerROS:
+  #Independent settings for the local costmap
+  transform_tolerance: 0.3
+  sim_time: 5.0
+  sim_granularity: 0.25 #0.25
+  sim_angular_granularity: 0.01 #0.025
+  dwa: true
+  vx_samples: 5
+  vtheta_samples: 20 
+  max_vel_x: 3.0
+  min_vel_x: 0.1
+  max_rotational_vel: 2.0
+  min_in_place_rotational_vel: 0.0
+  xy_goal_tolerance: 0.5 #0.5
+  yaw_goal_tolerance: 1.5
+  goal_distance_bias: 0.8 #0.2
+  path_distance_bias: 1.5 #0.8
+  occdist_scale: 0.1
+  heading_lookahead: 0.325
+  oscillation_reset_dist: 0.05 #0.05
+  holonomic_robot: false
+  acc_lim_th: 2.5 #3.2
+  acc_lim_x: 2.5 #2.5
+  acc_lim_y: 2.5 #2.5
+  escape_vel: -1.0
+  heading_scoring: true
+  heading_scoring_timestep: 0.8
+  holonomic_robot: false
+  simple_attractor: false
+  publish_cost_grid_pc: true
+

@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+
+<launch>
+  <master auto="start"/>
+  <param name="/use_sim_time" value="false"/>
+  
+  <!-- Run map server  -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find tas)/launch/config/map_server/LSR_3.yaml"/>
+
+   <!-- Run AMCL -->
+  <node pkg="amcl" type="amcl" name="amcl" respawn="true">
+
+	  <!-- ROS framework parameters -->
+	  <param name="odom_frame_id" value="odom"/>
+	  <param name="base_frame_id" value="base_link"/>
+	  <param name="global_frame_id" value="map"/>
+
+	  <!-- Parameters for initial pose-->
+	  <param name="initial_pose_x" value="12.00"/>
+	  <param name="initial_pose_y" value="19.00"/>
+	  <param name="initial_pose_a" value="4.5"/>
+	  <param name="initial_cov_xx" value="10"/>
+	  <param name="initial_cov_yy" value="10"/>
+	  <param name="initial_cov_aa" value="10"/>
+
+
+	  <!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+	  <!-- :::::::::::::::::::: amcl parameters: ::::::::::::::::::-->
+	  <!-- ::: most are default values / non-default are marked :::-->
+	  <!-- :::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+
+	  <!-- Filter parameters-->
+	  <param name="min_particles" value="300"/>	<!-- changed -->
+	  <param name="max_particles" value="5000"/>
+	  <param name="kld_err" value="0.01"/>
+	  <param name="kld_z" value="0.99"/>
+	  <param name="update_min_d" value="0.2"/>
+	  <param name="update_min_a" value="0.5"/>
+	  <param name="resample_interval" value="2"/>
+	  <param name="transform_tolerance" value="0.1"/>
+	  <param name="recovery_alpha_slow" value="0.0"/>
+	  <param name="recovery_alpha_fast" value="0.0"/>
+	  <param name="gui_publish_rate" value="10.0"/> <!-- changed -->
+
+	  <!-- Laser model parameters-->
+	  <param name="laser_min_range" value="0.01"/>	<!-- changed -->
+	  <param name="laser_max_range" value="10.0"/> 	<!-- changed -->
+	  <param name="laser_max_beams" value="30"/>
+	  <param name="laser_z_hit" value="0.95"/>
+	  <param name="laser_z_short" value="0.1"/>
+	  <param name="laser_z_max" value="0.05"/>
+	  <param name="laser_z_rand" value="0.05"/>
+	  <param name="laser_sigma_hit" value="0.2"/>
+	  <param name="laser_lambda_short" value="0.1"/>
+	  <param name="laser_likelihood_max_dist" value="2.0"/>
+	  <param name="laser_model_type" value="likelihood_field"/>
+
+	  <!-- Odometry model parameters-->
+	  <param name="odom_model_type" value="diff"/>
+	  <param name="odom_alpha1" value="1.0"/>
+	  <param name="odom_alpha2" value="0.2"/>
+	  <param name="odom_alpha3" value="1.0"/>
+	  <param name="odom_alpha4" value="0.5"/>
+
+
+
+
+  </node>
+
+  <!-- Original Move Base-->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
+    <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find tas)/launch/config/move_base/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find tas)/launch/config/move_base/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find tas)/launch/config/move_base/base_local_planner_params.yaml" command="load" />
+  </node>
+
+  <!-- Run trajectory control -->
+  <node pkg = "tas_autonomous_control" type="tas_autonomous_control_node" name="tas_autonomous_control_node" output="screen"/>
+
+  <!-- Run rviz -->
+  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find rc_car_drift)/rviz_config.vcg">
+</node-->
+
+
+</launch>

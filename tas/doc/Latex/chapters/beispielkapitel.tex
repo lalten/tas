@@ -1,0 +1,164 @@
+%
+% Beispielkapitel: Bedienung dieser Vorlage
+%
+
+% Zum Setzen von TeX-Quellcode, der nicht interpretiert werden soll
+\newcommand{\makro}[1]{\texttt{\textbackslash{}#1\{\}}}
+
+\chapter{Unser erstes Beispiel}
+\label{sec:Beispiel}
+
+Dies ist das erste Beispiel-Kapitel, in dem einige grundlegende Funktionen dieser \LaTeX{}-Vorlage erklärt werden.
+In der richtigen Arbeit beginnt hier der eigentliche Bericht.
+
+%=========================================================================================
+\section{Struktur}
+%=========================================================================================
+\label{sec:Struktur}
+
+In diesem Absatz steht nicht so viel, aber immerhin besteht er aus mehreren Sätzen.
+Es ist günstig, im Quellcode nach jedem Satz einen Zeilenumbruch zu setzen.
+
+Im Haupttext erscheint ein Zeilenumbruch erst, wenn im Quelltext eine Leerzeile auftritt.
+
+Jedes Kapitel sollte eine eigene Quellcode-Datei erhalten, die sich im Ka\-pi\-tel-Un\-ter\-ver\-zeich\-nis befindet.
+Diese Dateien werden in der Hauptdatei \texttt{bericht.tex} mit dem \makro{include}-Befehl eingebunden.
+Es bietet sich an, sections und subsections im Quellcode durch Kommentarzeilen hervorzuheben.
+
+%=========================================================================================
+\subsection{Test einer strukturierten Gliederung}
+\label{sec:GliederungsTest}
+Hier gehts in eine Ebene tiefer weiter. 
+Im Rahmen einer Studien- oder Diplomarbeit sollten normalerweise die ersten drei Gliederungsebenen vorkommen (\makro{chapter}, \makro{section} und \makro{subsection}).
+
+%=========================================================================================
+\section{TODO-Liste}
+%=========================================================================================
+Wenn man mit irgendetwas nicht fertig geworden ist, kann man sich mit dem \makro{todo}-Makro eine Anmerkung machen.
+Diese Anmerkungen werden am Ende des Dokumentes aufgelistet, sofern es noch welche gibt.
+\todo{Noch mehr schreiben}
+
+%=========================================================================================
+\section{Verlinkungstest}
+%=========================================================================================
+\label{sec:Verlinkungstest}
+
+Hier prüfen wir die Verlinkung, z.\,B. zum \refsec{GliederungsTest}.
+Vorausgesetzt, alle Kapitellabel beginnen ordentlich mit \texttt{sec:}, kann man das \makro{refsec}-Makro benutzen und braucht nicht jedes Mal Kapitel zu schreiben.
+Labels werden übrigens nicht automatisch erstellt, das muss man von Hand machen.
+Nicht vergessen, dass ein Dokument zweimal erstellt werden muss, um die Verlinkung
+ordentlich hinzukriegen!
+
+%=========================================================================================
+\section{Gleichungen}
+%=========================================================================================
+Gleichungen werden mit der \texttt{equation}-Umgebung erstellt.
+Dann werden sie auch direkt ordentlich numeriert, wie z.\,B. \refeq{Fundamentalgleichung}
+Für mehrere gestaffelte Gleichungen gibt es die \texttt{align}-Umgebung.
+Die doppelten Dollarzeichen \$\$ sollten vermieden werden.
+\begin{equation}
+	e^{i \pi} + 1 = 0
+	\label{eq:Fundamentalgleichung}
+\end{equation}
+\nomenclature[Ae]{$e$}{Eulersche Zahl}{--}{skalar}
+\nomenclature[G]{$\pi$}{Kreiszahl}{--}{skalar}
+\nomenclature[X]{$k$}{Zeitschritt}{--}{skalar} %ok, kommt in der Gleichung nicht vor, nur zur Demo
+
+Matrizen und Vektoren sollten mit den zugehörigen \makro{vec}- und \makro{mat}-Makros (definiert in \texttt{makros.tex}) gekennzeichnet werden, um die Schreibweise zentral anpassen zu können.
+Matrizen sollten Großbuchstaben, Vektoren Kleinbuchstaben als Symbole erhalten.
+\begin{equation}
+	\mat{A} \vec{x} = \vec{b}
+	\label{eq:LGS}
+\end{equation}
+\nomenclature[AA]{$\mat{A}$}{Systemmatrix}{div.}{$4 \times 4$}
+\nomenclature[Ax]{$\vec{x}$}{Vektor der Unbekannten}{div.}{$4 \times 1$}
+
+Es ist auch sinnvoll, sich in \texttt{makros.tex} Abkürzungen für häufig verwendete mathematische Schreibweisen, Symbole oder ähnliches zu definieren.
+Sollte eines dieser Symbole einmal geändert werden müssen, kann das dann zentral geschehen.
+
+Zahlen und Einheiten werden am besten mit der \texttt{siunitx}-Package gesetzt.
+Zahlen können so auch in Exponentenschreibweise eingegeben werden, z.\,B. 6.674e-11 = \num{6.674e-11}, Einheiten werden automatisch richtig und einheitlich gesetzt.
+Das geht sowohl im Fließtext ($g=\SI{9.81}{m/s^2}$), als auch in abgesetzten Gleichungen:
+\begin{equation}
+	g = \SI{9.81}{\metre\per\second\squared}
+	\label{eq:g}
+\end{equation}
+\nomenclature[Ag]{$g$}{Erdbeschleunigung}{\si{\metre\per\second\squared}}{skalar}
+
+Formelzeichen sollten direkt bei ihrer ersten Verwendung in einer Formel mit dem \texttt{\textbackslash{}nomenclature}-Befehl definiert werden.
+Sie erscheinen dann automatisch im Symbolverzeichnis.
+Das gilt auch für Aküs!
+\nomenclature[S]{Aküs}{Abkürzungen}{}{}
+
+Der \texttt{\textbackslash{}nomenclature}-Befehl erhält als erstes (optionales) Argument die Untergruppe (s.~\vreftab{nomenclArgumente}), dann das Formelzeichen, Beschreibung, Einheit und Dimension.
+Die Untergruppe kann um einen weiteren Buchstaben erweitert werden, der dann die (alphabetische) Reihenfolge in der Liste bestimmt.
+Das sieht im Quelltext dann etwa so aus:
+\begin{verbatim}
+\nomenclature[AA]{$\mat{A}$}{Systemmatrix}{div.}{$4 \times 4$}
+\end{verbatim}
+
+Nicht vergessen, dass der entsprechende makeindex-Befehl ausgeführt wird!
+Dazu in TeXnicCenter Ausgabe$\rightarrow$Ausgabeprofile definieren wählen, das Profil LaTeX => PDF kopieren nach LaTeX => PDF mit nomentbl und als Argument für makeindex \texttt{\%tm.nlo -s nomentbl.ist -o \%tm.nls} eingeben.
+Außerdem muss in den Projekteigenschaften der Haken bei \glqq{}Verwendet makeindex\grqq{} gesetzt sein.
+
+\begin{table}[htbp]
+	\centering
+		\begin{tabular}{ll}
+			\hline
+			A & Lateinische Buchstaben \\
+			G & Griechische Buchstaben \\
+			S & Abkürzungen \\
+			X & hochgestellte Indizes \\
+			Z & tiefgestellte Indizes \\
+			\hline
+		\end{tabular}
+	\caption{Argumente für die Untergruppe des \texttt{\textbackslash{}nomenclature}-Befehls}
+	\label{tab:nomenclArgumente}
+\end{table}
+
+%=========================================================================================
+\section{Tabellen und Abbildungen}
+%=========================================================================================
+\label{sec:TabellenUndAbbildungen}
+
+Hier gibt's ein Beispiel für schöne Tabellen und Bilder.
+Alle Tabellen und Bilder sollten unbedingt im Text referenziert werden, wie z.\,B. \vreffig{Waagenstiel1} hier!
+Bilder können als pdf, jpg oder png eingebunden werden.
+Die Dateien werden im Unterverzeichnis Bilder abgelegt.
+Für die Verlinkung gibt es auch entsprechende Makros, nämlich \makro{reffig} und \makro{reftab}.
+Gerade bei Abbildungen, die häufig auf andere Seiten rutschen, bietet sich auch die Variante \makro{vreffig} an, die ggf. noch einen Verweis anfügt, wo genau die Abbildung sich befindet. 
+Diese Variante gibt es natürlich auch für Kapitel, Gleichungen und Tabellen.
+
+Tabellen und Abbildungen werden auch automatisch ins entsprechende Verzeichnis aufgenommen.
+Gerade bei den Linien der Tabellen gilt übrigens, dass weniger oft mehr ist!
+Eine Linie drüber und eine drunter reicht oft aus, wie z.\,B. in  \vreftab{MagischesQuadrat}.
+Hat die Tabelle eine Überschrift, kann diese durch eine dritte Linie abgegrenzt werden.
+
+\begin{table}[htbp]
+	\centering	
+	\begin{tabular}{ccc} % eine Tabelle mit drei Spalten, in denen der Text jeweils zentriert ist
+		\hline 
+		8 & 1 & 6 \\
+  	3 & 5 & 7 \\
+  	4 & 9 & 2 \\
+		\hline
+	\end{tabular}
+	\caption{Magisches Quadrat} % Die Beschriftung der Tabelle
+	\label{tab:MagischesQuadrat}
+\end{table}
+
+\begin{figure}[htbp]
+	\centering
+		\includegraphics{Waagenstiel1}
+	\caption{Der Stiel der Windkanalwaage}
+	\label{fig:Waagenstiel1}
+\end{figure}
+
+%=========================================================================================
+\section{Literaturverweise}
+%=========================================================================================
+Literaturverweise werden zentral in einer Bibtex-Datei (hier heißt sie \texttt{literatur.bib}) gesammelt.
+Diese Datei kann bequem mit Tools wie etwa JabRef \cite{JabRefURL} verwaltet werden.
+Im Text werden die entsprechenden Referenzen mit dem \makro{cite}-Befehl eingesetzt, das Literaturverzeichnis wird dann automatisch erstellt.
+Werden Bücher oder sonstige längere Abhandlungen zitiert, so sollte auf die eigentliche Referenz auch eine Seiten- oder Kapitelangabe folgen, wie z.\,B. \cite{Oetiker2008}, Kap.~4.2.
+Mit dem \makro{nocite}-Befehl in der Datei \texttt{bericht.tex} können außerdem unzitierte Quellen hinzugefügt werden, wie es hier mit einer Reihe von \LaTeX{}-Anleitungen geschehen ist.

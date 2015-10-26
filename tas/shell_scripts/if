@@ -1,0 +1,20 @@
+#!/bin/sh
+
+#Check if file exists
+if [ -f /etc/udev/rules.d/10-tas.rules ]; then
+	echo "There is already an existing UDEV file. If you did not change this file on your own it is recommended to overwrite it..."
+	echo "Do you want to overwrite the existing file? (y/n)"
+	read overwrite_flag
+
+	if [ "$overwrite_flag" = "y" ]; then
+		sudo rm /etc/udev/rules.d/10-tas.rules
+		sudo cp $DIR/10-tas.rules /etc/udev/rules.d
+		echo "UDEV file overwritten..."
+	else
+		echo "UDEV file not changed..."
+	fi
+else
+	echo "sth else"
+	echo "$DIR"
+	sudo cp $DIR/10-tas.rules /etc/udev/rules.d
+fi

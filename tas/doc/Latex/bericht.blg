@@ -1,0 +1,30 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: bericht.aux
+The style file: plaindin.bst
+A level-1 auxiliary file: kapitel/titelseite.aux
+A level-1 auxiliary file: kapitel/thema.aux
+Database file #1: literatur.bib
+Warning--entry type for "FTDIArticle" isn't style-file defined
+--line 13 of file literatur.bib
+Warning--entry type for "mi_uart" isn't style-file defined
+--line 22 of file literatur.bib
+Warning--entry type for "osi" isn't style-file defined
+--line 32 of file literatur.bib
+Warning--entry type for "sfun" isn't style-file defined
+--line 51 of file literatur.bib
+Warning--entry type for "sfun_image" isn't style-file defined
+--line 61 of file literatur.bib
+Warning--entry type for "sfun_implementierung" isn't style-file defined
+--line 71 of file literatur.bib
+Warning--entry type for "sfun_callbacks" isn't style-file defined
+--line 81 of file literatur.bib
+Warning--entry type for "uartWiki" isn't style-file defined
+--line 116 of file literatur.bib
+Warning--entry type for "wiki2014" isn't style-file defined
+--line 126 of file literatur.bib
+Warning--entry type for "rs232_schnittstelle" isn't style-file defined
+--line 141 of file literatur.bib
+Warning--entry type for "usb" isn't style-file defined
+--line 150 of file literatur.bib
+Warning--to sort, need author or key in rs232_schnittstelle
+Warning--to sort, need author or key in usb
+(There were 13 warnings)
