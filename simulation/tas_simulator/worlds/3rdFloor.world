@@ -1,0 +1,836 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="default">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+<model name="3rdFloor">
+    <static>true</static>
+   <!--inner walls clockwise  -->
+   <!--wall at large labratory room -->
+    <link name="link1">
+      <pose>0 -0.1 1.4 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>9.65 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>9.65 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+     <link name="link2">
+      <pose>4.923 0.15 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.3 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.3 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+ <!--    <link name="link3">
+      <pose>5.025 0.2 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.4 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.4 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+      </link> -->
+    <!-- wall in the floor between labratory and first door-->
+    <link name="link4">
+      <pose>5.125 -0.3 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1.2 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>1.2 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    <!--first door -->   
+    <link name="link5">
+      <pose>4.9 -0.8 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.25 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.25 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link6">
+      <pose>4.875 -1.275 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.75 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.75 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link7">
+      <pose>4.9 -1.75 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.25 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.25 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <!-- wall till corner to the toilets-->
+    <link name="link8">
+      <pose>5.125 -3.75 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>4.2 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>4.2 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <!-- wall till small door-->
+   <link name="link9">
+      <pose>5.125 -9.575 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>3.35 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>3.35 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!-- this wall is the small door-->
+    <link name="link9.1">
+      <pose>5.85 -10.65 1.4 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1.25 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>1.45 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <!-- floor opposing to the large labratory-->
+    <link name="link10">
+      <pose>2.675 -11.15 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>4.7 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>4.7 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    
+     <link name="link11">
+      <pose>0.425 -10.925 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.25 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.25 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link12">
+      <pose>-2.1 -10.9 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>4.85 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>4.85 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link13">
+      <pose>-4.65 -11.25 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.9 0.25 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.9 0.25 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <!--wall with the entrance-->
+     <link name="link14">
+      <pose>-4.875 -5.75 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>11.9 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>11.9 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!-- parking box-->
+     <link name="link141">
+      <pose>-5.135 -1.2 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.32 0.23 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.32 0.23 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+     <link name="link142">
+      <pose>-5.135 -2.33 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.32 0.23 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.32 0.23 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    
+    <!--Außenmauern im Uhrzeigersinn unten beginnend -->
+    <!--longest wall in the model (opposing to large labratory room) -->
+    <link name="link15">
+      <pose>1.375 -13.35 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>17.5 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>17.5 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!--wall to the south actually should contain gap to other labratory room-->
+    <link name="link16">
+      <pose>-7.475 -5.825 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>15.25 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>15.25 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!--end of the floor -->
+     <link name="link17">
+      <pose>-6.1 1.7 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>2.55 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>2.55 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!-- labratory room-->
+    <link name="link18">
+      <pose>-4.925 5.05 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>6.5 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>6.5 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link19">
+      <pose>-0.525 8.2 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>8.6 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>8.6 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link20">
+      <pose>3.875 5.05 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>6.5 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>6.5 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!-- pillars-->
+    <link name="link201">
+      <pose>0 2.0 1.4 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.7 0.7 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.7 0.7 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    <link name="link202">
+      <pose>0 5.0 1.4 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.7 0.7 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>0.7 0.7 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+    
+     <link name="link21">
+      <pose>4.925 1.7 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>2.3 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>2.3 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+   
+     <link name="link22">
+      <pose>5.975 4.8 1.4  0 0 1.57079633	</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>6 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>6 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+     <!-- west end of the north floor-->
+    <link name="link23">
+      <pose>6.825 7.7 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1.5 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>1.5 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <!-- north wall-->
+     <link name="link24">
+      <pose>7.675 -2.1 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>19.8 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>19.8 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    
+    <link name="link25">
+      <pose>9.05 -11.9 1.4  0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>2.55 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>2.55 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+    <!-- north east floor ending-->
+    <link name="link24">
+      <pose>10.225 -12.725 1.4  0 0 1.57079633</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1.45 0.2 2.8</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <box>
+            <size>1.45 0.2 2.8</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://grey_wall/materials/scripts</uri>
+            <uri>model://grey_wall/materials/textures</uri>
+            <name>vrc/grey_wall</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+
+    
+  </model>
+  </world>
+</sdf>

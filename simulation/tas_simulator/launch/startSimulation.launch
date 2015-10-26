@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+	<master auto="start"/>
+	<param name="/use_sim_time" value="true"/>
+	<arg name="use_joy" default="false"/>
+
+	<!-- floor 
+	<include file="$(find tas_simulator)/launch/spawnFloor.launch"/>-->
+	<!-- car -->
+	<group >
+		<include file="$(find ackermann_vehicle_gazebo)/launch/ackermann_vehicle.launch">
+			<arg name="world_name" value="$(find tas_simulator)/worlds/3rdFloor.world"/>
+			<arg name="y" value="1.0"/>
+			<arg name="x" value="6.5"/>
+			<arg name="yaw" value="3.2"/>
+		</include>
+		<remap from="/ackermann_vehicle/imu" to="/imu"/>
+		<remap from="/ackermann_vehicle/hokuyo_front" to="/scan"/>
+	</group>
+	<!-- joystick -->
+	<group if="$(arg use_joy)">
+		<include file="$(find tas_simulator)/launch/joystick.launch"/>
+	</group>
+	<!-- cmd_vel ackermann_msg conversion -->
+	<include file="$(find cmd_vel_ackermann_bridge)/launch/cmd_vel_ackermann_bridge.launch"/>		
+	<!--rviz -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find tas_simulator)/launch/rviz.rviz" />
+</launch>
