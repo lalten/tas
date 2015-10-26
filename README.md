@@ -5,12 +5,14 @@ Basic setup for the TAS stack
 This repository has two branches: master and simulation.	
 	1. Branch "master": for working on the real car
 	2. Branch "simulation": for working on gazebo simulation
-##=================================================================
+
+=================================================================
 
 1. Branch "master":
 	- Please follow the instruction on Moodle for better understanding about the package
 	- This branch is only used for real car. It will not work on your own machine
-##=================================================================
+
+=================================================================
 2. Branch "simulation":
 	- Provide a gazebo simulation model based on ackermann_vehicle package on ROS
 	- Please follow the instructions in INSTALL.md to install all necessary packages
