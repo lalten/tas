@@ -23,6 +23,7 @@
 	</group>
 	<!-- cmd_vel ackermann_msg conversion -->
 	<include file="$(find cmd_vel_ackermann_bridge)/launch/cmd_vel_ackermann_bridge.launch"/>		
+
 	<!--rviz -->
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find tas_simulator)/launch/rviz.rviz" />
+	<!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find tas_simulator)/launch/rviz.rviz" />-->
 </launch>
