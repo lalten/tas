@@ -7,13 +7,17 @@ int main(int argc, char** argv)
 
     ros::Rate loop_rate(50);
 
+    int controlModeLast = autonomous_control.control_Mode.data;
+
     while(ros::ok())
     {
-        if(autonomous_control.control_Mode.data==0)
+        if(controlModeLast != 0 && autonomous_control.control_Mode.data==0)
         {
-            ROS_INFO("Manually Control!");
+        	controlModeLast = autonomous_control.control_Mode.data;
+            ROS_INFO("Switching to manual control mode");
         }
-        else
+
+        if(autonomous_control.control_Mode.data != 0)
         {
             if(autonomous_control.control_Brake.data==1)
             {
@@ -22,7 +26,11 @@ int main(int argc, char** argv)
             }
             else
             {
-                ROS_INFO("Automatic Control!");
+                if(controlModeLast == 0)
+				{
+                    ROS_INFO("Switching to automatic control mode");
+                	controlModeLast = autonomous_control.control_Mode.data;
+				}
                 if(autonomous_control.cmd_linearVelocity>0)
                 {
                     autonomous_control.control_servo.x = 1550;
@@ -42,6 +50,8 @@ int main(int argc, char** argv)
             autonomous_control.control_servo_pub_.publish(autonomous_control.control_servo);
 
         }
+
+
 
         ros::spinOnce();
         loop_rate.sleep();
