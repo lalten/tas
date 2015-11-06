@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 project(cmd_vel_ackermann_bridge)
 find_package(catkin REQUIRED COMPONENTS roscpp roslib nav_msgs std_msgs geometry_msgs ackermann_msgs message_generation)
 
+set(ROS_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
+
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
