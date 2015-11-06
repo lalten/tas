@@ -15,6 +15,8 @@
 	  <param name="base_frame_id" value="base_link"/>
 	  <param name="global_frame_id" value="map"/>
 
+	  <param name="use_map_topic" value="true"/> <!-- subscribe to the map topic rather than making a service call to static_map -->
+
 	  <!-- Parameters for initial pose-->
 	  <param name="initial_pose_x" value="12.00"/>
 	  <param name="initial_pose_y" value="19.00"/>
@@ -57,10 +59,10 @@
 
 	  <!-- Odometry model parameters-->
 	  <param name="odom_model_type" value="diff"/>
-	  <param name="odom_alpha1" value="1.0"/>
-	  <param name="odom_alpha2" value="0.2"/>
-	  <param name="odom_alpha3" value="1.0"/>
-	  <param name="odom_alpha4" value="0.5"/>
+	  <param name="odom_alpha1" value="1.0"/> <!-- expected noise in odometry's rotation estimate from the rotational component -->
+	  <param name="odom_alpha2" value="0.2"/> <!-- expected noise in odometry's rotation estimate from translational component -->
+	  <param name="odom_alpha3" value="1.0"/> <!-- expected noise in odometry's translation estimate from the translational component -->
+	  <param name="odom_alpha4" value="0.5"/> <!-- expected noise in odometry's translation estimate from the rotational component -->
 
 
 
