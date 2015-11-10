@@ -5,10 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /RobotModel1/Links1
-        - /TF1
-        - /TF1/Status1
-        - /TF1/Tree1
+        - /TF1/Tree1/base_link1
+        - /TF1/Tree1/base_link1/chassis1
       Splitter Ratio: 0.718468
     Tree Height: 889
   - Class: rviz/Selection
@@ -29,7 +27,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -114,7 +112,7 @@ Visualization Manager:
       Collision Enabled: false
       Enabled: true
       Links:
-        All Links Enabled: false
+        All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
@@ -129,12 +127,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        hokuyo_back_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: false
-        hokuyo_front_link:
+        laser:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -216,10 +209,6 @@ Visualization Manager:
           Value: true
         chassis:
           Value: true
-        hokuyo_back_link:
-          Value: true
-        hokuyo_front_link:
-          Value: true
         laser:
           Value: true
         left_battery:
@@ -236,10 +225,6 @@ Visualization Manager:
           Value: true
         left_steering_link:
           Value: true
-        map:
-          Value: true
-        odom:
-          Value: true
         right_battery:
           Value: true
         right_battery_offset:
@@ -254,16 +239,36 @@ Visualization Manager:
           Value: true
         right_steering_link:
           Value: true
-        scanmatcher_frame:
-          Value: true
       Marker Scale: 0.5
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          {}
+        base_link:
+          chassis:
+            laser:
+              {}
+            left_battery_offset:
+              left_battery:
+                {}
+            left_rear_axle_carrier:
+              left_rear_wheel:
+                {}
+            left_steering_link:
+              left_front_axle_carrier:
+                left_front_wheel:
+                  {}
+            right_battery_offset:
+              right_battery:
+                {}
+            right_rear_axle_carrier:
+              right_rear_wheel:
+                {}
+            right_steering_link:
+              right_front_axle_carrier:
+                right_front_wheel:
+                  {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -409,22 +414,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 11.7563
+      Distance: 3.8582
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.00498044
-        Y: -0.79867
+        X: -0.0170199
+        Y: -0.815386
         Z: -9.53674e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.605203
+      Pitch: 0.585203
       Target Frame: base_link
       Value: ThirdPersonFollower (rviz)
-      Yaw: 3.70221
+      Yaw: 3.70721
     Saved: ~
 Window Geometry:
   Displays:
@@ -442,5 +447,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1983
-  X: 55
-  Y: -14
+  X: 98
+  Y: 36

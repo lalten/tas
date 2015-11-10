@@ -1,22 +1,24 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Start Navigation Stack -->
-  
+  <!-- <param name="/use_sim_time" value="true"/> -->
 
   <node pkg="tf" type="static_transform_publisher" name="odom_is_base" args="0 0 0  0 0 0 /odom /base_link 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="hokuyo_is_laser" args="0 0 0  0 0 0 /hokuyo_front_link /laser 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="scanmatch_is_laser" args="0 0 0  0 0 0 /laser /scanmatcher_frame 100"/>
+<!--     <node pkg="tf" type="static_transform_publisher" name="hokuyo_is_laser" args="0 0 0  0 0 0 /hokuyo_front_link /laser 100"/>
+    <node pkg="tf" type="static_transform_publisher" name="scanmatch_is_laser" args="0 0 0  0 0 0 /laser /scanmatcher_frame 100"/>
+  -->
   
   <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml"/>
   
   <node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
-    <param name="global_frame_id" value="map"/>
+    <!-- <remap from="scan" to="hokuyo_scan"/> -->
+    <!--<param name="global_frame_id" value="map"/>
     <param name="initial_pose_x" value="24.00"/>
     <param name="initial_pose_y" value="19.00"/>
     <param name="initial_pose_a" value="3"/>
     <param name="initial_cov_xx" value="10"/>
     <param name="initial_cov_yy" value="10"/>
-    <param name="initial_cov_aa" value="10"/>
+    <param name="initial_cov_aa" value="10"/>-->
   </node>
   
   <!--
