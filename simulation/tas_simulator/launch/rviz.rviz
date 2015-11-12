@@ -4,11 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /TF1
-        - /TF1/Status1
+        - /TF1/Frames1
       Splitter Ratio: 0.718468
-    Tree Height: 1123
+    Tree Height: 1165
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -27,7 +25,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -214,8 +212,6 @@ Visualization Manager:
           Value: true
         right_steering_link:
           Value: true
-        scanmatcher_frame:
-          Value: true
       Marker Scale: 0.5
       Name: TF
       Show Arrows: true
@@ -283,7 +279,7 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.3
       Head Radius: 0.1
-      Name: Pose
+      Name: CurrentGoal
       Shaft Length: 1
       Shaft Radius: 0.05
       Shape: Arrow
@@ -336,7 +332,7 @@ Visualization Manager:
       Class: rviz/PoseArray
       Color: 255; 25; 0
       Enabled: true
-      Name: PoseArray
+      Name: AMCL PoseArray
       Topic: /particlecloud
       Value: true
     - Alpha: 1
@@ -347,7 +343,7 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.3
       Head Radius: 0.1
-      Name: Pose
+      Name: MoveBase Goal
       Shaft Length: 1
       Shaft Radius: 0.05
       Shape: Arrow
@@ -358,7 +354,7 @@ Visualization Manager:
       Color Scheme: costmap
       Draw Behind: true
       Enabled: true
-      Name: Map
+      Name: CostMap
       Topic: /move_base_node/local_costmap/costmap
       Value: true
     - Alpha: 0.7
@@ -366,8 +362,50 @@ Visualization Manager:
       Color Scheme: map
       Draw Behind: false
       Enabled: true
-      Name: Map
+      Name: HectorMap
       Topic: /hector_map
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Line Style: Lines
+      Line Width: 0.03
+      Name: Plan
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Topic: /move_base_node/NavfnROS/plan
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Line Style: Lines
+      Line Width: 0.03
+      Name: GlobalPlan
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Topic: /move_base_node/TrajectoryPlannerROS/global_plan
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Line Style: Lines
+      Line Width: 0.03
+      Name: LocalPlan
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Topic: /move_base_node/TrajectoryPlannerROS/local_plan
       Value: true
   Enabled: true
   Global Options:
@@ -393,30 +431,30 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 12.3164
+      Distance: 27.0057
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0125771
-        Y: 0.0773536
-        Z: 0
+        X: 8.03485
+        Y: -0.46461
+        Z: 5.003e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.345204
+      Pitch: 1.3148
       Target Frame: base_link
       Value: ThirdPersonFollower (rviz)
-      Yaw: 3.80471
+      Yaw: 0.429125
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1362
+  Height: 1404
   Hide Left Dock: false
-  Hide Right Dock: true
-  QMainWindow State: 000000ff00000000fd0000000400000000000001ce00000503fc0200000008fb0000001200530065006c0065006300740069006f006e00000000280000008a0000006c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000002800000503000000ee00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c0000026100000001000001b200000503fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000002800000503000000ca00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007bf0000004cfc0100000002fb0000000800540069006d00650000000000000007bf0000042500fffffffb0000000800540069006d00650100000000000004500000000000000000000002330000050300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd0000000400000000000001ce0000052dfc0200000008fb0000001200530065006c0065006300740069006f006e00000000280000008a0000006c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000000280000052d000000ee00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c0000026100000001000001b20000052dfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000280000052d000000ca00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000007bf0000004cfc0100000002fb0000000800540069006d00650000000000000007bf0000042500fffffffb0000000800540069006d006501000000000000045000000000000000000000063a0000052d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -424,7 +462,7 @@ Window Geometry:
   Tool Properties:
     collapsed: false
   Views:
-    collapsed: true
-  Width: 1031
-  X: 1114
-  Y: 21
+    collapsed: false
+  Width: 2062
+  X: 83
+  Y: 190
