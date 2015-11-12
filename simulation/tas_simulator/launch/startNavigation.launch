@@ -18,9 +18,14 @@
       
   <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml"/>
   
-  <node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true"/>
-  <!--
-  -->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
+	  <param name="initial_pose_x" value="23.50"/>
+	  <param name="initial_pose_y" value="19.00"/>
+	  <param name="initial_pose_a" value="3.0"/>
+	  <param name="initial_cov_xx" value="3"/>
+	  <param name="initial_cov_yy" value="3"/>
+	  <param name="initial_cov_aa" value="0.5"/>
+  </node>
   
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
     <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
