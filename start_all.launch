@@ -1,0 +1,5 @@
+<launch>
+	<include file="$(find tas_simulator)/launch/startSimulation.launch"/>
+	<include file="$(find tas_simulator)/launch/startNavigation.launch"/>
+	<node name="simple_navigation_goals1" pkg="simple_navigation_goals" type="simple_navigation_goals_node" />
+</launch>
