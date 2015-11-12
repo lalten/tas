@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <launch>
 	<include file="$(find tas_simulator)/launch/startSimulation.launch"/>
 	<include file="$(find tas_simulator)/launch/startNavigation.launch"/>
