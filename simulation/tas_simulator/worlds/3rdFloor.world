@@ -832,5 +832,13 @@
 
     
   </model>
-  </world>
+  
+  <gui fullscreen='0'>
+    <camera name='user_camera'>
+    <pose>3.88277 -1.38672 32.7644 6e-06 1.5658 1.57625</pose>
+    <view_controller>orbit</view_controller>
+    </camera>
+  </gui>
+  
+  </world> 
 </sdf>
