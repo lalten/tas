@@ -12,6 +12,7 @@
     <remap from="/map" to="/hector_map"/>
     
     <param name="laser_max_dist" value="100" />
+    <param name="laser_min_dist" value="0.05" />
   </node>
   
   <!--
