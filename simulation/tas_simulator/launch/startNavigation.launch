@@ -10,6 +10,8 @@
     <param name="map_frame" value="odom"/> 
     <param name="odom_frame" value="base_link"/>
     <remap from="/map" to="/hector_map"/>
+    
+    <param name="laser_max_dist" value="100" />
   </node>
   
   <!--
