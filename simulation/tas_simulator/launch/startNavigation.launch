@@ -1,32 +1,19 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Start Navigation Stack -->
-
-  <!--
-  <param name="/use_sim_time" value="true"/>
-  -->
  
+
+  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen" args="0 0 0  0 0 0 map odom 100" />
+
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
-    <param name="map_frame" value="odom"/> 
+    <param name="map_frame" value="odom"/>
     <param name="odom_frame" value="base_link"/>
-    <remap from="/map" to="/hector_map"/>
-    
-    <param name="laser_max_dist" value="100" />
+    <param name="laser_max_dist" value="100"/>
   </node>
   
-  <!--
-  <node pkg="tas_odometry" type="perfect_odometry" name="perfect_odometry" output="screen" />
-  -->
       
-  <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml"/>
-  
-  <node pkg="amcl" type="amcl" name="amcl" output="screen" respawn="true">
-	  <param name="initial_pose_x" value="23.50"/>
-	  <param name="initial_pose_y" value="19.00"/>
-	  <param name="initial_pose_a" value="3.0"/>
-	  <param name="initial_cov_xx" value="3"/>
-	  <param name="initial_cov_yy" value="3"/>
-	  <param name="initial_cov_aa" value="0.5"/>
+  <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml">
+    <remap from="/map" to="/map_server_map"/>
   </node>
   
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
@@ -36,11 +23,5 @@
     <rosparam file="$(find tas)/launch/config/move_base/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find tas)/launch/config/move_base/base_local_planner_params.yaml" command="load" />
   </node>
-  <!--
-  -->
-  
-  <!--
-  <node pkg="tas_autonomous_control" type="tas_autonomous_control_node" name="tas_autonomous_control_node" output="screen"/>
-  -->
   
 </launch>
