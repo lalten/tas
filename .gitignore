@@ -1,3 +1,7 @@
+# Editor temp files
+*~
+*.swp
+
 # Latex stuff
 *.aux
 *.glo
