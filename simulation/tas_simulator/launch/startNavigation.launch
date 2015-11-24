@@ -10,6 +10,14 @@
     <param name="odom_frame" value="base_link"/>
     <param name="map_size" value="2048"/>
   </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="map_to_nav" output="screen" args="0 0 0  0 0 0 map nav 100" />
+
+  <node pkg="hector_pose_estimation" type="pose_estimation" name="h_pose_est_node"> 
+     <remap from="/imu" to="/hector_pose_estimation/imu"/>
+  </node>
+
+  <node pkg="message_to_tf" type="message_to_tf" name="message_to_tf1" args="/pose/"/>
   
       
   <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml">
