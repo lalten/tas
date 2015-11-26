@@ -52,8 +52,7 @@
 
   </node>
 
-  
-      
+
   <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml">
     <remap from="/map" to="/map_server_map"/>
   </node>
