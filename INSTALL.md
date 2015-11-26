@@ -8,6 +8,11 @@ ros-indigo-map-server \
 ros-indigo-amcl
 ```
 
+## EKF branch dependencies
+```
+sudo apt-get install \
+ros-indigo-robot-localization
+```
 
 ## Simulation dependencies 
 ```
