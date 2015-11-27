@@ -1,0 +1,9 @@
+<launch>
+
+  <node pkg="cmd_vel_ackermann_bridge" type="cmd_vel_ackermann_bridge_node" name="cmd_vel_ackermann_bridge_node" output="screen">
+    <param name="maxAngle" value="0.5"/>
+    <param name="vehicleLength" value="0.355"/>
+    <remap from="/cmd_vel_ackermann_bridge_node/ackermann_cmd" to="/ackermann_vehicle/ackermann_cmd"/>
+    <remap from="/cmd_vel_ackermann_bridge_node/cmd_vel" to="/cmd_vel"/>
+  </node>
+</launch>

@@ -1,0 +1,35 @@
+<package>
+  <name>cmd_vel_ackermann_bridge</name>
+  <version>0.0.1</version>
+  <description>acc</description>
+  <maintainer email="kastbernd@gmx.de">Bernd Kast</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://ros.org/wiki/listener</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <author>Bernd Kast</author>
+
+  <!-- Dependencies which this package needs to build itself. -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+  <build_depend>roscpp</build_depend>
+  <build_depend>roslib</build_depend>
+  <build_depend>ackermann_vehicle_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>ackermann_msgs</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>roscpp</run_depend>
+  <run_depend>roslib</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>ackermann_msgs</run_depend>
+</package>
