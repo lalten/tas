@@ -23,3 +23,11 @@ ros-indigo-controller-manager ros-indigo-ros-controllers ros-indigo-ros-control 
 ros-indigo-cob-gazebo-ros-control ros-indigo-hector-gazebo
 ```
 
+
+## Possibly also necessary?
+
+```
+sudo apt-get install \
+libsdl2-dev libsdl-image1.2-dev
+```
+
