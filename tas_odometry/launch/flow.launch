@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Start sensor interface -->
+  <node pkg="px4flow" type="px4flow_node" name="px4flow" output="screen" respawn="true" clear_params="true">
+        <param name="serial_port" value="/dev/serial/by-id/usb-3D_Robotics_PX4Flow_v1.3_000000000000-if00"/>
+  </node>
+
+  <!-- Display camera image -->
+  <node pkg="image_view" type="image_view" name="px4flow_image">
+    <remap from="image" to="/px4flow/camera_image"/>
+  </node>
+
+  <!-- transform sensor messages to twist message for ekf -->
+  <node pkg="tas_odometry" type="optflow_odometry" name="optflow_odometry" output="screen" respawn="true"/>
+
+</launch>
