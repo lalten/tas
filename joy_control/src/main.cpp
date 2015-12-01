@@ -1,3 +1,8 @@
+/*********************************
+ * Author:  Konrad Vowinckel    *
+ * Kennung: ga68jan             *
+ * ******************************/
+
 #include "joy_lib/joy_lib.h"
 
 int main(int argc, char **argv)

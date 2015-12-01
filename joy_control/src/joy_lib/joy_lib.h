@@ -1,6 +1,11 @@
 #ifndef JOY_LIB_H
 #define JOY_LIB_H
 
+/*********************************
+ * Author:  Konrad Vowinckel    *
+ * Kennung: ga68jan             *
+ * ******************************/
+
 #include "ros/ros.h"
 #include "sensor_msgs/Joy.h"
 #include <geometry_msgs/Vector3.h>

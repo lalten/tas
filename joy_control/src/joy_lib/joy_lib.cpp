@@ -1,3 +1,8 @@
+/*********************************
+ * Author:  Konrad Vowinckel    *
+ * Kennung: ga68jan             *
+ * ******************************/
+
 #include "joy_lib.h"
 
 joy_lib::joy_lib() {
