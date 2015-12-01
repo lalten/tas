@@ -14,7 +14,8 @@
   </node>
 
   <!-- Run wii control -->
-  <node pkg = "wii_control" type="wii_node" name="wii_control" output="screen"/>
+  <!-- <node pkg = "wii_control" type="wii_node" name="wii_control" output="screen"/> -->
+  <node pkg = "joy_control" type="joy_control" name="joy_control" output="screen"/>
 
  <!-- Run laserscanner at the front -->
   <node name="hokuyo_front" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
