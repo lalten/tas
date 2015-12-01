@@ -10,10 +10,16 @@ helper::helper()
     flag_newGoal = false;
 
     /* SETUP SECTIONS */
-    Sector s1("SECTOR 1",0.00,0.00,0.00,0.00,0.00,0.00,0.00);
+    //          ID         minX     maxX    minY        maxY        targetX     targetY     targetW
+    Sector s1("SECTOR 1",-11.0,     0.6,    -0.7,       1.7,       -10.0,       -1.7,       1.57);
+    Sector s2("SECTOR 2", -11.0,    -9.0,   -13.3,      -0.7,       -8.5,       -12.8,      3.14);
+    Sector s3("SECTOR 3", -9.0,     2.0,    -13.3,      -11.3,      1.0,        -10.0,      4.71);
+    Sector s4("SECTOR 4", 0.6,      2.0,    -11.3,      1.7,        0.0,        0.0,        0.0);
+
     m_allSectors.push_back(s1);
-
-
+    m_allSectors.push_back(s2);
+    m_allSectors.push_back(s3);
+    m_allSectors.push_back(s4);
 }
 
 helper::setCurrentWaypoints(float x, float y, float w, float z)
