@@ -1,10 +1,11 @@
 #include "joy_lib/joy_lib.h"
 
-
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "teleop_joy");
     joy_lib teleop_joy;
+
+    ros::Rate loop_rate(50);
 
     static int count = 0;
 
@@ -12,7 +13,8 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
-        teleop_joy.joy_communication_pub.publish(teleop_joy.joy_state);
+        ROS_INFO("Konrad Test");
+        teleop_joy.joy_communication_publisher.publish(teleop_joy.joy_state);
         ros::spinOnce();
         loop_rate.sleep();
     }
