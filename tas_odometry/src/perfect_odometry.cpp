@@ -1,6 +1,6 @@
 #include <tas_odometry/perfect_odometry.h>
 
-ros::Publisher odom_pub;
+ros::Publisher odom_publisher;
 tf::TransformBroadcaster* odom_broadcaster;
 std::string odom_frame;
 std::string base_frame;
@@ -40,7 +40,7 @@ void linkStateCallBack(const gazebo_msgs::LinkStates::ConstPtr& link_states) {
 	odom.twist.twist = link_states->twist[base_link_index];
 
 	//publish the message
-	odom_pub.publish(odom);
+	odom_publisher.publish(odom);
 }
 
 int main(int argc, char** argv) {
@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 
   //ROS_INFO("Perfect odometry: using %s as odom frame", odom_frame.c_str());
 
-	odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
+	odom_publisher = n.advertise<nav_msgs::Odometry>("odom", 50);
 
 	ros::Subscriber link_state_sub = n.subscribe(
 			"/ackermann_vehicle/gazebo/link_states", 1000, linkStateCallBack);

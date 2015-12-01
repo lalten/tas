@@ -4,11 +4,13 @@ project(tas_odometry)
 set(ROS_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Debug)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  px_comm
   gazebo_msgs
   nav_msgs
   roscpp
@@ -132,6 +134,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(perfect_odometry src/perfect_odometry.cpp)
+add_executable(optflow_odometry src/optflow_odometry.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -139,6 +142,10 @@ add_executable(perfect_odometry src/perfect_odometry.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(perfect_odometry
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(optflow_odometry
   ${catkin_LIBRARIES}
 )
 

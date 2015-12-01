@@ -2,7 +2,7 @@
 <package>
   <name>tas_odometry</name>
   <version>0.0.1</version>
-  <description>Provides nav_msgs/Odometry and TFs from Gazebo link states</description>
+  <description>Provides nav_msgs/Odometry and TFs for TAS</description>
   <maintainer email="ros@laure.nz">Laurenz</maintainer>
   <license>MIT</license>
   <buildtool_depend>catkin</buildtool_depend>
