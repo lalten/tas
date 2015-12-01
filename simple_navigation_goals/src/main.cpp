@@ -7,10 +7,12 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <move_base_msgs/MoveBaseActionResult.h>
 #include <actionlib/client/simple_action_client.h>
+#include "vettel/helper.h"
 
 using namespace std;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+helper *m_helper;
 
 /**
  * Callback function
@@ -29,26 +31,39 @@ void activeCb() {
 /**
  * Callback function, called every time feedback is received for the goal
  */
-void feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback) {
-    ROS_INFO("[X]:%f [Y]:%f [W]: %f [Z]: %f", feedback->base_position.pose.position.x,feedback->base_position.pose.position.y,feedback->base_position.pose.orientation.w, feedback->base_position.pose.orientation.z);
+void feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback)
+{
+    ROS_INFO("[X]:%f [Y]:%f [W]: %f [Z]: %f",
+             feedback->base_position.pose.position.x,
+             feedback->base_position.pose.position.y,
+             feedback->base_position.pose.orientation.w,
+             feedback->base_position.pose.orientation.z);
+
+    m_helper->setCurrentWaypoints(feedback->base_position.pose.position.x,
+                                  feedback->base_position.pose.position.y,
+                                  feedback->base_position.pose.orientation.w,
+                                  feedback->base_position.pose.orientation.z);
 }
 
 /**
  * Main function
  */
-int main(int argc, char** argv){
-    ros::init(argc, argv, "simple_navigation_goals"); // init and set name
-    std::vector<geometry_msgs::Pose> waypoints; // vector of goals, with position and orientation
+int main(int argc, char** argv)
+{
+    m_helper = new helper();
 
-    geometry_msgs::Pose waypoint1;
-    waypoint1.position.x = 10.50;
-    waypoint1.position.y = 11.0;
-    waypoint1.position.z = 0.000;
-    waypoint1.orientation.x = 0.000;
-    waypoint1.orientation.y = 0.000;
-    waypoint1.orientation.z = 0;
-    waypoint1.orientation.w = 1;
-    waypoints.push_back(waypoint1);
+    ros::init(argc, argv, "simple_navigation_goals"); // init and set name
+//    std::vector<geometry_msgs::Pose> waypoints; // vector of goals, with position and orientation
+
+//    geometry_msgs::Pose waypoint1;
+//    waypoint1.position.x = 10.50;
+//    waypoint1.position.y = 11.0;
+//    waypoint1.position.z = 0.000;
+//    waypoint1.orientation.x = 0.000;
+//    waypoint1.orientation.y = 0.000;
+//    waypoint1.orientation.z = 0;
+//    waypoint1.orientation.w = 1;
+//    waypoints.push_back(waypoint1);
 
 
 
@@ -62,18 +77,36 @@ int main(int argc, char** argv){
     move_base_msgs::MoveBaseGoal goal;
     goal.target_pose.header.frame_id = "map"; // set target pose frame of coordinates
 
-    for(int i = 0; i < waypoints.size(); ++i) { // loop over all goal points, point by point
+//    for(int i = 0; i < waypoints.size(); ++i) { // loop over all goal points, point by point
+//        goal.target_pose.header.stamp = ros::Time::now(); // set current time
+//        goal.target_pose.pose = waypoints.at(i);
+//        ROS_INFO("Sending goal");
+//        ac.sendGoal(goal, &doneCb, &activeCb, &feedbackCb); // send goal and register callback handler
+//        ac.waitForResult(); // wait for goal result
+
+//        if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+//            ROS_INFO("The base moved to %d goal", i);
+//        } else {
+//            ROS_INFO("The base failed to move to %d goal for some reason", i);
+//        }
+//    }
+
+
+
+    if (m_helper->flag_newGoal)
+    {
         goal.target_pose.header.stamp = ros::Time::now(); // set current time
-        goal.target_pose.pose = waypoints.at(i);
+        goal.target_pose.pose = m_helper->getNewGoal();
         ROS_INFO("Sending goal");
         ac.sendGoal(goal, &doneCb, &activeCb, &feedbackCb); // send goal and register callback handler
         ac.waitForResult(); // wait for goal result
-
-        if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-            ROS_INFO("The base moved to %d goal", i);
-        } else {
-            ROS_INFO("The base failed to move to %d goal for some reason", i);
-        }
     }
+
+    if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+        ROS_INFO("The base moved to %d goal", i);
+    } else {
+        ROS_INFO("The base failed to move to %d goal for some reason", i);
+    }
+
     return 0;
 }

@@ -103,7 +103,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(simple_navigation_goals_node src/main.cpp)
+add_executable(simple_navigation_goals_node src/main.cpp src/vettel/helper.cpp src/vettel/Sector.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
