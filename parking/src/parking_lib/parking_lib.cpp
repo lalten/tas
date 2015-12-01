@@ -3,7 +3,7 @@
 parking_lib::parking_lib() {
     //joy_servo_publisher = nh.advertise<geometry_msgs::Vector3>("servo",1);
     //joy_communication_publisher = nh.advertise<std_msgs::Int16MultiArray>("wii_communication",1);
-    parking_subscriber = ParkingNodeHandle.subscribe("/LaserScan", 100,&parking_lib::parkingStateCallback, this);
+    parking_subscriber = ParkingNodeHandle.subscribe("/scan_back", 100, &parking_lib::parkingStateCallback, this);
 
     //msgInit(joy_state);
 

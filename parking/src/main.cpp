@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
-        ROS_INFO("Parking Test");
+        ROS_INFO("Parking Test, spin once");
         //teleop_joy.joy_communication_publisher.publish(teleop_joy.joy_state);
         ros::spinOnce();
         loop_rate.sleep();
