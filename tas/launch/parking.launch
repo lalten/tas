@@ -7,14 +7,16 @@
   <!-- run serial connection -->
   <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py" args="/dev/arduino"/>
 
+ 
   <!-- run wii joystick-->
-  <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
+<!--  
+<node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
 	<remap from="imu/data" to="wii_imu/data"/>
 	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
-
+-->
   <!-- Run wii control -->
-  <node pkg = "wii_control" type="wii_node" name="wii_control" output="screen"/>
+ <node pkg = "wii_control" type="wii_node" name="wii_control" output="screen"/>
 
  <!-- Run laserscanner at the front -->
   <node name="hokuyo_front" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
@@ -49,6 +51,6 @@
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 40" />
 
 <!-- Run parking control -->
-  <node pkg = "parking" type="parking_node" name="parking" output="screen"/>
+  <node pkg ="parking" type="parking" name="parking" output="screen"/>
 
 </launch>

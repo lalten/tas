@@ -3,7 +3,8 @@
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "parking_node");
-    parking_lib pl;
+    ros::NodeHandle nh;
+    parking_lib pl(&nh);
 
     ros::Rate loop_rate(50);
 

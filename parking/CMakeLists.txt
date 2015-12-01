@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.3)
 project(parking)
 
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
   roscpp
   std_msgs
   sensor_msgs
@@ -17,7 +16,7 @@ include_directories(
 )
 
 ## Declare a cpp executable
-add_executable(parking src/main.cpp src/parking_lib/parking_lib.cpp)
+add_executable(parking src/parking.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(parking ${catkin_LIBRARIES})
