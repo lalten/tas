@@ -2,9 +2,15 @@
 
 int main(int argc, char **argv)
 {
+    //Subscriber
     ros::init(argc, argv, "parking_node");
     ros::NodeHandle nh;
     parking_lib pl(&nh);
+    //End Subscriber
+
+    //Publisher
+
+    //End Publisher
 
     ros::Rate loop_rate(50);
 
