@@ -30,7 +30,8 @@ void activeCb() {
  * Callback function, called every time feedback is received for the goal
  */
 void feedbackCb(const move_base_msgs::MoveBaseFeedbackConstPtr& feedback) {
-    ROS_INFO("[X]:%f [Y]:%f [W]: %f [Z]: %f", feedback->base_position.pose.position.x,feedback->base_position.pose.position.y,feedback->base_position.pose.orientation.w, feedback->base_position.pose.orientation.z);
+    ROS_INFO("FB: [X]:%f [Y]:%f [W]: %f [Z]: %f", feedback->base_position.pose.position.x,feedback->base_position.pose.position.y,feedback->base_position.pose.orientation.w, feedback->base_position.pose.orientation.z);
+
 }
 
 /**
@@ -40,16 +41,68 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "simple_navigation_goals"); // init and set name
     std::vector<geometry_msgs::Pose> waypoints; // vector of goals, with position and orientation
 
+//    geometry_msgs::Pose waypoint1;
+//    waypoint1.position.x = 10.50;
+//    waypoint1.position.y = 11.0;
+//    waypoint1.position.z = 0.000;
+//    waypoint1.orientation.x = 0.000;
+//    waypoint1.orientation.y = 0.000;
+//    waypoint1.orientation.z = 0;
+//    waypoint1.orientation.w = 1;
+    // 1er Start-Punkt
     geometry_msgs::Pose waypoint1;
-    waypoint1.position.x = 10.50;
-    waypoint1.position.y = 11.0;
+    waypoint1.position.x = 11.1;
+    waypoint1.position.y = 18.0;
     waypoint1.position.z = 0.000;
     waypoint1.orientation.x = 0.000;
     waypoint1.orientation.y = 0.000;
-    waypoint1.orientation.z = 0;
-    waypoint1.orientation.w = 1;
+    waypoint1.orientation.z = -0.76;
+    waypoint1.orientation.w = 0.64;
     waypoints.push_back(waypoint1);
 
+    // Nach ersten Ecke
+    geometry_msgs::Pose waypoint2;
+    waypoint2.position.x = 12.7;
+    waypoint2.position.y = 6.1;
+    waypoint2.position.z = 0.000;
+    waypoint2.orientation.x = 0.000;
+    waypoint2.orientation.y = 0.000;
+    waypoint2.orientation.z = -0.05;
+    waypoint2.orientation.w = 0.1;
+    waypoints.push_back(waypoint2);
+
+    // Vor der kritischen Ecke
+    geometry_msgs::Pose waypoint3;
+    waypoint3.position.x = 21.86;
+    waypoint3.position.y = 5.4;
+    waypoint3.position.z = 0.000;
+    waypoint3.orientation.x = 0.000;
+    waypoint3.orientation.y = 0.000;
+    waypoint3.orientation.z = -0.03;
+    waypoint3.orientation.w = 1.0;
+    waypoints.push_back(waypoint3);
+
+    // Nach der kritischen Ecke
+    geometry_msgs::Pose waypoint4;
+    waypoint4.position.x = 23.6;
+    waypoint4.position.y = 7.67;
+    waypoint4.position.z = 0.000;
+    waypoint4.orientation.x = 0.000;
+    waypoint4.orientation.y = 0.000;
+    waypoint4.orientation.z = 0.71;
+    waypoint4.orientation.w = 0.7;
+    waypoints.push_back(waypoint4);
+
+    // Nach der kritischen Ecke
+    geometry_msgs::Pose waypoint5;
+    waypoint5.position.x = 21.1;
+    waypoint5.position.y = 19.6;
+    waypoint5.position.z = 0.000;
+    waypoint5.orientation.x = 0.000;
+    waypoint5.orientation.y = 0.000;
+    waypoint5.orientation.z = 1.0;
+    waypoint5.orientation.w = 0.03;
+    waypoints.push_back(waypoint5);
 
 
 
@@ -61,6 +114,9 @@ int main(int argc, char** argv){
 
     move_base_msgs::MoveBaseGoal goal;
     goal.target_pose.header.frame_id = "map"; // set target pose frame of coordinates
+
+
+    //ROS_INFO("Set Goal to: [X]:%f [Y]:%f [W]: %f", waypoint1.position.x, waypoint1.position.y, waypoint1.orientation.x);
 
     for(int i = 0; i < waypoints.size(); ++i) { // loop over all goal points, point by point
         goal.target_pose.header.stamp = ros::Time::now(); // set current time
@@ -75,5 +131,7 @@ int main(int argc, char** argv){
             ROS_INFO("The base failed to move to %d goal for some reason", i);
         }
     }
+
+
     return 0;
 }
