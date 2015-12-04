@@ -30,12 +30,15 @@ void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 	twist.twist.twist.angular.y = opt_flow->integrated_ygyro/opt_flow->integration_time_us;
 	twist.twist.twist.angular.z = opt_flow->integrated_zgyro/opt_flow->integration_time_us;
 
-	// TODO: use opt_flow->quality for this
-	//# Row-major representation of the 6x6 covariance matrix
-	//# The orientation parameters use a fixed-axis representation.
-	//# In order, the parameters are:
-	//# (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
-	twist.twist.covariance.assign(0.0);
+	// Populate covariance matrix with uncertainty values
+	double uncertainty = pow(10, -1.0 * opt_flow->quality / (255.0/6.0));
+	twist.twist.covariance.assign(0.0); // We say that generally, our data is uncorrelated to each other
+	// However, we have uncertainties for
+	// x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis
+	for (int i=0; i<36; i+=7)
+		twist.twist.covariance[i] = uncertainty;
+
+//	ROS_INFO("qual:\t%d, uncert:\t%E\n", opt_flow->quality, uncertainty);
 
 	twist_publisher.publish(twist);
 }
