@@ -14,7 +14,7 @@
   </node>
 
   <!-- Run wii control -->
-  <node pkg = "wii_control" type="wii_node" name="wii_control" output="screen"/>
+  <node pkg="wii_control" type="wii_node" name="wii_control" output="screen"/>
 
  <!-- Run laserscanner at the front -->
   <node name="hokuyo_front" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
@@ -36,16 +36,15 @@
   </node>
 
 
- <!-- Run xsens driver -->
+ <!-- IMU -->
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 40" />   
   <arg name="frame_id" default="/imu"/>
   <arg name="frame_local" default="ENU"/>
   <arg name="frame_local_imu" default="ENU"/>
   <node pkg="xsens_driver" type="mtnode.py" name="xsens_driver" output="screen" >
-  	<param name="frame_id" value="$(arg frame_id)"/>
-	<param name="frame_local" value="$(arg frame_local)"/>
-	<param name="frame_local_imu" value="$(arg frame_local_imu)"/>
+    <param name="frame_id" value="$(arg frame_id)"/>
+    <param name="frame_local" value="$(arg frame_local)"/>
+    <param name="frame_local_imu" value="$(arg frame_local_imu)"/>
   </node>
-
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 40" />
 
 </launch>
