@@ -52,5 +52,7 @@
 
 <!-- Run parking control -->
   <node pkg ="parking" type="parking" name="parking" output="screen"/>
+<!-- Run sound node -->
+<node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
 
 </launch>
