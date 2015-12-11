@@ -18,7 +18,7 @@
 
 
   <!-- Run laserscanner at the front -->
-   <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0.245 0.0 0.07 0.0 0.0 0.0 /base_link /laser_front 500" />
+   <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0.245 0.0 0.07 0.0 0.0 0.0 /base_link /laser_front 50" />
   <node name="hokuyo_front" pkg="hokuyo_node" type="hokuyo_node" output="screen">
     <!-- Starts up faster, but timestamps will be inaccurate. --> 
     <param name="calibrate_time" type="bool" value="false"/> 
@@ -29,7 +29,7 @@
 
 
   <!-- Run laserscanner at the back -->
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_back" args="-0.2475 0.0 0.12 3.14159 0 0 /base_link /laser_back 500" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_back" args="-0.2475 0.0 0.12 3.14159 0 0 /base_link /laser_back 50" />
   <node name="hokuyo_back" pkg="hokuyo_node" type="hokuyo_node" output="screen">
     <!-- Starts up faster, but timestamps will be inaccurate. --> 
     <param name="calibrate_time" type="bool" value="false"/> 
@@ -41,7 +41,7 @@
 
 
   <!-- IMU -->
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 500" />
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 50" />
   <node pkg="xsens_driver" type="mtnode.py" name="xsens_driver" output="screen" >
     <param name="frame_id" value="/base_imu"/>
   </node>
