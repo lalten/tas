@@ -7,7 +7,7 @@
 
 
   <!-- run wii joystick-->
-  <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
+  <node respawn="false" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
 	<remap from="imu/data" to="wii_imu/data"/>
 	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
