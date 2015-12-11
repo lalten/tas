@@ -18,8 +18,8 @@
 #define DIST_BOX 0.40  /*!< in cm !! if distance smaller -> say box / not wall */
 //distance box <-> startpoint = 29 = 40 (+20 car) - 31 box
 //distance wall <-> startpoint = 40 (+20 car)
-#define SPEED 18  /*!< Speed in x direction */
-#define SPEED_CURVE 18 /*!< Speed in curve */
+#define SPEED 19  /*!< Speed in x direction */
+#define SPEED_CURVE 100 /*!< Speed in curve */
 #define TURN 400  /*!< max of y to turn */
 #define SEGMENTLEFT 50 /*!< laser segment start value for left look */
 #define SEGMENTLEFT_SECOUND 50 /*!< laser segment start value secound box left look */
@@ -28,12 +28,16 @@
 #define DIST_WALL_S_END 0.43 /*!< distance to wall when ending first part of s curve */
 #define DIST_BOX_S_END 0.14 /*!< distance to box when ending the whole s curve */
 #define DIST_BOX_Mid_END 0.20 /*!< distance to box when stopping the park process */
+#define STATE_DELAY 3000000000
+#define MAX_DELAY 5000000000
 
 //+++++++++++ STATIC REGLER +++++++++++++++++//
 #define NoBoxDistance 0.45 /*!< ###### */
 #define SollWallDistance 0.56 /*!< ###### */
+#define SollWallBox 0.25 /*!< ###### */
 #define TURN_RATE_REGLER 30 /*!< ###### */
 #define FRONT_SEGMENT_END 718
+#define DistanceTurnRateRatio 1000;
 /* Laser front segments 718, 4 per degree */
 
 
@@ -59,12 +63,16 @@ int main(int argc, char** argv) {
 
     ros::NodeHandle n;
 
+
     //Subscriber
     ros::Subscriber laser_back_sub = n.subscribe("/scan_back", 1000, parkingCallback);
     ros::Subscriber laser_front_sub = n.subscribe("/scan", 1000, scanFrontCallback);
 
     //Publisher
     parking_servo_publisher = n.advertise<geometry_msgs::Vector3>("servo",1);
+    sound_play::SoundClient sc;
+
+    zeit_start = ros::Time::now();
 
 
     ros::spin();
@@ -111,6 +119,7 @@ void parkingCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
             modeStep = 1;
             segmentStart = SEGMENT_S;
             if(quirinWillDebugState){ROS_INFO("FIRST S PART");}
+            zeit_start = ros::Time::now();
         }
 
         break;
@@ -118,12 +127,13 @@ void parkingCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
          if(quirinWillDebugState){ROS_INFO("FIRST S PART");}
 
         //START FIRST S
-        if(laser <= DIST_WALL_S_END)
+        if(laser <= DIST_WALL_S_END && (ros::Time::now().toNSec() - zeit_start.toNSec() > STATE_DELAY))
         {
             stopEngine();
             modeStep = 2;
             segmentStart = SEGMENT_S;
              if(quirinWillDebug){ROS_INFO("PULL BACK BETWEEN S");}
+             zeit_start = ros::Time::now();
         }
         else
         {
@@ -139,18 +149,20 @@ void parkingCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         modeStep = 3;
         segmentStart = SEGMENT_BACK;
         if(quirinWillDebug){ROS_INFO("SECOUND part S curve");}
+        zeit_start = ros::Time::now();
         break;
     case 3:
          if(quirinWillDebugState){ROS_INFO("SECOUND part S curve");}
 
         //secound part s curve
 
-        if(laser <= DIST_BOX_S_END)
+        if(laser <= DIST_BOX_S_END && (ros::Time::now().toNSec() - zeit_start.toNSec() > STATE_DELAY))
         {
             stopEngine();
             modeStep = 4;
             segmentStart = SEGMENT_BACK;
             if(quirinWillDebug){ROS_INFO("GO TO END POSITION");}
+            zeit_start = ros::Time::now();
         }
         else
         {
@@ -163,7 +175,7 @@ void parkingCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     case 4:
          if(quirinWillDebugState){ROS_INFO("GO TO END POSITION");}
         //Pull forward for end position
-        if(laser >= DIST_BOX_Mid_END)
+        if(laser >= DIST_BOX_Mid_END || (ros::Time::now().toNSec() - zeit_start.toNSec() > MAX_DELAY))
         {
             stopEngine();
             modeStep = 5;
@@ -237,7 +249,7 @@ int getNumBoxes (float laser_dist)
             numBoxSeen ++;
 
             if(quirinWillDebug){ROS_INFO("Detected the next Box, Box number: :  %i",numBoxSeen);}
-             sound_play::Sound s2 = sc.voiceSound("I see a box!");
+             //sound_play::Sound s2 = sc.voiceSound("I see a box!");
         }
     }
     else
@@ -247,7 +259,7 @@ int getNumBoxes (float laser_dist)
             //passed box
             isBox=false;
             if(quirinWillDebug){ROS_INFO("Passed by Box, now seeing wall.");}
-            sound_play::Sound s2 = sc.voiceSound("I see a wall!");
+            //sound_play::Sound s2 = sc.voiceSound("I see a wall!");
 
 
         }
@@ -278,26 +290,25 @@ void setSpeed(int speedOffset, int turnOffset)
 int calcTurnRate (double distance)
 {
     int turnRate=0;
+    float sollDistance;
     if(distance < NoBoxDistance )
     {
+        sollDistance=SollWallBox;
         //BOX
-        turnRate=0;
-        if(quirinWillDebug){ROS_INFO("Box!Box! turnRate: %d",turnRate);}
     }
     else
     {
-        int temp_turnRate=((distance / SollWallDistance)-1)*1000;
+        sollDistance=SollWallDistance;
         //noBox
-        if (distance < SollWallDistance - 0.01)
-        {
-            //rechts lenken
-            turnRate = temp_turnRate;
-        }
-        else if (distance > SollWallDistance +0.01)
-        {
-            //links lenken
-            turnRate = temp_turnRate;
-        }
+
+    }
+
+    //set turnrate relative to distance
+    int temp_turnRate=((distance / sollDistance)-1)*DistanceTurnRateRatio;
+    if (distance < sollDistance - 0.01 || distance > sollDistance +0.01)
+    {
+        //rechts lenken
+        turnRate = temp_turnRate;
     }
 
     return turnRate;
