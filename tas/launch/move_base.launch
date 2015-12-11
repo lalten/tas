@@ -10,7 +10,7 @@
   </node>
 
   <!-- Run trajectory control -->
-  <node pkg = "tas_autonomous_control" type="tas_autonomous_control_node" name="tas_autonomous_control_node" output="screen"/>
+  <node pkg="tas_autonomous_control" type="tas_autonomous_control_node" name="tas_autonomous_control_node" output="screen"/>
 
   <!-- Run rviz -->
   <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find rc_car_drift)/rviz_config.vcg">
