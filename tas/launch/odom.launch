@@ -2,7 +2,7 @@
 <launch>
   <param name="/use_sim_time" value="false"/>
 
-<!----><node pkg="tf" type="static_transform_publisher" name="base_link_to_odom" args="0 0 0 0 0 0 /odom /base_link 40" />
+<!--<node pkg="tf" type="static_transform_publisher" name="base_link_to_odom" args="0 0 0 0 0 0 /odom /base_link 40" />-->
   
   <!-- Hector mapping -->
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
@@ -15,10 +15,10 @@
     <param name="pub_map_scanmatch_transform" value="false"/>
   </node>
 
-  <!-- EKF
+  <!-- EKF -->
   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
     <param name="map_frame" value="map"/>
-    <param name="world_frame" value="base_link"/>
+    <param name="world_frame" value="odom"/>
     <param name="odom_frame" value="odom"/>
     <param name="base_link_frame" value="base_link"/>
 
@@ -36,7 +36,7 @@
       false, false, false]
     </rosparam>
  
-    <param name="imu0" value="/imu"/>
+    <param name="imu0" value="/imu/data"/>
     <param name="imu0_remove_gravitational_acceleration" value="true"/>
     <rosparam param="imu0_config">
       [false, false, false,
@@ -47,6 +47,6 @@
     </rosparam>
     <param name="imu0_differential" value="true"/>
 
-  </node> -->
+  </node> 
 
 </launch>
