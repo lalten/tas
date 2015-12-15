@@ -12,11 +12,15 @@ More info on the ROS network setup is on [ROS Wiki](http://wiki.ros.org/ROS/Netw
  * launch your files in background and disown again: `roslaunch tas run_system.launch &`, `disown`
  * on your laptop, start a terminal and connect to the car via ethernet or wifi
  * set the ROS master location: `export ROS_MASTER_URI=http://10.42.0.1:11311`
- * tell ros your ip: `export ROS_IP=10.42.0.100` -- **adjust this to your ip**, which you can see using `ifconfig`
+ * tell ros your hostname: `export ROS_HOSTNAME=$(hostname).local`
+  * or alternatively: `export ROS_IP=10.42.0.100` (**adjust this to your ip**, which you can see using `ifconfig`)
  * start your local nodes: `rosrun rviz rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
 
-__Pro tip__: Add the ROS_IP line to the car's .bashrc, Add the ROS_MASTER_URI line as well as a line that dynamically sets your ROS_IP to your client's .bashrc:  
-`export ROS_IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')`
+__Pro tip__: Add the ROS_IP line to the car's .bashrc, Append the ROS_MASTER_URI and ROS_HOSTNAME lines to your client's .bashrc:  
+```
+export ROS_MASTER_URI=http://vettel.local:11311
+export ROS_HOSTNAME=$(hostname).local
+```
 
 # Branch "simulation":
  - Provide a gazebo simulation model based on ackermann_vehicle package on ROS
