@@ -5,7 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   std_msgs
-  wiimote
+  joy
   sensor_msgs
   turtlesim
 )
@@ -19,9 +19,9 @@ include_directories(
 )
 
 ## Declare a cpp executable
-add_executable(joy_node src/main.cpp src/wii_lib/wii_lib.cpp)
+add_executable(joy_control src/main.cpp src/joy_lib/joy_lib.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(wii_node ${catkin_LIBRARIES})
+target_link_libraries(joy_control ${catkin_LIBRARIES})
 
 
