@@ -1,8 +1,4 @@
-# move_base parameter file
-
-
 TrajectoryPlannerROS:
-  #Independent settings for the local costmap
   transform_tolerance: 0.3
   sim_time: 5.0
   sim_granularity: 0.25 #0.25
@@ -31,4 +27,3 @@ TrajectoryPlannerROS:
   simple_attractor: false
   publish_cost_grid_pc: true
   meter_scoring: true
-
