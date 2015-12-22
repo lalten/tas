@@ -11,6 +11,8 @@
 #include <std_msgs/Int16MultiArray.h>
 #include <std_msgs/Int16.h>
 
+#include <tf/transform_listener.h>
+
 #define WII_BUTTON_1            0
 #define WII_BUTTON_2            1
 #define WII_BUTTON_PLUS         2
@@ -40,7 +42,9 @@ public:
     ros::NodeHandle nh_;
     ros::Publisher wii_servo_pub_;
     ros::Publisher wii_communication_pub;
+
     ros::Subscriber wii_sub_;
+    ros::Subscriber pos_sub_;
 
     /* flags for the control mode and brake */
     std_msgs::Int16 emergencyBrake;
@@ -60,6 +64,20 @@ private:
 
     /* initialize the msg for the communication between wii_control and trajector_control*/
     void msg_Initialization(std_msgs::Int16MultiArray& msg);
+
+    void setCurrentPos();
+
+    void saveWayPointFile();
+
+    void addCurrentWayPoint();
+
+    int sizeOfWaypointsList;
+
+    tf::TransformListener tf_map_baselink;
+
+    geometry_msgs::Pose currentWayPoint;
+
+    std::vector<geometry_msgs::Pose> waypoints;
 
 
 };

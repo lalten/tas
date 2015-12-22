@@ -1,5 +1,10 @@
 #include "wii_lib.h"
 
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
 wii_lib::wii_lib()
 {
     /*Initilaization of publishers, subscribers and messages*/
@@ -9,7 +14,10 @@ wii_lib::wii_lib()
 
     wii_sub_ = nh_.subscribe<wiimote::State>("wiimote/state",100,&wii_lib::wiiStateCallback,this);
 
+
     msg_Initialization(wii_state_);
+
+    sizeOfWaypointsList = 0;
 
 
     controlMode.data = 0;
@@ -39,6 +47,8 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         /*check if Z button is pressed*/
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
+            addCurrentWayPoint();
+            saveWayPointFile();
             emergencyBrake.data = 1; /*setting emergencyBrake flag to 1*/
 
             servo.x = 1500;
@@ -65,8 +75,57 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         wii_servo_pub_.publish(servo); /*publish servo messages to arduino*/
     }
 
+
+
     wii_state_.data[0] = controlMode.data;
     wii_state_.data[1] = emergencyBrake.data;
+}
+
+void wii_lib::setCurrentPos()
+{
+
+    tf::StampedTransform transform;
+
+    const std::string a = "map";
+    const std::string b = "base_link";
+
+    try{
+        tf_map_baselink.lookupTransform(a, b, ros::Time(0), transform);
+    } catch (tf::TransformException e) {
+        ROS_DEBUG("TransformException");
+    }
+
+    /*
+    currentWayPoint.position.x = transform.getOrigin().x();
+    currentWayPoint.position.y = transform.getOrigin().y();
+    currentWayPoint.position.z = 0;
+    currentWayPoint.orientation.x = 0.000;
+    currentWayPoint.orientation.y = 0.000;
+    currentWayPoint.orientation.z = -0.76;
+    currentWayPoint.orientation.w = 0.64;
+    */
+}
+
+void wii_lib::addCurrentWayPoint()
+{
+    setCurrentPos();
+    sizeOfWaypointsList++;
+    waypoints.push_back(currentWayPoint);
+
+}
+
+void wii_lib::saveWayPointFile()
+{
+    ofstream myfile;
+    myfile.open ("TAS_GROUP_06-Waypoints.txt");
+    myfile << "NumbWayPoints:" << sizeOfWaypointsList << "\n";
+    for (int i = 0; i < sizeOfWaypointsList; i++){
+        myfile << "Pos:" << waypoints.at(i).position.x;
+        myfile << ":" << waypoints.at(i).position.y << "\n";
+        myfile << "Orient:" << waypoints.at(i).orientation.z;
+        myfile << ":" << waypoints.at(i).orientation.w << "\n";
+    }
+    myfile.close();
 }
 
 void wii_lib::msg_Initialization(std_msgs::Int16MultiArray &msg)
