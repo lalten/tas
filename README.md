@@ -18,7 +18,7 @@ More info on the ROS network setup is on [ROS Wiki](http://wiki.ros.org/ROS/Netw
 
 __Pro tip__: Add the ROS_IP line to the car's .bashrc, Append the ROS_MASTER_URI and ROS_HOSTNAME lines to your client's .bashrc:  
 ```
-export ROS_MASTER_URI=http://vettel.local:11311
+export ROS_MASTER_URI=http://vettel.local:11311   % das jedes mal einzeln setzen
 export ROS_HOSTNAME=$(hostname).local
 ```
 
