@@ -5,12 +5,14 @@
 
 using namespace std;
 
-wii_lib::wii_lib()
+
+wii_lib::wii_lib() : ac("move_base", true)
 {
     /*Initilaization of publishers, subscribers and messages*/
     wii_servo_pub_ = nh_.advertise<geometry_msgs::Vector3>("servo", 1);
 
     wii_communication_pub = nh_.advertise<std_msgs::Int16MultiArray>("wii_communication",1);
+
 
     wii_sub_ = nh_.subscribe<wiimote::State>("wiimote/state",100,&wii_lib::wiiStateCallback,this);
 
@@ -30,6 +32,9 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
     if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_C]==1)
     {
         controlMode.data = 1; /*setting controlMode flag to 1*/
+        ///ToDo Hier Liste an Zielen übergeben
+        ///
+        sendList();
 
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
@@ -47,9 +52,9 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         /*check if Z button is pressed*/
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
-            ROS_DEBUG("HINWEIS: KONRAD QUIRIN STELLE");
+            ROS_INFO("Z Button Pressed");
             addCurrentWayPoint();
-            saveWayPointFile();
+            //saveWayPointFile();
             emergencyBrake.data = 1; /*setting emergencyBrake flag to 1*/
 
             servo.x = 1500;
@@ -89,29 +94,55 @@ void wii_lib::setCurrentPos()
 
     const std::string a = "map";
     const std::string b = "base_link";
+    bool flagErfolg;
 
-    try{
+    try
+    {
         tf_map_baselink.lookupTransform(a, b, ros::Time(0), transform);
-    } catch (tf::TransformException e) {
-        ROS_DEBUG("TransformException");
+        flagErfolg=true;
+    }
+    catch (tf::TransformException e)
+    {
+        ROS_WARN("TransformException: TF (map/base_link) published?");
+        flagErfolg=false;
     }
 
-    /*
-    currentWayPoint.position.x = transform.getOrigin().x();
-    currentWayPoint.position.y = transform.getOrigin().y();
-    currentWayPoint.position.z = 0;
-    currentWayPoint.orientation.x = 0.000;
-    currentWayPoint.orientation.y = 0.000;
-    currentWayPoint.orientation.z = -0.76;
-    currentWayPoint.orientation.w = 0.64;
-    */
+    if(flagErfolg)
+    {
+
+    //save current Orientation
+    double ausrichtungWinkel;
+    tf::Quaternion ausrichtungQ;
+    ausrichtungQ = transform.getRotation();
+    ausrichtungWinkel = ausrichtungQ.getAngle ();
+
+    //get current Position
+    tf::Vector3 position;
+    position = transform.getOrigin();
+
+
+    ROS_INFO("Winkel Ausrichtung: %lf", ausrichtungQ.getAngle());
+    ROS_INFO("X Position: %lf", position.getX());
+
+    sendGoal(position, ausrichtungQ);
+
+    }
+    else
+    {
+        ROS_WARN("TransformException: No goal to set, because of prior TransformException");
+        /// ToDo Was soll jetzt passieren????
+    }
+
 }
 
 void wii_lib::addCurrentWayPoint()
 {
     setCurrentPos();
+
+    /*
     sizeOfWaypointsList++;
     waypoints.push_back(currentWayPoint);
+    */
 
 }
 
@@ -137,5 +168,52 @@ void wii_lib::msg_Initialization(std_msgs::Int16MultiArray &msg)
     msg.layout.dim[0].label = "flag";
     msg.data.clear();
     msg.data.resize(2);
+}
+
+void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
+{
+
+
+  move_base_msgs::MoveBaseGoal goal;
+
+  //we'll send a goal to the robot to move 1 meter forward
+  goal.target_pose.header.frame_id = "base_link";
+  goal.target_pose.header.stamp = ros::Time::now();
+
+  goal.target_pose.pose.position.x = position.getX();
+  goal.target_pose.pose.position.y = position.getY();
+  goal.target_pose.pose.position.z = position.getZ();
+  goal.target_pose.pose.orientation.w = ausrichtungQ.getW();
+  tf::Vector3 temp;
+  temp = ausrichtungQ.getAxis();
+  goal.target_pose.pose.orientation.x = temp.getX();
+  goal.target_pose.pose.orientation.y = temp.getY();
+  goal.target_pose.pose.orientation.z = temp.getZ();
+
+  if(true)
+  {
+      ROS_INFO("Sending goal");
+      ac.sendGoal(goal);
+      ROS_INFO("End Sending goal");
+  }
+  if(true)
+  {
+      //Apend msgs to list
+      goalList.push_back(goal);
+      ROS_INFO("Appended current goal to goalList");
+  }
+
+
+
+}
+
+void wii_lib::sendList()
+{
+    std::vector<move_base_msgs::MoveBaseGoal> temp;
+    for (int i=0; i<temp.size(); ++i)
+    {
+        ac.sendGoal(temp.at(i));
+        ROS_INFO("Sending goal # %i", i);
+    }
 }
 

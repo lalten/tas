@@ -1,9 +1,12 @@
 #include "wii_lib/wii_lib.h"
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
 
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "teleop_wii");
     wii_lib teleop_wii;
+
 
     ros::Rate loop_rate(50);
 
