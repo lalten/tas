@@ -47,6 +47,7 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         /*check if Z button is pressed*/
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
+            ROS_DEBUG("HINWEIS: KONRAD QUIRIN STELLE");
             addCurrentWayPoint();
             saveWayPointFile();
             emergencyBrake.data = 1; /*setting emergencyBrake flag to 1*/
