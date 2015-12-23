@@ -3,6 +3,8 @@ clc
 clear all
 close all
 
+
+%%%%%%%%%%%%%%%% Regler
 %systemmatrix
 
 a22=0.001;
@@ -103,10 +105,7 @@ zeros(3,nsim);
      
  end
  
- 
-
- 
- 
+  
  
 %referenz kreis
 r1=0.6; %
@@ -123,27 +122,30 @@ r1=0.6; %
     
 
 figure
-subplot(4,1,1);
+
 plot(xpos,ypos, [1:nsim]*la/nsim,xd(3,:));
 title('position')
 axis equal
 
 
-subplot(4,1,2);
+figure
+
+subplot(3,1,1);
 plot(psidot);
 title('psidot')
 
 
-subplot(4,1,3);
+subplot(3,1,2);
 plot(thetad);
 title('thetad')
 
-subplot(4,1,4);
+subplot(3,1,3);
 plot(yd);
 title('yd')
 
 figure
 plot(u/pi*180)
+title u
 
 figure
 plot(1:nsim-1,e(1,:),1:nsim-1,e(2,:),1:nsim-1,e(3,:))
