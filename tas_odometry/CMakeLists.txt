@@ -4,6 +4,7 @@ project(tas_odometry)
 set(ROS_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Debug)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -11,6 +12,7 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   nav_msgs
+  sensor_msgs
   roscpp
   tf
 )
@@ -106,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS gazebo_msgs nav_msgs roscpp tf
+  CATKIN_DEPENDS gazebo_msgs nav_msgs sensor_msgs roscpp tf
 )
 
 ###########
@@ -132,6 +134,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(perfect_odometry src/perfect_odometry.cpp)
+add_executable(imu_bias_compensation src/imu_bias_compensation.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -139,6 +142,10 @@ add_executable(perfect_odometry src/perfect_odometry.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(perfect_odometry
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(imu_bias_compensation
   ${catkin_LIBRARIES}
 )
 
