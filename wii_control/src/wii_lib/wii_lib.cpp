@@ -5,6 +5,31 @@
 
 using namespace std;
 
+///
+/// \brief wii_lib::wii_lib
+/// Konrad Vowinkel & Quirn Körner
+
+
+/*To simulate this node without real car do this:
+ * Everything with $ in a new terminal window
+ *
+ * $ roslaunch tas_simulator startSimulation.launch
+ *
+ * publish the tf, otherwise there it won't find any
+ * $ rostopic pub /tf tf/tfMessage
+ * press tab tab and edit xyzw value + child (odom) + link (map) -> Enter
+ * $ rostopic pub /tf tf/tfMessage
+ * press tab tab and edit xazw value + child (odom) + link (base_link) -> Enter
+ *
+ * $ rosrun wii_control wii_node
+ *
+ * $ rostopic pub /wiimote/state wiimote/State
+ * tab tab set first of N-chuck buttons to true, to publish Z (or secound for C)
+ *
+*/
+
+///ToDo siehe code + falsche position und winkel übertragen mit echten Auto, keine Ahnung warum
+
 
 wii_lib::wii_lib() : ac("move_base", true)
 {
@@ -32,9 +57,11 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
     if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_C]==1)
     {
         controlMode.data = 1; /*setting controlMode flag to 1*/
+
         ///ToDo Hier Liste an Zielen übergeben
         ///
         sendList();
+        //sollte nur einmal aufgerufen werden, nicht x-mal weil man auf dem schalter bleibt. Timer?
 
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
@@ -52,9 +79,13 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         /*check if Z button is pressed*/
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
+            ///ToDo
+            // Nur einmal aufrufen, wenn Button gedrückt wird. evtl einmal in 3 sec oder so?
             ROS_INFO("Z Button Pressed");
-            addCurrentWayPoint();
+            setCurrentPos();
+            //addCurrentWayPoint();
             //saveWayPointFile();
+
             emergencyBrake.data = 1; /*setting emergencyBrake flag to 1*/
 
             servo.x = 1500;
@@ -111,10 +142,10 @@ void wii_lib::setCurrentPos()
     {
 
     //save current Orientation
-    double ausrichtungWinkel;
+
     tf::Quaternion ausrichtungQ;
     ausrichtungQ = transform.getRotation();
-    ausrichtungWinkel = ausrichtungQ.getAngle ();
+
 
     //get current Position
     tf::Vector3 position;
@@ -137,7 +168,8 @@ void wii_lib::setCurrentPos()
 
 void wii_lib::addCurrentWayPoint()
 {
-    setCurrentPos();
+
+
 
     /*
     sizeOfWaypointsList++;
@@ -177,7 +209,7 @@ void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
   move_base_msgs::MoveBaseGoal goal;
 
   //we'll send a goal to the robot to move 1 meter forward
-  goal.target_pose.header.frame_id = "base_link";
+  goal.target_pose.header.frame_id = "map";
   goal.target_pose.header.stamp = ros::Time::now();
 
   goal.target_pose.pose.position.x = position.getX();
@@ -192,12 +224,15 @@ void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
 
   if(true)
   {
+      //Ziel sofort setzen
       ROS_INFO("Sending goal");
       ac.sendGoal(goal);
       ROS_INFO("End Sending goal");
   }
   if(true)
   {
+      // Ziel im Vector zwischenspeichern
+
       //Apend msgs to list
       goalList.push_back(goal);
       ROS_INFO("Appended current goal to goalList");
@@ -210,6 +245,7 @@ void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
 void wii_lib::sendList()
 {
     std::vector<move_base_msgs::MoveBaseGoal> temp;
+    temp = goalList;
     for (int i=0; i<temp.size(); ++i)
     {
         ac.sendGoal(temp.at(i));
