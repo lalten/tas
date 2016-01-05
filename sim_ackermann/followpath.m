@@ -9,6 +9,7 @@ x = [0,1,2,3,5];
 y = [0,0.1,3,3,3.5];
 pathxx = 0:.02:5;
 pathyy = spline(x,y,pathxx);
+%pathyy = linspace(1,5,length(pathxx));
 plot(x,y,'o',pathxx,pathyy,'-*')
 hold on 
 
@@ -73,8 +74,8 @@ xdot = zeros(3,nsim);
 dt= 0.001;
 
 Q=[0  0 0;
-    0  10 0;
-    0 0  40];
+    0  100 0;
+    0 0  400];
 
 R=30;
  
@@ -117,7 +118,12 @@ for t = 1:nsim-1
     lotf = [cos(xn(3)+90), sin(xn(3)+90)];
     verb_vek = xn(1:2)- [xpos(t),ypos(t)];  %verbinungsvektor
     lateral_d = lotf*verb_vek';
-    xd(:,t) = [psidot(t),xn(3) - psi(t),lateral_d];
+    
+    if t==1
+        xd(:,t) = [psidot(t),xn(3) - psi(t),lateral_d];
+    else
+        xd(:,t) = [psidot(t-1),xn(3) - psi(t),lateral_d];
+    end
     
     if mod(t-1,100)==0
         plot([xpos(t),xn(1)],[ypos(t),xn(2)]);
