@@ -29,10 +29,10 @@
      false,  false,  true,    
      false, false, false,
      false,  false,  true,  
-     true,  true,  false]      <!-- just for testing, orig: all false! -->
+     false,  false,  false]      <!-- just for testing, orig: all false! -->
   </rosparam>
   <param name="imu0_relative" value="true"/>
-  <param name="imu0_differential" value="true"/>
+  <param name="imu0_differential" value="false"/>
 
   <remap from="odometry/filtered" to="odometry_map/filtered"/>
 
