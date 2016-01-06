@@ -89,7 +89,10 @@ private:
 
     MoveBaseClient ac;
 
-
+    // KV:
+    // Timer zum eintragen der Wegpunkte und zum Übermitteln der Wegpunkte
+    double lastTime;
+    double secondsToWait;
 
 
     void sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ);

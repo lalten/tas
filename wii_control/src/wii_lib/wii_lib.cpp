@@ -29,6 +29,10 @@ using namespace std;
 */
 
 ///ToDo siehe code + falsche position und winkel übertragen mit echten Auto, keine Ahnung warum
+///
+// KV:
+// Timer zum eintragen der Wegpunkte und zum Übermitteln der Wegpunkte
+
 
 
 wii_lib::wii_lib() : ac("move_base", true)
@@ -46,6 +50,8 @@ wii_lib::wii_lib() : ac("move_base", true)
 
     sizeOfWaypointsList = 0;
 
+    lastTime = ros::Time::now().toSec();
+    secondsToWait = 3.0;
 
     controlMode.data = 0;
     emergencyBrake.data = 1;
@@ -59,9 +65,16 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         controlMode.data = 1; /*setting controlMode flag to 1*/
 
         ///ToDo Hier Liste an Zielen übergeben
-        ///
-        sendList();
-        //sollte nur einmal aufgerufen werden, nicht x-mal weil man auf dem schalter bleibt. Timer?
+        /// sollte nur einmal aufgerufen werden, nicht x-mal weil man auf dem schalter bleibt. Timer?
+        // Wenn bereits X sec vergangen sind
+        if (ros::Time::now().toSec() - lastTime > secondsToWait) {
+            ROS_INFO("C Button Pressed: Poses will be transmitted");
+            sendList();
+            lastTime = ros::Time::now().toSec();
+        } else {
+            ROS_INFO("Wait X second and press C again...");
+        }
+
 
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
@@ -81,8 +94,13 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         {
             ///ToDo
             // Nur einmal aufrufen, wenn Button gedrückt wird. evtl einmal in 3 sec oder so?
-            ROS_INFO("Z Button Pressed");
-            setCurrentPos();
+            if (ros::Time::now().toSec() - lastTime > secondsToWait){
+                ROS_INFO("Z Button Pressed: Current Pose will be set");
+                setCurrentPos();
+                lastTime = ros::Time::now().toSec();
+            } else {
+                ROS_INFO("Z Button Pressed: Wait X seconds and press Z again...");
+            }
             //addCurrentWayPoint();
             //saveWayPointFile();
 
