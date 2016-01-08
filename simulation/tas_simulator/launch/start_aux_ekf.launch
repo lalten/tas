@@ -1,40 +1,41 @@
+<?xml version="1.0"?>
 <!-- applying changes according to T. Moore: -->
 <launch>
 
   <node pkg="robot_localization" type="ekf_localization_node" name="aux_ekf_localization_node" output="screen">
-   <param name="print_diagnostics" value="true"/>
-  <param name="frequency" value="100"/>
-  <param name="two_d_mode" value="true"/>
+    <param name="print_diagnostics" value="true"/>
+    <param name="frequency" value="100"/>
+    <param name="two_d_mode" value="true"/>
 
-  <param name="map_frame" value="map"/>  
-  <param name="odom_frame" value="odom"/>
-  <param name="world_frame" value="map"/>   
-  <param name="base_link_frame" value="base_link"/>
+    <param name="map_frame" value="map"/>  
+    <param name="odom_frame" value="odom"/>
+    <param name="world_frame" value="map"/>   
+    <param name="base_link_frame" value="base_link"/>
 
-  <param name="pose0" value="/poseupdate"/>
-  <rosparam param="pose0_config">  
-    [true, true,  false,
-    false, false, true,  
-    false, false, false,
-    false, false, false,
-    false, false, false]
-  </rosparam>
-  <param name="pose0_differential" value="false"/>
+    <param name="pose0" value="/poseupdate"/>
+    <rosparam param="pose0_config">  
+      [true, true,  false,
+      false, false, true,  
+      false, false, false,
+      false, false, false,
+      false, false, false]
+    </rosparam>
+    <param name="pose0_differential" value="false"/>
 
-  <param name="imu0" value="/imu"/>
-  <param name="imu0_remove_gravitational_acceleration" value="true"/>    
+    <param name="imu0" value="/imu"/>
+    <param name="imu0_remove_gravitational_acceleration" value="true"/>    
 
-  <rosparam param="imu0_config">  
-    [false, false, false,
-     false,  false,  true,    
-     false, false, false,
-     false,  false,  true,  
-     true,  true,  false]      <!-- just for testing, orig: all false! -->
-  </rosparam>
-  <param name="imu0_relative" value="true"/>
-  <param name="imu0_differential" value="false"/>
+    <rosparam param="imu0_config">  
+      [false, false, false,
+       false,  false,  true,    
+       false, false, false,
+       false,  false,  true,  
+       true,  true,  false]      <!-- just for testing, orig: all false! -->
+    </rosparam>
+    <param name="imu0_relative" value="true"/>
+    <param name="imu0_differential" value="false"/>
 
-  <remap from="odometry/filtered" to="odometry_map/filtered"/>
+    <remap from="odometry/filtered" to="odometry_map/filtered"/>
 
   </node> 
  
