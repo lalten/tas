@@ -7,7 +7,7 @@
 
 
   <!-- run wii stack
-  <node respawn="false" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
+  <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
 	<remap from="imu/data" to="wii_imu/data"/>
 	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
@@ -22,8 +22,10 @@
     <param name="calibrate_time" type="bool" value="false"/> 
     <param name="port" type="string" value="/dev/hokuyo_front"/> 
     <param name="intensity" type="bool" value="false"/>
-    <remap from="scan" to="scan_front" />
+    <param name="min_ang" value="-2.35619449615" />
+    <param name="max_ang" value="2.35619449615" />
     <param name="frame_id" value="laser_front"/>
+    <remap from="scan" to="scan_front" />
   </node>
 
 
@@ -34,8 +36,10 @@
     <param name="calibrate_time" type="bool" value="false"/> 
     <param name="port" type="string" value="/dev/hokuyo_back"/> 
     <param name="intensity" type="bool" value="false"/>
-    <remap from="scan" to="scan_back" />
+    <param name="min_ang" value="-2.08621382713" />
+    <param name="max_ang" value="2.09234976768" />
     <param name="frame_id" value="laser_back"/>
+    <remap from="scan" to="scan_back" />
   </node>
 
   <!-- IMU -->
