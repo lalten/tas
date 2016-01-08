@@ -64,8 +64,6 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
     {
         controlMode.data = 1; /*setting controlMode flag to 1*/
 
-        ///ToDo Hier Liste an Zielen übergeben
-        /// sollte nur einmal aufgerufen werden, nicht x-mal weil man auf dem schalter bleibt. Timer?
         // Wenn bereits X sec vergangen sind
         if (ros::Time::now().toSec() - lastTime > secondsToWait) {
             ROS_INFO("C Button Pressed: Poses will be transmitted");
@@ -92,8 +90,7 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         /*check if Z button is pressed*/
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
-            ///ToDo
-            // Nur einmal aufrufen, wenn Button gedrückt wird. evtl einmal in 3 sec oder so?
+
             if (ros::Time::now().toSec() - lastTime > secondsToWait){
                 ROS_INFO("Z Button Pressed: Current Pose will be set");
                 setCurrentPos();
