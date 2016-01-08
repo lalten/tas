@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<launch>
+  
+  <!-- Run map server  -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find tas)/launch/config/map_server/hectormap.yaml" output="screen"/>
+
+
+<!-- EKF odom -> base_link -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
+    <param name="map_frame" value="map"/>
+    <param name="world_frame" value="odom"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="base_link_frame" value="base_link"/>
+
+    <param name="print_diagnostics" value="true"/>
+    <param name="frequency" value="100"/>
+    <param name="two_d_mode" value="true"/>
+
+    <param name="pose0" value="/amcl_pose"/>
+    <param name="pose0_differential" value="true"/>
+    <rosparam param="pose0_config">
+      [false, false,  false,    <!-- We have two_d_mode on, so making Z true does nothing -->
+      false, false, false,  
+      false, false, false,
+      false, false, false,
+      false, false, false]
+    </rosparam>
+
+    <param name="imu0" value="/imu/data"/>
+    <param name="imu0_remove_gravitational_acceleration" value="true"/>
+    <rosparam param="imu0_config">
+      [false, false, false,
+       false, false, true,    <!-- 2D mode, so roll and pitch do nothing -->
+       false, false, false,
+       false, false, true,    <!-- As above -->
+       true,  true,  false]     <!-- We start with these turned off, verify that everything works, then turn X and Y back on (Z does nothing in 2D mode) -->
+    </rosparam>
+    <!-- The order of the values is x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. -->
+    <param name="imu0_differential" value="true"/>
+    
+
+  </node> 
+
+
+  <!-- EKF map -> odom
+  <node pkg="robot_localization" type="ekf_localization_node" name="aux_ekf_localization_node" output="screen">
+    <param name="print_diagnostics" value="true"/>
+    <param name="frequency" value="100"/>
+    <param name="two_d_mode" value="true"/>
+
+    <param name="map_frame" value="map"/>  
+    <param name="odom_frame" value="odom"/>
+    <param name="world_frame" value="map"/>   
+    <param name="base_link_frame" value="base_link"/>
+
+    <param name="pose0" value="/amcl_pose"/>
+    <rosparam param="pose0_config">  
+      [true, true,  false,
+      false, false, true,  
+      false, false, false,
+      false, false, false,
+      false, false, false]
+    </rosparam>
+    <param name="pose0_differential" value="false"/>
+
+    <param name="imu0" value="/imu/data"/>
+    <param name="imu0_remove_gravitational_acceleration" value="true"/>    
+
+    <rosparam param="imu0_config">  
+      [false, false, false,
+       false, false, true,
+       false, false, false,
+       false, false, true,
+       false, false, false]   #just for testing, orig: all false! (later: t,t,f)
+    </rosparam>
+    <param name="imu0_relative" value="true"/>
+    <param name="imu0_differential" value="false"/>
+
+    <remap from="odometry/filtered" to="odometry_map/filtered"/>
+  </node>  -->
+
+  <!-- Run AMCL for map->odom -->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <rosparam>
+tf_broadcast: true #prevent amcl from publishing the transform between the global frame and the odometry frame
+update_min_d: 0.0    # Translational movement required before performing a filter update. (default 0.2)
+update_min_a: 0.0    # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
+odom_model_type: omni
+odom_alpha1: 0.1      # expected noise in odometry rotation from rotational robot motion (default 0.2)
+odom_alpha2: 0.2      # expected noise in odometry rotation from translational robot motion (default 0.2)  
+odom_alpha3: 99      # expected noise in odometry translation from translational robot motion (default 0.2)
+odom_alpha4: 0.2      # expected noise in odometry translation from rotational robot motion (default 0.2)
+odom_alpha5: 99      # Translation-related noise parameter (default 0.2)
+    </rosparam>
+  </node>
+
+</launch>
