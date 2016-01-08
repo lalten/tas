@@ -42,7 +42,7 @@
     <param name="base_link_frame" value="base_link"/>
 
     <param name="print_diagnostics" value="true"/>
-    <param name="frequency" value="500"/>
+    <param name="frequency" value="100"/>
     <param name="two_d_mode" value="true"/>
 <!-- 
     <param name="pose0" value="/poseupdate"/>
@@ -54,7 +54,7 @@
       false, false, false,
       false, false, false]
     </rosparam>
--->
+
     <param name="imu0" value="/imu/data"/>
     <param name="imu0_remove_gravitational_acceleration" value="false"/>
     <rosparam param="imu0_config">
@@ -65,6 +65,15 @@
       false, false, false]
     </rosparam>
     <param name="imu0_differential" value="false"/>
+-->
+    <param name="twist0" value="/visual_odom"/>
+    <rosparam param="twist0_config">
+      [false, false, false,
+      false,  false,  false,
+      false, false, false,
+      true,  true,  false,
+      false, false, false]
+    </rosparam>
 
   </node> 
 
