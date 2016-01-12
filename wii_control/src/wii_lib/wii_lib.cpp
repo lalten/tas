@@ -131,6 +131,11 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         //saveWayPointFile();
     }
 
+    if (wiiState.get()->buttons[WII_BUTTON_HOME]){
+        system("/home/tas_group_06/catkin_ws/src/tas/tas/shell_scripts/switch_to_amcl_mode.sh");
+        ROS_INFO("Started Switching Script...");
+    }
+
     wii_state_.data[0] = controlMode.data;
     wii_state_.data[1] = emergencyBrake.data;
 }
