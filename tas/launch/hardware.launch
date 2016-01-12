@@ -50,8 +50,8 @@
   </node>
 
   <!-- Optical Flow Sensor -->
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_px4flow" args="0.14 0.0 0.0 0.0 /base_link /px4flow 50" />
-  <node name="px4flow" pkg="px4flow" type="px4flow_node" output="screen">
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_px4flow" args="0.14 0 0 0 0 0 /base_link /px4flow 50" />
+  <node name="px4flow" pkg="px4flow" type="px4flow_node" respawn="true" output="screen">
     <param name="serial_port" value="/dev/serial/by-id/usb-3D_Robotics_PX4Flow_v1.3_000000000000-if00"/>
   </node>
   <node pkg="tas_odometry" type="optflow_odometry" name="optflow_odometry" output="screen"/>
