@@ -64,16 +64,6 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
     {
         controlMode.data = 1; /*setting controlMode flag to 1*/
 
-        // Wenn bereits X sec vergangen sind
-        if (ros::Time::now().toSec() - lastTime > secondsToWait) {
-            ROS_INFO("C Button Pressed: Poses will be transmitted");
-            sendList();
-            lastTime = ros::Time::now().toSec();
-        } else {
-            ROS_INFO("Wait X second and press C again...");
-        }
-
-
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
             emergencyBrake.data = 1; /*setting emergencyBrake flag to 1*/
@@ -90,17 +80,6 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         /*check if Z button is pressed*/
         if(wiiState.get()->nunchuk_buttons[WII_BUTTON_NUNCHUK_Z]==1)
         {
-
-            if (ros::Time::now().toSec() - lastTime > secondsToWait){
-                ROS_INFO("Z Button Pressed: Current Pose will be set");
-                setCurrentPos();
-                lastTime = ros::Time::now().toSec();
-            } else {
-                ROS_INFO("Z Button Pressed: Wait X seconds and press Z again...");
-            }
-            //addCurrentWayPoint();
-            //saveWayPointFile();
-
             emergencyBrake.data = 1; /*setting emergencyBrake flag to 1*/
 
             servo.x = 1500;
@@ -127,7 +106,30 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
         wii_servo_pub_.publish(servo); /*publish servo messages to arduino*/
     }
 
+    if (wiiState.get()->buttons[WII_BUTTON_A]==1){
 
+        // Wenn bereits X sec vergangen sind
+        if (ros::Time::now().toSec() - lastTime > secondsToWait) {
+            ROS_INFO("A Button Pressed: Poses will be transmitted");
+            sendList();
+            lastTime = ros::Time::now().toSec();
+        } else {
+            ROS_INFO("Wait X second and press A again...");
+        }
+    }
+
+    if (wiiState.get()->buttons[WII_BUTTON_B]==1){
+
+        if (ros::Time::now().toSec() - lastTime > secondsToWait){
+            ROS_INFO("B Button Pressed: Current Pose will be set");
+            setCurrentPos();
+            lastTime = ros::Time::now().toSec();
+        } else {
+            ROS_INFO("B Button Pressed: Wait X seconds and press B again...");
+        }
+        //addCurrentWayPoint();
+        //saveWayPointFile();
+    }
 
     wii_state_.data[0] = controlMode.data;
     wii_state_.data[1] = emergencyBrake.data;
