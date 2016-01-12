@@ -244,7 +244,7 @@ void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
   goal.target_pose.pose.orientation.y = temp.getY();
   goal.target_pose.pose.orientation.z = temp.getZ();
 
-  if(true)
+  if(false)
   {
       //Ziel sofort setzen
       ROS_INFO("Sending goal");
@@ -256,6 +256,7 @@ void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
       // Ziel im Vector zwischenspeichern
 
       //Apend msgs to list
+      sizeOfWaypointsList ++;
       goalList.push_back(goal);
       ROS_INFO("Appended current goal to goalList");
   }
@@ -268,10 +269,16 @@ void wii_lib::sendList()
 {
     std::vector<move_base_msgs::MoveBaseGoal> temp;
     temp = goalList;
-    for (int i=0; i<temp.size(); ++i)
+    /*for (int i=0; i<temp.size(); ++i)
     {
         ac.sendGoal(temp.at(i));
         ROS_INFO("Sending goal # %i", i);
+    }*/
+    if (sizeOfWaypointsList>0){
+        goalList.erase (goalList.begin());
+        ac.sendGoal(temp.at(0));
+        sizeOfWaypointsList--;
+        ROS_INFO("Send next goal point (Remaining: %i", sizeOfWaypointsList);
     }
 }
 
