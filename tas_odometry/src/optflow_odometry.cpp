@@ -6,7 +6,6 @@
 ros::Publisher twist_publisher;
 double fix_covariance;
 
-
 void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 
 	// Don't publish garbage data
@@ -22,14 +21,14 @@ void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 		twist.header.frame_id = twist.header.frame_id.erase(0,1); // Otherwise: error, because tf2 frame_ids cannot start with a '/'
 
 	// translation from optical flow, in m/s
-	twist.twist.twist.linear.x = (opt_flow->integrated_x/opt_flow->integration_time_us)/opt_flow->distance;
-	twist.twist.twist.linear.y = (opt_flow->integrated_y/opt_flow->integration_time_us)/opt_flow->distance;
+	twist.twist.twist.linear.x = 1.0e6 * (opt_flow->integrated_x/opt_flow->integration_time_us)/opt_flow->distance;
+	twist.twist.twist.linear.y = 1.0e6 * (opt_flow->integrated_y/opt_flow->integration_time_us)/opt_flow->distance;
 	twist.twist.twist.linear.z = 0;
 
 	// rotation from integrated gyro, in rad/s
-	twist.twist.twist.angular.x = opt_flow->integrated_xgyro/opt_flow->integration_time_us;
-	twist.twist.twist.angular.y = opt_flow->integrated_ygyro/opt_flow->integration_time_us;
-	twist.twist.twist.angular.z = opt_flow->integrated_zgyro/opt_flow->integration_time_us;
+	twist.twist.twist.angular.x = 1.0e6 * opt_flow->integrated_xgyro/opt_flow->integration_time_us;
+	twist.twist.twist.angular.y = 1.0e6 * opt_flow->integrated_ygyro/opt_flow->integration_time_us;
+	twist.twist.twist.angular.z = 1.0e6 * opt_flow->integrated_zgyro/opt_flow->integration_time_us;
 
 	// Populate covariance matrix with uncertainty values
 	double uncertainty = fix_covariance;
