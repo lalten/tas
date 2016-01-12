@@ -1,7 +1,6 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <px_comm/OpticalFlowRad.h>
-#include <regex>
 
 ros::Publisher twist_publisher;
 double fix_covariance;
@@ -41,8 +40,7 @@ void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 	for (int i=0; i<36; i+=7)
 		twist.twist.covariance[i] = uncertainty;
 
-//	ROS_INFO("qual:\t%d, uncert:\t%E\n", opt_flow->quality, uncertainty);
-
+	// Send out message
 	twist_publisher.publish(twist);
 }
 
