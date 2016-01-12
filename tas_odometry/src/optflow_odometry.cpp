@@ -1,13 +1,9 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
-#include <tf/transform_broadcaster.h>
 #include <px_comm/OpticalFlowRad.h>
 
 ros::Publisher twist_publisher;
-tf::TransformBroadcaster* odom_broadcaster;
-std::string odom_frame;
-std::string base_frame;
-bool pub_tf;
+double fix_covariance;
 
 
 void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
@@ -31,7 +27,10 @@ void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 	twist.twist.twist.angular.z = opt_flow->integrated_zgyro/opt_flow->integration_time_us;
 
 	// Populate covariance matrix with uncertainty values
-	double uncertainty = pow(10, -1.0 * opt_flow->quality / (255.0/6.0));
+  double uncertainty = fix_covariance;
+  if (fix_covariance == 0) {
+	  uncertainty = pow(10, -1.0 * opt_flow->quality / (255.0/6.0));
+  }
 	twist.twist.covariance.assign(0.0); // We say that generally, our data is uncorrelated to each other
 	// However, we have uncertainties for
 	// x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis
@@ -50,6 +49,9 @@ int main(int argc, char** argv) {
 	ros::Subscriber flow_subscriber = n.subscribe("/px4flow/opt_flow_rad", 100, flow_callback);
 
 	twist_publisher = n.advertise<geometry_msgs::TwistWithCovarianceStamped>("visual_odom", 50);
+
+  // Option for fixing covariance values (0 means auto-calculate)
+  n.param<double>("fix_covariance", fix_covariance, 0.0);
 
 	ros::spin();
 
