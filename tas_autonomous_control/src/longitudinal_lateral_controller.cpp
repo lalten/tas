@@ -25,9 +25,9 @@ int main(int argc, char** argv)
 
     tf::TransformListener listener;
 
-    ros::Rate rate(1);  //in Hz
+    ros::Rate rate(30);  //in Hz
 
-    lqr lqr1(node);
+    lqr lqr1;
 
     ROS_INFO_STREAM("entering loop");
     while (node.ok()){
@@ -42,16 +42,38 @@ int main(int argc, char** argv)
             ros::Duration(1).sleep();
             continue;
         }
-        ROS_INFO_STREAM("x:   " << transform.getOrigin().x()  << "y:   " << transform.getOrigin().y());
-        ROS_INFO_STREAM("angle of rotation: " << transform.getRotation().getAngle()/PI*180.0);
-        ROS_INFO_STREAM("axis of rotation: " << transform.getRotation().getAxis().getX() << "  " << transform.getRotation().getAxis().getX() << "  " << transform.getRotation().getAxis().getZ() );
 
         lqr1.mapcoord[0] = transform.getOrigin().x();
-        lqr1.mapcoord[1] = transform.getOrigin().x();
+        lqr1.mapcoord[1] = transform.getOrigin().y();
         lqr1.mapcoord[2] = transform.getRotation().getAngle()/PI*180.0* transform.getRotation().getAxis().getZ();  //this assumes rotation only around z axis!
+
+        if(lqr1.inited==0){
+            memcpy(lqr1.last_mapcoord, lqr1.mapcoord, 3*sizeof(double));
+            lqr1.timelast = ros::Time::now();
+            ROS_INFO_STREAM("inited " << lqr1.inited);
+        }
+
+        //ROS_INFO_STREAM("Current Pos   x:   " << lqr1.mapcoord[0]  << "y:   " << lqr1.mapcoord[0] <<   "z-angle:   " << lqr1.mapcoord[2] );
+
+        if( lqr1.inited == 1)
+        {           
+            lqr1.getclosestpoint();            
+            lqr1.visualize();
+            lqr1.estimate_state();
+            lqr1.control();
+            //ROS_INFO_STREAM("closest point on path:   " << lqr1.closestpt.at(0) << "  " << lqr1.closestpt.at(1) << "  " << lqr1.closestpt.at(2));
+            /*ROS_INFO_STREAM("glpath size:   " << lqr1.glpath.size());
+            for (int i=0; i< lqr1.glpath.size()/1.0; i++)
+            {
+                int j= i*1;
+                ROS_INFO_STREAM("glpath_point x: " << lqr1.glpath.at(j).at(0) << " y: " << lqr1.glpath.at(j).at(1) <<  " zangle: " << lqr1.glpath.at(j).at(2));
+
+            }*/
+        }
 
         ros::spinOnce();
         rate.sleep();
+
     }
 
     return 0;

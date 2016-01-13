@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   nav_msgs
   visualization_msgs
+  ackermann_msgs
 )
 
 ## System dependencies are found with CMake's conventions
