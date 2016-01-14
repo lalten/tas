@@ -8,6 +8,9 @@
  * ga68gug / TUM LSR TAS
  */
 
+// This define is required when an native-USB Arduino like the Micro is used!
+#define USE_USBCON
+
 #include <ros.h>
 #include <std_msgs/Int32.h>
 
@@ -15,25 +18,27 @@
 static const uint8_t pinA = 0;
 static const uint8_t pinB = 1;
 static const uint8_t pinC = 2;
-static const uint8_t pinLED = 13;
 
-// Ros objects
+// ROS objects
 ros::NodeHandle nh;
 std_msgs::Int32 msg;
-ros::Publisher pub("motor_odom", &msg);
+ros::Publisher pub("motor_encoder", &msg);
 
 // The three hall encoder data lines
 volatile bool A, B, C;
-// The "step" counter. It's 32b, because with 16b, at 17000rpm (max motor speed) it would overflow 3 times a second
+// The encoder counter. It's 32b, because with 16b, at 17000rpm (max motor speed) it would overflow 3 times a second
 volatile int32_t counter = 0;
 // Flag telling if new data is available
 volatile bool dirty = false;
 // Flag telling if there was a error during quadrature decoding
 volatile bool error = false;
+// Time of last message having been published
+unsigned long last_sent = 0;
 
 // There was an error, handle this gracefully
 void error_reset() {
 	// temporarily disable interrupts
+	uint8_t oldSREG = SREG;
 	cli();
 
 	// Re-read channel values
@@ -43,7 +48,7 @@ void error_reset() {
 	dirty = false;
 
 	// re-enable interrupts
-	sei();
+	SREG = oldSREG;
 }
 
 void isr_a() {
@@ -108,13 +113,14 @@ void isr_c() {
 	dirty = true;
 }
 
-//The setup function is called once at startup of the sketch
+// The setup function is called once at startup of the sketch
 void setup() {
 
 	// Set up IOs
 	pinMode(pinA, INPUT);
 	pinMode(pinB, INPUT);
 	pinMode(pinC, INPUT);
+	TX_RX_LED_INIT;
 
 	// Read initial logic states
 	A = digitalRead(pinA);
@@ -134,15 +140,29 @@ void setup() {
 // The loop function is called in an endless loop
 void loop() {
 
-	// Blink LED with LSB of counter
-	digitalWrite(pinLED, counter & 0x01);
+	// save time
+	unsigned long now = millis();
+
+	// TXLED blinks when data is published
+	if(now - last_sent < 100)
+		TXLED1;
+	else
+		TXLED0;
+
+	// RXLED blinks with changing counter
+	if(counter & 0x01)
+		RXLED1;
+	else
+		RXLED0;
 
 	// If new data is available, publish it
-	if (dirty) {
+	// Also publish 0s every second if no update happens
+	if (dirty || now - last_sent > 1000) {
 		dirty = false;
 		msg.data = counter;
 		counter = 0;
 		pub.publish(&msg);
+		last_sent = now;
 	}
 
 	nh.spinOnce();
