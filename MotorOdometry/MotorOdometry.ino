@@ -121,6 +121,9 @@ void setup() {
 	pinMode(pinB, INPUT);
 	pinMode(pinC, INPUT);
 	TX_RX_LED_INIT;
+	digitalWrite(pinA, HIGH); // activate int pull-up
+	digitalWrite(pinB, HIGH);
+	digitalWrite(pinC, HIGH);
 
 	// Read initial logic states
 	A = digitalRead(pinA);
