@@ -2,10 +2,10 @@
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <px_comm/OpticalFlowRad.h>
 
-ros::Publisher twist_publisher;
+ros::Publisher pose_publisher;
 double fix_covariance;
 
-void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
+void encoder_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 
 	// Don't publish garbage data
 	if(opt_flow->quality == 0){
@@ -41,16 +41,16 @@ void flow_callback (const px_comm::OpticalFlowRad::ConstPtr& opt_flow) {
 		twist.twist.covariance[i] = uncertainty;
 
 	// Send out message
-	twist_publisher.publish(twist);
+	pose_publisher.publish(twist);
 }
 
 int main(int argc, char** argv) {
 	ros::init(argc, argv, "optflow_odometry");
 	ros::NodeHandle n;
 
-	ros::Subscriber flow_subscriber = n.subscribe("/px4flow/opt_flow_rad", 100, flow_callback);
+	ros::Subscriber flow_subscriber = n.subscribe("/px4flow/opt_flow_rad", 100, encoder_callback);
 
-	twist_publisher = n.advertise<geometry_msgs::TwistWithCovarianceStamped>("visual_odom", 50);
+	pose_publisher = n.advertise<geometry_msgs::TwistWithCovarianceStamped>("visual_odom", 50);
 
   // Option for fixing covariance values (0 means auto-calculate)
   n.param<double>("fix_covariance", fix_covariance, 0.0);
