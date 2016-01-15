@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="/use_sim_time" value="false"/>
   
   <!-- merge lasers -->
   <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
@@ -35,7 +34,7 @@
   </node>
 
   <!-- EKF -->
-  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
+<!--   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
     <param name="map_frame" value="map"/>
     <param name="world_frame" value="odom"/>
     <param name="odom_frame" value="odom"/>
@@ -44,7 +43,7 @@
     <param name="print_diagnostics" value="true"/>
     <param name="frequency" value="100"/>
     <param name="two_d_mode" value="true"/>
-<!-- 
+
     <param name="pose0" value="/poseupdate"/>
     <param name="pose0_relative" value="true"/>    
     <rosparam param="pose0_config">
@@ -65,7 +64,7 @@
       false, false, false]
     </rosparam>
     <param name="imu0_differential" value="false"/>
--->
+
     <param name="twist0" value="/visual_odom"/>
     <rosparam param="twist0_config">
       [false, false, false,
@@ -76,5 +75,5 @@
     </rosparam>
 
   </node> 
-
+-->
 </launch>

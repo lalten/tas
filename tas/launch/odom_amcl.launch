@@ -1,6 +1,19 @@
 <?xml version="1.0"?>
 <launch>
   
+  <!-- merge lasers -->
+  <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+    <rosparam>
+      destination_frame: base_link
+      scan_destination_topic: /scan
+      laserscan_topics: /scan_front /scan_back
+      angle_min: -3.14159
+      angle_max: 3.14159
+      range_min: 0
+      range_max: 100
+    </rosparam>
+  </node>
+
   <!-- Run map server  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find tas)/launch/config/map_server/hectormap.yaml" output="screen"/>
 
@@ -16,22 +29,33 @@
     <param name="two_d_mode" value="true"/>
 
     <param name="imu0" value="/imu/data"/>
-    <param name="imu0_remove_gravitational_acceleration" value="false"/>
+    <param name="imu0_remove_gravitational_acceleration" value="true"/>
     <rosparam param="imu0_config">
       [false, false, false, # x, y, z,
-      false, false, false,  # roll, pitch, yaw, --- we might want yaw
+      false, false, true,  # roll, pitch, yaw, --- we want yaw
       false, false, false,  # vx, vy, vz,
-      false, false, false,  # vroll, vpitch, vyaw,
+      false, false, true,  # vroll, vpitch, vyaw,
       false, false, false]  # ax, ay, az
     </rosparam>
     <param name="imu0_differential" value="false"/>
 
+    <!--
     <param name="twist0" value="/visual_odom"/>
     <rosparam param="twist0_config">
       [false, false, false, # x, y, z,
       false, false, false,  # roll, pitch, yaw,
       true,  true, false,   # vx, vy, vz, --- vx, vy from optical flow
       false, false, true,   # vroll, vpitch, vyaw,
+      false, false, false]  # ax, ay, az
+    </rosparam> -->
+
+    <param name="pose0" value="/motor_odom"/>
+    <param name="pose0_relative" value="true"/>    
+    <rosparam param="pose0_config">
+      [true, true,  false,  # x, y, z, -- we want x, y from encoders
+      false, false, false,  # roll, pitch, yaw,
+      false, false, false,  # vx, vy, vz,
+      false, false, false,  # vroll, vpitch, vyaw,
       false, false, false]  # ax, ay, az
     </rosparam>
 
@@ -42,7 +66,7 @@
     <rosparam>
 update_min_d: 0.00    # Translational movement required before performing a filter update. (default 0.2)
 update_min_a: 0.00    # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
-odom_model_type: omni
+odom_model_type: diff
 odom_alpha1: 0.1      # expected noise in odometry rotation from rotational robot motion (default 0.2)
 odom_alpha2: 0.2      # expected noise in odometry rotation from translational robot motion (default 0.2)  
 odom_alpha3: 0.2      # expected noise in odometry translation from translational robot motion (default 0.2)
