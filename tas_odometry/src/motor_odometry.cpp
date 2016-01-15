@@ -1,3 +1,13 @@
+/* Motor Odometry
+ *
+ * This node reads in encoder data from an Arduino monitoring a sensored
+ * brushless motor. It uses IMU orientation data to append (in 2D or 3D) the
+ * length driven according to the motor encoders.
+ *
+ * Laurenz 2015-01
+ * ga68gug / TUM LSR TAS
+ */
+
 #include <ros/ros.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <std_msgs/Int32.h>
@@ -6,7 +16,7 @@
 
 ros::Publisher pose_publisher;
 
-tf::Quaternion orientation;
+tf::Quaternion orientation = tf::Quaternion(0,0,0,1);
 tf::Point position;
 uint32_t seq = 0;
 
