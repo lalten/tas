@@ -15,9 +15,9 @@
 #include <std_msgs/Int32.h>
 
 // IO pin numbers
-static const uint8_t pinA = 0;
-static const uint8_t pinB = 1;
-static const uint8_t pinC = 2;
+static const uint8_t pinA = 2;
+static const uint8_t pinB = 3;
+static const uint8_t pinC = 7;
 
 // ROS objects
 ros::NodeHandle nh;
