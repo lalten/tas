@@ -15,10 +15,12 @@
 #include <tf/tf.h>
 
 ros::Publisher pose_publisher;
+ros::Publisher encoder_publisher;
 
 tf::Quaternion orientation = tf::Quaternion(0,0,0,1);
 tf::Point position;
 uint32_t seq = 0;
+int32_t encoder_abs = 0;
 
 std::string frame_id;
 double ticks_per_meter;
@@ -32,6 +34,12 @@ void imu_callback (const sensor_msgs::ImuConstPtr &imu_msg) {
 
 // We get new encoder values here
 void encoder_callback(const std_msgs::Int32::ConstPtr& encoder_change) {
+
+	// Publish integrated/absolute encoder value
+	encoder_abs += encoder_change->data;
+	std_msgs::Int32 msg;
+	msg.data = encoder_abs;
+	encoder_publisher.publish(msg);
 
 	// Convert length to meter
 	double change_meter = (double) encoder_change->data / ticks_per_meter;
@@ -75,14 +83,15 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "motor_odometry");
 	ros::NodeHandle n;
 
-	ros::Subscriber encoder_sub = n.subscribe("/motor_encoder", 100, encoder_callback);
-	ros::Subscriber imu_sub = n.subscribe("/imu/data", 100, imu_callback);
-	pose_publisher = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("motor_odom", 50);
-
 	n.param<double>("ticks_per_meter", ticks_per_meter, 1e3); // TODO: measure this
 	n.param<std::string>("frame_id", frame_id, "base_motor");
 	n.param<double>("uncertainty_fixed", uncertainty_fixed, 1e-3);
 	n.param<bool>("mode_2d", mode_2d, true);
+
+	ros::Subscriber encoder_sub = n.subscribe("/motor_encoder", 100, encoder_callback);
+	ros::Subscriber imu_sub = n.subscribe("/imu/data", 100, imu_callback);
+	pose_publisher = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("motor_odom", 50);
+	encoder_publisher = n.advertise<std_msgs::Int32>("motor_encoder_abs", 50);
 
 	ros::spin();
 
