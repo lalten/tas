@@ -6,12 +6,8 @@ sudo apt-get install \
 ros-indigo-hector-slam \
 ros-indigo-map-server \
 ros-indigo-amcl
-```
-
-## EKF dependencies
-```
-sudo apt-get install \
 ros-indigo-robot-localization
+ros-indigo-sound-play
 ```
 
 ## Simulation dependencies 
