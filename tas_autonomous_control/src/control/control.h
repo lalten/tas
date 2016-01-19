@@ -26,6 +26,9 @@ public:
     std_msgs::Int16 control_Brake; /* flag for brake */
     std_msgs::Int16 control_Mode; /* flag for car mode: manual or autonomous */
 
+    ros::Time timenow;
+    ros::Time timelast;
+
     double cmd_linearVelocity;
     double cmd_angularVelocity;
     double cmd_steeringAngle;

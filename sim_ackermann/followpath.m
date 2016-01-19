@@ -14,12 +14,15 @@ plot(x,y,'o',pathxx,pathyy,'-*')
 hold on 
 
 
-x0=[1.5,2.5,50/180*pi];
+x0=[1.5,1.0,50/180*pi];
 ori = x0(1:2)+[cos(x0(3)), sin(x0(3))]*0.3; 
 plot(x0(1),x0(2), 'd',[x0(1) ori(1)], [x0(2) ori(2)]);
 
 axis equal
 
+title('LQR for Linearized Ackermann Model')
+xlabel('x')
+ylabel('y')
 
 
 
@@ -51,7 +54,7 @@ B= [b2; 0 ; 0];
 delta_l = 30/180*pi;
 
 %simulationsschritte
-nsim = 5000;
+nsim = 7000;
 
 xposdot = zeros(nsim,1);
 yposdot = zeros(nsim,1);
@@ -75,7 +78,7 @@ dt= 0.001;
 
 Q=[0  0 0;
     0  100 0;
-    0 0  400];
+    0 0  800];
 
 R=30;
  
@@ -90,6 +93,9 @@ ypos(1)=x0(2);
 psi(1) = x0(3);
 
 x(2,1)=x0(3);
+
+v=1;
+
 
 for t = 1:nsim-1
 
@@ -114,8 +120,11 @@ for t = 1:nsim-1
     xn(1:2) = [pathxx(min_index),pathyy(min_index)];
     xnn(1:2) = [pathxx(min_index+1),pathyy(min_index+1)];
     xn(3) = atan2(xnn(2)-xn(2),xnn(1)-xn(1));
+    xn(3)
      
-    lotf = [cos(xn(3)+90), sin(xn(3)+90)];
+    %lotf = [cos(xn(3)+90), sin(xn(3)+90)];
+    lotf = [cos(xn(3)+pi/4), sin(xn(3)+pi/4)];
+    
     verb_vek = xn(1:2)- [xpos(t),ypos(t)];  %verbinungsvektor
     lateral_d = lotf*verb_vek';
     

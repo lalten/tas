@@ -22,7 +22,7 @@ CMDVELACKERMANNBRIDGE::CMDVELACKERMANNBRIDGE():
 	m_Node.param("maxAngle", m_maxAngle, m_maxAngle);
 	m_Node.param("vehicleLength", m_vehicleLength, m_vehicleLength);
     //publisher and subscribers
-	m_ackermann_pub = m_Node.advertise<ackermann_msgs::AckermannDriveStamped>("ackermann_cmd", 10);
+    m_ackermann_pub = m_Node.advertise<ackermann_msgs::AckermannDriveStamped>("ackermann_cmd", 10);
 	m_cmd_sub = m_Node.subscribe<geometry_msgs::Twist>("cmd_vel", 10, &CMDVELACKERMANNBRIDGE::cmdCallback,this);
 }
 CMDVELACKERMANNBRIDGE::~CMDVELACKERMANNBRIDGE()

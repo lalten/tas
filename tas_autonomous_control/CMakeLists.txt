@@ -12,6 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   std_msgs
+  tf
+  nav_msgs
+  visualization_msgs
+  ackermann_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +111,8 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(tas_autonomous_control_node src/tas_autonomous_control_node.cpp src/control/control.cpp)
+add_executable(tas_autonomous_control_node src/tas_autonomous_control_node.cpp src/control/control.cpp src/control/lqr.cpp)
+add_executable(longitudinal_lateral_controller src/longitudinal_lateral_controller.cpp src/control/lqr.cpp )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -117,6 +122,8 @@ add_executable(tas_autonomous_control_node src/tas_autonomous_control_node.cpp s
 target_link_libraries(tas_autonomous_control_node
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(longitudinal_lateral_controller ${catkin_LIBRARIES})
 
 #############
 ## Install ##
