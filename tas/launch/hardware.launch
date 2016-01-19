@@ -12,14 +12,14 @@
     <param name="ticks_per_meter" value="100" />
   </node>
 
-  <!-- run wii stack
+  <!-- run wii stack -->
   <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
 	<remap from="imu/data" to="wii_imu/data"/>
 	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
 
   <node pkg="wii_control" type="wii_node" name="wii_control" output="screen"/>
--->
+
 
   <!-- Run laserscanner at the front -->
    <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0.245 0.0 0.07 0.0 0.0 0.0 /base_link /laser_front 50" />

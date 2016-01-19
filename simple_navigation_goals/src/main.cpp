@@ -3,6 +3,8 @@
  */
 
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <move_base_msgs/MoveBaseActionResult.h>
@@ -41,6 +43,24 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "simple_navigation_goals"); // init and set name
     std::vector<geometry_msgs::Pose> waypoints; // vector of goals, with position and orientation
 
+
+    /*
+    // READ IN WAYPOINTS
+    string line;
+    string info = "NumbWayPoints:";
+    string pos = "Pos:";
+    string orient = "Orient:";
+    ifstream myfile ("TAS_GROUP_06-Waypoints.txt");
+    if (myfile.is_open())
+    {
+        while ( getline (myfile,line) )
+        {
+            if (line)
+            cout << line << '\n';
+        }
+        myfile.close();
+    }*/
+
 //    geometry_msgs::Pose waypoint1;
 //    waypoint1.position.x = 10.50;
 //    waypoint1.position.y = 11.0;
@@ -49,6 +69,8 @@ int main(int argc, char** argv){
 //    waypoint1.orientation.y = 0.000;
 //    waypoint1.orientation.z = 0;
 //    waypoint1.orientation.w = 1;
+
+
     // 1er Start-Punkt
     geometry_msgs::Pose waypoint1;
     waypoint1.position.x = 11.1;
