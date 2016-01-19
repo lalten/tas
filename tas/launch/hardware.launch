@@ -1,51 +1,52 @@
 <?xml version="1.0"?>
-
 <launch>
-  <master auto="start"/>
   <param name="/use_sim_time" value="false"/>
 
   <!-- run serial connection -->
   <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py" args="/dev/arduino"/>
 
-  <!-- run wii joystick-->
+
+  <!-- run wii stack -->
   <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
 	<remap from="imu/data" to="wii_imu/data"/>
 	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
 
-  <!-- Run wii control -->
-  <node pkg = "wii_control" type="wii_node" name="wii_control" output="screen"/>
+  <node pkg="wii_control" type="wii_node" name="wii_control" output="screen"/>
 
- <!-- Run laserscanner at the front -->
-  <node name="hokuyo_front" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
+
+  <!-- Run laserscanner at the front -->
+   <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0.245 0.0 0.07 0.0 0.0 0.0 /base_link /laser_front 50" />
+  <node name="hokuyo_front" pkg="hokuyo_node" type="hokuyo_node" output="screen">
     <!-- Starts up faster, but timestamps will be inaccurate. --> 
     <param name="calibrate_time" type="bool" value="false"/> 
-    <!-- Set the port to connect to here -->
     <param name="port" type="string" value="/dev/hokuyo_front"/> 
     <param name="intensity" type="bool" value="false"/>
+    <param name="min_ang" value="-2.35619449615" />
+    <param name="max_ang" value="2.35619449615" />
+    <param name="frame_id" value="laser_front"/>
+    <remap from="scan" to="scan_front" />
   </node>
 
- <!-- Run laserscanner at the back -->
-  <node name="hokuyo_back" pkg="hokuyo_node" type="hokuyo_node" respawn="false" output="screen">
+
+  <!-- Run laserscanner at the back -->
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_back" args="-0.2475 0.0 0.12 3.14159 0 0 /base_link /laser_back 50" />
+  <node name="hokuyo_back" pkg="hokuyo_node" type="hokuyo_node" output="screen">
     <!-- Starts up faster, but timestamps will be inaccurate. --> 
     <param name="calibrate_time" type="bool" value="false"/> 
-    <!-- Set the port to connect to here -->
     <param name="port" type="string" value="/dev/hokuyo_back"/> 
     <param name="intensity" type="bool" value="false"/>
+    <param name="min_ang" value="-2.08621382713" />
+    <param name="max_ang" value="2.09234976768" />
+    <param name="frame_id" value="laser_back"/>
     <remap from="scan" to="scan_back" />
   </node>
 
-
- <!-- Run xsens driver -->
-  <arg name="frame_id" default="/imu"/>
-  <arg name="frame_local" default="ENU"/>
-  <arg name="frame_local_imu" default="ENU"/>
+  <!-- IMU -->
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 50" />
+  <!-- increase rate? -->
   <node pkg="xsens_driver" type="mtnode.py" name="xsens_driver" output="screen" >
-  	<param name="frame_id" value="$(arg frame_id)"/>
-	<param name="frame_local" value="$(arg frame_local)"/>
-	<param name="frame_local_imu" value="$(arg frame_local_imu)"/>
+    <param name="frame_id" value="base_imu"/>
   </node>
-
-  <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 40" />
 
 </launch>

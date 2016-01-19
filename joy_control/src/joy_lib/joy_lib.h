@@ -36,3 +36,5 @@ private:
 
     void msgInit(std_msgs::Int16MultiArray& msg);
 };
+
+#endif // JOY_LIB_H

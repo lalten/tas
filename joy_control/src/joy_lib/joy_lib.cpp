@@ -43,13 +43,13 @@ void joy_lib::joyStateCallback(const sensor_msgs::Joy::ConstPtr &msg)
             emergencyBrake.data = 0;
 
             //
-            if(axse[1]>=0)
+            if(axes[1]>=0)
                 SCALE_FACTOR_THROTTLE = 200;
             else
                 SCALE_FACTOR_THROTTLE = 300;
 
-            servo.x = 1500 + SCALE_FACTOR_THROTTLE*axse[1];
-            servo.y = 1500 + SCALE_FAKTOR_STEERING*axse[0];
+            servo.x = 1500 + SCALE_FACTOR_THROTTLE*axes[1];
+            servo.y = 1500 + SCALE_FAKTOR_STEERING*axes[0];
         }
 
         joy_servo_publisher.publish(servo);
