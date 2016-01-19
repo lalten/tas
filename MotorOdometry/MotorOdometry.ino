@@ -20,7 +20,7 @@ static const uint8_t pinB = 2;
 static const uint8_t pinC = 7;
 
 // WHen this time has passed, publish a message even though nothing changed
-static const uint16_t pub_max_idle_ms = 5000;
+static const uint16_t pub_max_idle_ms = 50;
 
 // ROS objects
 ros::NodeHandle nh;
@@ -168,7 +168,7 @@ void loop() {
 	nh.spinOnce();
 
 	// TXLED blinks when data is published
-	if(now - last_sent < 100)
+	if(now - last_sent < 10)
 		TXLED0; //on
 	else
 		TXLED1; //off
