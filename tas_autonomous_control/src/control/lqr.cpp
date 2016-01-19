@@ -374,7 +374,7 @@ void lqr::publish_sim()
 
 }
 
-void lqr::puslish_car()
+void lqr::publish_car()
 {
     double cmd_steeringAngle = steering_deg;
 
@@ -390,22 +390,10 @@ void lqr::puslish_car()
     }
 
 
-    addition = 50;
-    if(servo>0)
-    {
-        autonomous_control.control_servo.x = 1550;
-    }
-    else if(autonomous_control.cmd_linearVelocity<0)
-    {
-        autonomous_control.control_servo.x = 1300;
-    }
-    else
-    {
-        autonomous_control.control_servo.x = 1500;
-    }
+    double addition = 50;
 
     geometry_msgs::Vector3 control_servo;
-    control_servo.x = 1500 + addition*cmd_t;
+    control_servo.x = 1500 + addition*cmd_thrust;
     control_servo.y = cmd_steeringAngle;
 
     pub_servo.publish(control_servo);
