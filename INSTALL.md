@@ -5,9 +5,11 @@
 sudo apt-get install \
 ros-indigo-hector-slam \
 ros-indigo-map-server \
-ros-indigo-amcl
-ros-indigo-robot-localization
-ros-indigo-sound-play
+ros-indigo-amcl \
+ros-indigo-robot-localization \
+ros-indigo-sound-play \
+ros-indigo-tf2-bullet \
+libgstreamer-0.10-dev libgstreamer-plugins-base0.10-dev
 ```
 
 ## Simulation dependencies 
