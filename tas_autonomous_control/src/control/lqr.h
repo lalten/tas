@@ -9,6 +9,7 @@ using namespace std;
 #include "std_msgs/Float32MultiArray.h"
 #include "ackermann_msgs/AckermannDriveStamped.h"
 #include "sensor_msgs/Imu.h"
+#include <geometry_msgs/Vector3.h>
 
 #include <vector>
 
@@ -63,7 +64,9 @@ class lqr
     private:
         double Kvec[3];                     // LQR-control gains (computed by Matlab)
         double Kvec_1[3];                     // LQR-control gains at vel_ref (computed by Matlab)
-        double vel_ref;
+        double kv;  // speed controller gain
+        double cmd_thrust;
+        double vel_ref;                     //velocity reference value for time-varying control interpolation
         double err[3];                      // errors of the three states
         vector < double > des_speed_vec;    //vector containing desired velocity for each point on the path
         vector < double > distance_to_last; //distance from one point to the other on the path            
@@ -73,6 +76,7 @@ class lqr
         void glpathCallback(const nav_msgs::Path::ConstPtr& path);      //called when there is a new global path
         void imuCallback(const sensor_msgs::Imu::ConstPtr& data);      //called when there is a new global path
         void publish_sim();
+        void puslish_car();
         double max_vel;          //maximum allowd velocity
         double acc_distance;     //distance from pathstart after which max_vel shall be reached, in m
         double decc_distance;    //distance to pathend in which max_vel shall to 0, in m
@@ -87,6 +91,7 @@ class lqr
         ros::Publisher pub_vel;
         ros::Publisher pub_cmd_vel;
         ros::Publisher pub_ackermann_sim;
+        ros::Publisher pub_servo;
 };
 
 #endif // LQR_H

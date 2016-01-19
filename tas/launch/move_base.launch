@@ -2,16 +2,28 @@
 <launch>
 
   <!-- Move Base-->
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen" >   
+    <!--<param name="footprint_padding" value="0.01" />  das? -->
+    <param name="controller_frequency" value="10.0" />
+    <param name="controller_patience" value="100.0" />
+    <param name="base_global_planner" value="SBPLLatticePlanner" />
+    <param name="SBPLLatticePlanner/primitive_filename" value="$(find sbpl)/matlab/mprim/acker_prim" />
+
     <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find tas)/launch/config/move_base/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find tas)/launch/config/move_base/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find tas)/launch/config/move_base/base_local_planner_params.yaml" command="load" />
+
+    <rosparam file="$(find sbpl_lattice_planner)/launch/sbpl_global_params.yaml" command="load" />
+
+    <param name="local_costmap/global_frame" value="/map" />
   </node>
 
+
   <!-- Run trajectory control -->
-  <node pkg="tas_autonomous_control" type="tas_autonomous_control_node" name="tas_autonomous_control_node" output="screen"/>
+  <!--<node pkg="tas_autonomous_control" type="tas_autonomous_control_node" name="tas_autonomous_control_node" output="screen"/>  -->
 
 
 </launch>

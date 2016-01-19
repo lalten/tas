@@ -3,69 +3,16 @@
 <launch>
   <!-- Start Navigation Stack -->
 
+  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen" args="0 0 0  0 0 0 map odom 100" />
+
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
-    <param name="map_frame" value="map"/>   
-    <param name="odom_frame" value="odom"/>  
-
+    <param name="map_frame" value="odom"/>
+    <param name="odom_frame" value="base_link"/>
+    <param name="laser_max_dist" value="100"/>
     <param name="map_size" value="2048"/>
-    <param name="pub_map_odom_transform" value="false"/>
-    <param name="pub_map_scanmatch_transform" value="false"/>
   </node>
 
-
-  <!-- odom -> base_link -->
-  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
-    <param name="print_diagnostics" value="true"/>
-    <param name="frequency" value="100"/>
-    <param name="two_d_mode" value="true"/>
-
-    <param name="map_frame" value="map"/>  
-    <param name="odom_frame" value="odom"/>
-    <param name="world_frame" value="odom"/>   
-    <param name="base_link_frame" value="base_link"/>
-
-    <param name="pose0" value="/poseupdate"/>
-    <rosparam param="pose0_config">  
-      [true, true,  false,    <!-- You have two_d_mode on, so making Z true does nothing -->
-      false, false, true,  
-      false, false, false,
-      false, false, false,
-      false, false, false]
-    </rosparam>
-    <param name="pose0_differential" value="true"/>
-
-    <param name="imu0" value="/imu"/>
-    <param name="imu0_remove_gravitational_acceleration" value="true"/>    
-
-    <rosparam param="imu0_config">  
-      [false, false, false,
-       false,  false,  true,     <!-- 2D mode, so roll and pitch do nothing -->
-       false, false, false,
-       false,  false,  true,     <!-- As above -->
-       true,  true,  false]    <!-- Start with these turned off, verify that everything works, then turn X and Y back on (Z does nothing in 2D mode) -->
-    </rosparam>
-    <param name="imu0_relative" value="true"/>
-    <param name="imu0_differential" value="true"/> 
-
-  </node>
-
-
-  <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find tas)/launch/config/map_server/LSR_3.yaml">
-    <remap from="/map" to="/map_server_map"/>
-  </node>
-  
-  <!--<node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
-    <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find tas)/launch/config/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find tas)/launch/config/move_base/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find tas)/launch/config/move_base/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find tas)/launch/config/move_base/base_local_planner_params.yaml" command="load" />
-    <param name="local_costmap/global_frame" value="/map" />
-  </node>-->
-
-
-
-  <!--<node ns="local_costmap" name="voxel_grid_throttle" pkg="topic_tools" type="throttle" args="messages voxel_grid 3.0 voxel_grid_throttled" />  brauchen wir das? -->
+   
   <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen" >   
     <!--<param name="footprint_padding" value="0.01" />  das? -->
     <param name="controller_frequency" value="10.0" />

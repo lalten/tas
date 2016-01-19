@@ -32,7 +32,7 @@ lqr::lqr()
       pub_arrow_array = node.advertise<visualization_msgs::MarkerArray>( "des_speed_dir", 0);
       pub_vel = node.advertise<std_msgs::Float32MultiArray>( "lqr_vel", 0);
       pub_ackermann_sim = node.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_vehicle/ackermann_cmd", 10);
-
+      pub_servo = node.advertise<geometry_msgs::Vector3>("servo", 1);
 }
 
 
@@ -62,6 +62,15 @@ double lqr::control()
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
     publish_sim();
+
+    kv = 2.0;
+    cmd_thrust = (vel-des_vel)*kv; // 1 full thrust, 0 no thrust , -1 reverse full thrust
+    if(cmd_thrust > 1)
+        cmd_thrust=1;
+    if(cmd_thrust < 1)
+        cmd_thrust=-1;
+
+    publish_car();
 }
 
 void lqr::getclosestpoint()
@@ -363,6 +372,43 @@ void lqr::publish_sim()
 
     pub_ackermann_sim.publish(ackermannMsg);
 
+}
+
+void lqr::puslish_car()
+{
+    double cmd_steeringAngle = steering_deg;
+
+    cmd_steeringAngle = 1500 + 500/30*cmd_steeringAngle;
+
+    if(cmd_steeringAngle > 2000)
+    {
+        cmd_steeringAngle = 2000;
+    }
+    else if(cmd_steeringAngle < 1000)
+    {
+        cmd_steeringAngle = 1000;
+    }
+
+
+    addition = 50;
+    if(servo>0)
+    {
+        autonomous_control.control_servo.x = 1550;
+    }
+    else if(autonomous_control.cmd_linearVelocity<0)
+    {
+        autonomous_control.control_servo.x = 1300;
+    }
+    else
+    {
+        autonomous_control.control_servo.x = 1500;
+    }
+
+    geometry_msgs::Vector3 control_servo;
+    control_servo.x = 1500 + addition*cmd_t;
+    control_servo.y = cmd_steeringAngle;
+
+    pub_servo.publish(control_servo);
 }
 
 
