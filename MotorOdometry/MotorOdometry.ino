@@ -15,9 +15,12 @@
 #include <std_msgs/Int32.h>
 
 // IO pin numbers
-static const uint8_t pinA = 2;
-static const uint8_t pinB = 3;
+static const uint8_t pinA = 3;
+static const uint8_t pinB = 2;
 static const uint8_t pinC = 7;
+
+// WHen this time has passed, publish a message even though nothing changed
+static const uint16_t pub_max_idle_ms = 5000;
 
 // ROS objects
 ros::NodeHandle nh;
@@ -32,8 +35,12 @@ volatile int32_t counter = 0;
 volatile bool dirty = false;
 // Flag telling if there was a error during quadrature decoding
 volatile bool error = false;
+
 // Time of last message having been published
 unsigned long last_sent = 0;
+
+// counter for toggling the LED with its LSB
+uint8_t ledcounter = 0;
 
 // There was an error, handle this gracefully
 void error_reset() {
@@ -146,28 +153,32 @@ void loop() {
 	// save time
 	unsigned long now = millis();
 
-	// TXLED blinks when data is published
-	if(now - last_sent < 100)
-		TXLED1;
-	else
-		TXLED0;
-
-	// RXLED blinks with changing counter
-	if(counter & 0x01)
-		RXLED1;
-	else
-		RXLED0;
-
 	// If new data is available, publish it
 	// Also publish 0s every second if no update happens
-	if (dirty || now - last_sent > 1000) {
+	if (dirty || now - last_sent > pub_max_idle_ms) {
 		dirty = false;
 		msg.data = counter;
+		ledcounter += counter;
 		counter = 0;
 		pub.publish(&msg);
 		last_sent = now;
 	}
 
+	// Handle ROS
 	nh.spinOnce();
+
+	// TXLED blinks when data is published
+	if(now - last_sent < 100)
+		TXLED0; //on
+	else
+		TXLED1; //off
+
+	// RXLED blinks with changing counter
+	if(ledcounter & 0x01)
+		RXLED0;
+	else
+		RXLED1;
+
+
 }
 

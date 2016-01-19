@@ -44,13 +44,13 @@
     <rosparam param="twist0_config">
       [false, false, false, # x, y, z,
       false, false, false,  # roll, pitch, yaw,
-      true,  true, false,   # vx, vy, vz, --- vx, vy from optical flow
+      true,  true, false,   # vx, vy, vz, - vx, vy from optical flow
       false, false, true,   # vroll, vpitch, vyaw,
       false, false, false]  # ax, ay, az
     </rosparam> -->
 
     <param name="pose0" value="/motor_odom"/>
-    <param name="pose0_relative" value="true"/>    
+    <param name="pose0_differential" value="true"/>    
     <rosparam param="pose0_config">
       [true, true,  false,  # x, y, z, -- we want x, y from encoders
       false, false, false,  # roll, pitch, yaw,

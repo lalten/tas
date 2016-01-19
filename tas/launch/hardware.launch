@@ -9,7 +9,7 @@
   <node name="rosserial_encoder" pkg="rosserial_python" type="serial_node.py" args="/dev/serial/by-id/usb-Arduino_LLC_Arduino_Micro-if00"/>
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_motor" args="0 0 0 0 0 0 /base_link /base_motor 50" />
   <node name="motor_odometry" pkg="tas_odometry" type="motor_odometry">
-    <param name="ticks_per_meter" value="1" /> <!-- just for calibration! -->
+    <param name="ticks_per_meter" value="100" />
   </node>
 
   <!-- run wii stack
