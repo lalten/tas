@@ -1,40 +1,38 @@
-# Branch "master":
- - Please follow the instruction on Moodle for better understanding about the package
- - This branch is only used for real car. It will not work on your own machine
+# TAS WS15/16 - Group 6
+TUM LSR Technik Autonomer Systeme WS15/16  
+Group 6 (Laurenz Altenmüller, Frederik Ebert, Quirin Körner, Konrad Vowinckel)  
+https://www.lsr.ei.tum.de/en/courses/vorlesungen/wintersemester/master/technik-autonomer-systeme/
+
+## Installation
+See installation [instructions](INSTALL.md).
+
+## Running the software
+
+### Simulation
+```
+roslaunch tas_simulator startSimulation.launch
+roslaunch tas_simulator startNavigation.launch
+```
+
+### Hardware
+```
+roslaunch tas hardware.launch
+roslaunch tas odom.launch
+roslaunch tas move_base.launch
+```
 
 ## ROS via tcp/ip:
 More info on the ROS network setup is on [ROS Wiki](http://wiki.ros.org/ROS/NetworkSetup).
 
- * if you are using ROS in a virtual machine, make sure it is set to bridged network mode.
- * ssh into the car: `ssh tas_group_06@10.42.0.1` (or create an ssh [config](http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/) file so you can just do `ssh vettel` and skip password prompt)
- * set the **ROS_IP** to the car's IP address: `export ROS_IP=10.42.0.1`
- * start a roscore in background and disown it (so you'll be able to close the terminal) - `roscore &`, `disown`
- * launch your files in background and disown again: `roslaunch tas run_system.launch &`, `disown`
- * on your laptop, start a terminal and connect to the car via ethernet or wifi
- * set the ROS master location: `export ROS_MASTER_URI=http://10.42.0.1:11311`
- * tell ros your hostname: `export ROS_HOSTNAME=$(hostname).local`
-  * or alternatively: `export ROS_IP=10.42.0.100` (**adjust this to your ip**, which you can see using `ifconfig`)
- * start your local nodes: `rosrun rviz rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
-
-__Pro tip__: Add the ROS_IP line to the car's .bashrc, Append the ROS_MASTER_URI and ROS_HOSTNAME lines to your client's .bashrc:  
+__Prerequisites__: Append the ROS_HOSTNAME line to __both__ the car's and your client machine's .bashrc:  
 ```
-export ROS_MASTER_URI=http://vettel.local:11311   % das jedes mal einzeln setzen
 export ROS_HOSTNAME=$(hostname).local
 ```
 
-# Branch "simulation":
- - Provide a gazebo simulation model based on ackermann_vehicle package on ROS
- - Please follow the instructions in INSTALL.md to install all necessary packages
- - For launching simulator run:
-	`roslaunch tas_simulator startSimulation.launch`
- - To start navigation stack in simulation run
-	`roslaunch tas_simulator startNavigation.launch`	
- - To change to autonomous mode use
-	`rostopic pub /wii_communication std_msgs/Int16MultiArray`
-hit "Tab" a few times and change that 0 to 1
- - And publish goals:
-	`rosrun simple_navigation_goals simple_navigation_goals_node`
+ * if you are using ROS in a virtual machine, make sure it is set to bridged network mode.
+ * ssh into the car: `ssh tas_group_06@10.42.0.1` (or create an ssh [config](http://nerderati.com/2011/03/17/simplify-your-life-with-an-ssh-config-file/) file so you can just do `ssh vettel` and skip password prompt) to launch your files
+ * on your laptop, start a terminal and connect to the car via ethernet or wifi
+ * set the ROS master location: `export ROS_MASTER_URI=http://vettel.local:11311`
+ * start your local nodes: e.g. `rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
 
-This branch only provides you a gazebo simulation model, additional details and control strategies need to be added to fullfil your tasks
-			
 
