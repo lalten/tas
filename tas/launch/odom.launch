@@ -15,13 +15,16 @@
     </rosparam>
   </node>
   
+  
+  
+  
   <node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen" args="0 0 0  0 0 0 map odom 100" />
 
   <!-- Hector mapping -->
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
     <rosparam>
       map_frame: odom
-      odom_frame: baselink
+      odom_frame: base_link
       map_update_distance_thresh: 0.01
       map_update_angle_thresh: 0.001
       map_size: 2048
