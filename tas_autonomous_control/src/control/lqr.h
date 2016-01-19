@@ -76,7 +76,7 @@ class lqr
         void glpathCallback(const nav_msgs::Path::ConstPtr& path);      //called when there is a new global path
         void imuCallback(const sensor_msgs::Imu::ConstPtr& data);      //called when there is a new global path
         void publish_sim();
-        void puslish_car();
+        void publish_car();
         double max_vel;          //maximum allowd velocity
         double acc_distance;     //distance from pathstart after which max_vel shall be reached, in m
         double decc_distance;    //distance to pathend in which max_vel shall to 0, in m
