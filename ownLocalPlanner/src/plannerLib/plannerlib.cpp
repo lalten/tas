@@ -1,6 +1,9 @@
 #include "plannerlib.h"
 #include <math.h>
 
+
+// Bezierkurve
+
 plannerLib::plannerLib()
 {
     // Subscribe Local Costmap
@@ -43,7 +46,9 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
     float distance = 0;     // Distance of the Path
     int cp = 0;             // Current Point
 
-    originalPath.clear();   // Clear the current Path
+    // Clear the current Path
+    originalPathX.clear();
+    originalPathY.clear();
 
     while (cp < path.poses.size() && distance < PATH_LENGTH)
     {
@@ -54,20 +59,71 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
         /// TODO: Convert global Coordinates to lokal costmap coordinates
         /// TODO: Calculate distance
 
-        originalPath.push_back(pose);
+        originalPathX.push_back(pose.at(0));
+        originalPathY.push_back(pose.at(1));
     }
 
 }
 
 void plannerLib::handleNewCostmap(std::vector<> data)
 {
-    float<int> costmap = data.;
+    std::vector<int> costmap = data.;
     int width = data.;
     int hight = data.;
     float res = data.;
 
     carWidth = CAR_WIDTH / res;
     carLength = CAR_LENGTH / res;
+
+
+    float bestcost;
+
+    // Check the original Path
+    std::vector<float> pointsX, pointsY;
+    createCalcPoints(originalPathX, originalPathY, pointsX, pointsY);
+    bestcost = calcCost(pointsX, pointsY, costmap, width, hight);
+
+    // If the cost of the Original Path is over the Threshold
+    if (bestcost > THRESHOLD)
+    {
+        std::vector<float> mPoP(2);    // Middle Point of Path
+        mPoP(0) = originalPathX.at(0) + (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0))/2;
+        mPoP(1) = originalPathY.at(0) + (originalPathY.at(originalPathX.size()-1)-originalPathY.at(0))/2;
+
+        for (float alpha = -rad(MAX_ANGLE); alpha <= rad(MAX_ANGLE); alpha += RESOLUTION)
+        {
+            float beta;
+
+            if (originalPathX.at(originalPathX.size()-1) == originalPathX.at(0))
+                beta = (PI/2) - alpha;
+            else if (originalPathX.at(originalPathX.size()-1) < originalPathX.at(0))
+                beta =  atan((originalPathY.at(originalPathY.size()-1)-originalPathY.at(0))/
+                             (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0)))  - alpha;
+            else
+                beta =  atan((originalPathY.at(originalPathY.size()-1)-originalPathY.at(0))/
+                             (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0)))  + alpha + PI;
+
+            float mp_length = sqrt(pow(mPoP(2)-originalPathY.at(0),2) + pow(mPoP(1)-originalPathX.at(0))) / sin((PI/2) - alpha);
+            std::vector<float> cmp(2);                                      // Current Middel Point of new Path
+            cmp(0) = originalPathX.at(0) + mp_length*sin((PI/2)-beta);
+            cmp(1) = originalPathY.at(0) + mp_length*sin(beta);
+
+            for (float t = 0; t <= 1; t+=(1/originalPathX.size()))
+            {
+                float aX = getPt_bezier(originalPathX.at(0), cmp(0), t);
+                float aY = getPt_bezier(originalPathY.at(0), cmp(1), t);
+                float bX = getPt_bezier(cmp(0), originalPathX.at(originalPathX.size()-1), t);
+                float aY = getPt_bezier(cmp(1), originalPathY.at(originalPathY.size()-1), t);
+
+                /// TODO
+                //x = getPt( xa , xb , i );
+                //y = getPt( ya , yb , i );
+
+            }
+
+
+        }
+    }
 
 
 
@@ -198,6 +254,15 @@ int plannerLib::getIndex(int x, int y, int width, int hight)
     return (x-1)*width + (y-1);
 }
 
+float plannerLib::rad(float deg)
+{
+    return deg*PI/180;
+}
+
+int plannerLib::getPt_bezier(int n1, int n2, float perc)
+{
+    return n1 + ((n2-n1)*perc);
+}
 
 
 

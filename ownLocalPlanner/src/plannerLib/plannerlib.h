@@ -14,6 +14,9 @@
 #define CAR_WIDTH       0.45    // Car Width in Meter
 #define CAR_LENGTH      0.70    // Car Length in Meter
 #define PATH_LENGTH     3.00    // Length of the global Path in Meter
+#define THRESHOLD       100     // Cost-Threshold when to calculate alternative Paths
+#define MAX_ANGLE       36      // Maximal Angle in Degree
+#define RESOLUTION      2       // Angle Resolution in Degree
 
 class plannerLib
 {
@@ -32,7 +35,8 @@ private:
     float globalCoords[3];
     float carWidth;             // In Pixel !!!
     float carLength;
-    std::vector< std::vector<float> > originalPath;
+    std::vector<float> originalPathX;
+    std::vector<float> originalPathY;
     std::vector< std::vector<float> > bestPath;
 
 
@@ -55,6 +59,10 @@ private:
 
     void refreshGlobalPosition();
     void refreshGlobalPath(const nav_msgs::Path::ConstPtr& path);
+
+    // HELPER FUNCTIONS
+    float rad(float deg);
+    int getPt_bezier(int n1, int n2, float perc);
 
 };
 
