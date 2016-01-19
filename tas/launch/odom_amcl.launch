@@ -17,8 +17,13 @@
   <!-- Run map server  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find tas)/launch/config/map_server/hectormap.yaml" output="screen"/>
 
+  <!-- Laser odometry -->
+  <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" 
+    name="laser_scan_matcher_node" output="screen">
+    <param name="fixed_frame" value="odom"/>
+  </node>
 
-  <!-- EKF odom -> base_link -->
+  <!-- EKF odom -> base_link
   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
     <param name="map_frame" value="map"/>
     <param name="world_frame" value="odom"/>
@@ -29,44 +34,20 @@
     <param name="frequency" value="100"/>
     <param name="two_d_mode" value="true"/>
 
-    <param name="pose0" value="/amcl_pose"/>
-    <param name="pose0_differential" value="true"/>
-    <rosparam param="pose0_config">
-      [false, false,  false,    <!-- We have two_d_mode on, so making Z true does nothing -->
-      false, false, false,  
-      false, false, false,
-      false, false, false,
-      false, false, false]
-    </rosparam>
-
     <param name="imu0" value="/imu/data"/>
     <param name="imu0_remove_gravitational_acceleration" value="true"/>
     <rosparam param="imu0_config">
       [false, false, false, # x, y, z,
-      false, false, true,   # roll, pitch, yaw, --- we want yaw
+      false, false, true,   # roll, pitch, yaw, - we want yaw
       false, false, false,  # vx, vy, vz,
       false, false, true,   # vroll, vpitch, vyaw,
       false, false, false]  # ax, ay, az
     </rosparam>
-    <param name="pose0_differential" value="false"/>
-
-    <param name="imu0" value="/imu/data"/>
-    <param name="imu0_remove_gravitational_acceleration" value="true"/>    
-
-    <rosparam param="imu0_config">  
-      [false, false, false,
-       false, false, true,
-       false, false, false,
-       false, false, true,
-       false, false, false]   #just for testing, orig: all false! (later: t,t,f)
-    </rosparam>
-    <param name="imu0_relative" value="true"/>
-    <param name="imu0_differential" value="false"/>
 
     <param name="pose0" value="/motor_odom"/>
     <param name="pose0_differential" value="true"/>    
     <rosparam param="pose0_config">
-      [true, true,  false,  # x, y, z, -- we want x, y from encoders
+      [true, false, false,  # x, y, z, - we want x, y from encoders
       false, false, false,  # roll, pitch, yaw,
       false, false, false,  # vx, vy, vz,
       false, false, false,  # vroll, vpitch, vyaw,
@@ -74,7 +55,7 @@
     </rosparam>
 
   </node> 
-
+  -->
   <!-- Run AMCL for map->odom -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <rosparam>
@@ -83,7 +64,7 @@ update_min_a: 0.01    # Translational movement required before performing a filt
 odom_model_type: diff
 odom_alpha1: 0.1      # expected noise in odometry rotation from rotational robot motion (default 0.2)
 odom_alpha2: 0.2      # expected noise in odometry rotation from translational robot motion (default 0.2)  
-odom_alpha3: 0.2      # expected noise in odometry translation from translational robot motion (default 0.2)
+odom_alpha3: 2.0      # expected noise in odometry translation from translational robot motion (default 0.2)
 odom_alpha4: 0.2      # expected noise in odometry translation from rotational robot motion (default 0.2)
 odom_alpha5: 0.2      # Translation-related noise parameter (default 0.2)
 tf_broadcast: true    # prevent amcl from publishing the transform between the global frame and the odometry frame
