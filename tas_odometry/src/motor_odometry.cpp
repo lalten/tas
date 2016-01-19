@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 	// Fill covariance. Order: (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
 	pose.pose.covariance.assign(0.0); // Generally uncorrelated
 	for (int i=0; i<36; i+=7)
-		pose.pose.covariance.elems[i] = std::numeric_limits<double>::infinity();
+		pose.pose.covariance.elems[i] = 999;
 	pose.pose.covariance.elems[0] = uncertainty_fixed; // x
 	pose.pose.covariance.elems[7] = uncertainty_fixed; // y
 
