@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   wiimote
   sensor_msgs
-  turtlesim
+  tf
 )
 
 ## System dependencies are found with CMake's conventions

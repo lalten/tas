@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 
     while(ros::ok())
     {
-        ROS_INFO("Konrad Test");
         teleop_joy.joy_communication_publisher.publish(teleop_joy.joy_state);
         ros::spinOnce();
         loop_rate.sleep();

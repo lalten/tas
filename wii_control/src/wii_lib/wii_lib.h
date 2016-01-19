@@ -10,6 +10,12 @@
 #include <math.h>
 #include <std_msgs/Int16MultiArray.h>
 #include <std_msgs/Int16.h>
+#include <move_base_msgs/MoveBaseAction.h>
+#include <actionlib/client/simple_action_client.h>
+
+
+
+#include <tf/transform_listener.h>
 
 #define WII_BUTTON_1            0
 #define WII_BUTTON_2            1
@@ -32,6 +38,8 @@
 
 #define CAR_LENGTH              0.355
 
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+
 class wii_lib
 {
 public:
@@ -40,7 +48,9 @@ public:
     ros::NodeHandle nh_;
     ros::Publisher wii_servo_pub_;
     ros::Publisher wii_communication_pub;
+
     ros::Subscriber wii_sub_;
+    ros::Subscriber pos_sub_;
 
     /* flags for the control mode and brake */
     std_msgs::Int16 emergencyBrake;
@@ -61,7 +71,32 @@ private:
     /* initialize the msg for the communication between wii_control and trajector_control*/
     void msg_Initialization(std_msgs::Int16MultiArray& msg);
 
+    void setCurrentPos();
 
+    void saveWayPointFile();
+
+    void addCurrentWayPoint();
+
+    int sizeOfWaypointsList;
+
+    tf::TransformListener tf_map_baselink;
+
+    geometry_msgs::Pose currentWayPoint;
+
+    std::vector<move_base_msgs::MoveBaseGoal> goalList;
+
+    std::vector<geometry_msgs::Pose> waypoints;
+
+    MoveBaseClient ac;
+
+    // KV:
+    // Timer zum eintragen der Wegpunkte und zum Übermitteln der Wegpunkte
+    double lastTime;
+    double secondsToWait;
+
+
+    void sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ);
+    void sendList();
 };
 
 #endif // WII_LIB_H

@@ -26,7 +26,6 @@ ylabel('y')
 
 
 
-
 %disp 'winkel nähester abschnitt'
 %xn(3)/pi*180
 
