@@ -9,7 +9,53 @@ plannerLib::plannerLib()
 
 
     //wii_communication_pub = nh_.advertise<std_msgs::Int16MultiArray>("wii_communication",1);
+    glpath_sub_ = nh.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &plannerLib::refreshGlobalPath,this);
 
+    // PRESETS
+    globalCoords[0] = 0;
+    globalCoords[1] = 0;
+    globalCoords[2] = 0;
+}
+
+void plannerLib::refreshGlobalPosition()
+{
+    tf::TransformListener listener;
+    ros::Rate rate(30);
+
+    while(nh.ok())
+    {
+        try {
+            listener.lookupTransform(("/map", "/base_link",ros::Time(0), listener));
+        } catch (tf::TransformException &ex) {
+            ROS_ERROR("%s",ex.what());
+            ros::Duration(1).sleep();
+            continue;
+        }
+        globalCoords[0] = (float) transform.getOrigin().x();
+        globalCoords[1] = (float) transform.getOrigin().y();
+        globalCoords[2] = (float) (transform.getRotation().getAngle()/PI*180.0* transform.getRotation().getAxis().getZ());
+    }
+
+}
+
+void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
+{
+    float distance = 0;     // Distance of the Path
+    int cp = 0;             // Current Point
+
+    originalPath.clear();   // Clear the current Path
+
+    while (cp < path.poses.size() && distance < PATH_LENGTH)
+    {
+        std::vector<float> pose(2);
+        pose.at(0) = path->poses.at(cp).pose.position.x;
+        pose.at(1) = path->poses.at(cp).pose.position.y;
+
+        /// TODO: Convert global Coordinates to lokal costmap coordinates
+        /// TODO: Calculate distance
+
+        originalPath.push_back(pose);
+    }
 
 }
 

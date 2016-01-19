@@ -4,13 +4,16 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Twist.h>
-#include <wiimote/State.h>
 #include <std_msgs/Int16MultiArray.h>
 #include <std_msgs/Int16.h>
+
+#include <tf/transform_listener.h>
+
 
 #define COST_OUTSIDE    50      // Sets the cost out of the Costmap to 50
 #define CAR_WIDTH       0.45    // Car Width in Meter
 #define CAR_LENGTH      0.70    // Car Length in Meter
+#define PATH_LENGTH     3.00    // Length of the global Path in Meter
 
 class plannerLib
 {
@@ -22,10 +25,15 @@ public:
 
 
 
+// glpathCallback in control/lqr.cpp
+
 
 private:
+    float globalCoords[3];
     float carWidth;             // In Pixel !!!
     float carLength;
+    std::vector< std::vector<float> > originalPath;
+    std::vector< std::vector<float> > bestPath;
 
 
     void handleNewCostmap(std::vector<> data);
@@ -44,6 +52,9 @@ private:
 
     // Calculates the Index for Vector of Costmap to given x and y points
     int getIndex(int x, int y, int width, int hight);
+
+    void refreshGlobalPosition();
+    void refreshGlobalPath(const nav_msgs::Path::ConstPtr& path);
 
 };
 
