@@ -2,16 +2,31 @@
 
 lqr::lqr()
 {    
+      vel_ref=1.0;
+
       Kvec[0]=0.5232;
       Kvec[1]=-3.0107;
       Kvec[2]=-5.4772;
 
-      decc_distance = 1.5;
 
-      max_vel = 0.4;
+      Kvec_1[0]=0.8232;
+      Kvec_1[1]=-2.0107;  //dphi error gain
+      Kvec_1[2]=-1.4772;  //laterl d error gain
+
+      //worked ok with maxvel m/s
+//      Kvec_1[0]=0.8232;
+//      Kvec_1[1]=-2.0107;  //dphi error gain
+//      Kvec_1[2]=-1.4772;  //laterl d error gain
+
+
+      decc_distance = 1.5;
+      acc_distance = 1;
+
+      max_vel = 1;
 
       inited=0;
       glpath_sub_ = node.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &lqr::glpathCallback,this);
+      imu_sub_ = node.subscribe<sensor_msgs::Imu>("/imu", 100, &lqr::imuCallback,this);
       pub_ball = node.advertise<visualization_msgs::Marker>( "closest_pt", 0, true);
       pub_arrow = node.advertise<visualization_msgs::Marker>( "closest_pt_dir", 0);
       pub_arrow_array = node.advertise<visualization_msgs::MarkerArray>( "des_speed_dir", 0);
@@ -19,6 +34,8 @@ lqr::lqr()
       pub_ackermann_sim = node.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_vehicle/ackermann_cmd", 10);
 
 }
+
+
 
 double lqr::control()
 {
@@ -33,7 +50,14 @@ double lqr::control()
     err[1] = (closestpt[2] - mapcoord[2])/180*PI;  //angle deviation
     err[2] = lateral_d;
 
-    steering_deg = -(Kvec[0]*err[0] + Kvec[1]*err[1]  + Kvec[2]*err[2])*180/PI;
+    double Kvec_res[3];
+    for(int i=0; i< 3; i++)
+    {
+        double vel_t = fabs(vel);
+        Kvec_res[i]= vel_t/vel_ref*Kvec_1[i] + Kvec[i]*(1-vel_t/vel_ref);
+    }
+
+    steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180/PI;
 
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
@@ -91,7 +115,6 @@ vector <double> lqr::get_quad_from_euler(double alpha)
 
 void lqr::visualize()
 {
-
     visualization_msgs::Marker ball;
     ball.header.frame_id = "map";
     ball.header.stamp = ros::Time();
@@ -166,7 +189,7 @@ void lqr::visualize()
         arrow_ar.markers.at(i).action = visualization_msgs::Marker::ADD;
         arrow_ar.markers.at(i).pose.position.x = glpath.at(i*interval).at(0);
         arrow_ar.markers.at(i).pose.position.y = glpath.at(i*interval).at(1);
-        arrow_ar.markers.at(i).pose.position.z = 0.06;
+        arrow_ar.markers.at(i).pose.position.z = 0.08;
 
         vector <double> q(get_quad_from_euler( glpath.at(i*interval).at(2)) );
         arrow_ar.markers.at(i).pose.orientation.w = q.at(0);
@@ -174,13 +197,13 @@ void lqr::visualize()
         arrow_ar.markers.at(i).pose.orientation.y = q.at(2);
         arrow_ar.markers.at(i).pose.orientation.z = q.at(3);
 
-        arrow_ar.markers.at(i).scale.x = 0.5*des_speed_vec.at(i*interval)/max_vel;
-        arrow_ar.markers.at(i).scale.y = 0.03;
-        arrow_ar.markers.at(i).scale.z = 0.03;
+        arrow_ar.markers.at(i).scale.x = 0.2*des_speed_vec.at(i*interval)/max_vel;
+        arrow_ar.markers.at(i).scale.y = 0.02;
+        arrow_ar.markers.at(i).scale.z = 0.02;
         arrow_ar.markers.at(i).color.a = 1.0; // Don't forget to set the alpha!
         arrow_ar.markers.at(i).color.r = 0.0;
-        arrow_ar.markers.at(i).color.g = 1.0;
-        arrow_ar.markers.at(i).color.b = 0.0;
+        arrow_ar.markers.at(i).color.g = 0.7;
+        arrow_ar.markers.at(i).color.b = 0.7;
         //only if using a MESH_RESOURCE marker type:
         arrow_ar.markers.at(i).mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
     }
@@ -191,16 +214,12 @@ void lqr::visualize()
 
 void lqr::estimate_state()
 {
-    //TODO: requires tuning!!
-    double alpha= 0.1; //IIR-filter coefficient
-
     timenow = ros::Time::now();
     ros::Duration rosdt = timenow -timelast;
     double dt = rosdt.toSec();
 
     double dphi_uf = (mapcoord[2] - last_mapcoord[2])/dt;  //unfiltered
-    dphi = last_dphi*(1-alpha) + alpha*dphi_uf;
-    last_dphi = dphi;
+    dphi = filter_phi.filter(dphi_uf, 0.1);
 
     double hvec[2];
     hvec[0]= cos(mapcoord[2]/180*PI);         //heading unit-vector
@@ -210,22 +229,27 @@ void lqr::estimate_state()
     shiftvec[0]= mapcoord[0] - last_mapcoord[0];
     shiftvec[1]= mapcoord[1] - last_mapcoord[1];
     double vel_uf = (hvec[0]*shiftvec[0] +  hvec[1]*shiftvec[1]) / dt; //unfiltered
-    vel = last_vel*(1-alpha) + alpha*vel_uf;
-    last_vel = vel;
+    vel = filter_vel.filter(vel_uf,0.1);
 
     memcpy(last_mapcoord, mapcoord, 3*sizeof(double));
     timelast = timenow;
 
-    ROS_INFO_STREAM("mapcoord[2]  z angle:" <<  mapcoord[2]);
-    ROS_INFO_STREAM("hvec 0  " << hvec[0] << "hvec 1  " << hvec[1] << "shiftvec 0  " << shiftvec[0] << "shiftvec 1 " << shiftvec[1]);
+    //ROS_INFO_STREAM("mapcoord  x" <<  mapcoord[0]  << "y"<<  mapcoord[1] << "phi" <<  mapcoord[2]);
+    //ROS_INFO_STREAM("lastmapcoord  x" <<  last_mapcoord[0]  << "y"<<  last_mapcoord[1] << "phi" <<  last_mapcoord[2]);
+    //ROS_INFO_STREAM("hvec 0  " << hvec[0] << "hvec 1  " << hvec[1] << "shiftvec 0  " << shiftvec[0] << "shiftvec 1 " << shiftvec[1]);
 
     //ROS_INFO_STREAM("dt  " << dt << "dphi grad/s  " << dphi << "vel_uf m/s  " << vel_uf << "vel m/s  " << vel);
     std_msgs::Float32MultiArray lqr_vel;
-    lqr_vel.data.resize(4);
+    lqr_vel.data.resize(6);
     lqr_vel.data.at(0)=dphi;
     lqr_vel.data.at(1)=dphi_uf;
     lqr_vel.data.at(2)=vel;
     lqr_vel.data.at(3)=vel_uf;
+    lqr_vel.data.at(4)=imu_angular_z_vel_uf;
+    ROS_INFO_STREAM("imu_angular_z_vel unfiltered: " <<  imu_angular_z_vel_uf);
+    double imu_angular_z_vel =filter_imu.filter(imu_angular_z_vel_uf,0.1);
+    lqr_vel.data.at(5)=imu_angular_z_vel;
+    ROS_INFO_STREAM("imu_angular_z_vel filtered: " <<  imu_angular_z_vel);
 
     pub_vel.publish(lqr_vel);
 }
@@ -235,8 +259,7 @@ void lqr::calc_des_speed()
     //ROS_INFO_STREAM("calcspeed");
 
     des_speed_vec.resize(glpath.size());
-    //ROS_INFO_STREAM("size des speed" << des_speed.size());
-    //ROS_INFO_STREAM("size distance to last" << des_speed.size());
+    //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
     double intdistance = 0;
     for(int i= des_speed_vec.size()-1; i>= 0; i--)      //asigning velocities backwards from goal to start
     {
@@ -250,11 +273,22 @@ void lqr::calc_des_speed()
         {
             des_speed_vec.at(i) = max_vel;
         }
-
         //ROS_INFO_STREAM("i  " << i  << "des speed  " << des_speed.at(i));
     }
 
-    //ROS_INFO_STREAM("calc speed done  ");
+    intdistance = 0 ;
+    double min_vel = 0.1;
+    for(int i= 0; i < des_speed_vec.size()-1; i++)      //asigning velocities from start to acc_distance
+    {
+        intdistance += distance_to_last.at(i);
+        if(intdistance < acc_distance)
+        {
+            des_speed_vec.at(i) =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
+        }
+
+     //   ROS_INFO_STREAM("i  " << i  << " des speed  " << des_speed_vec.at(i));
+    }
+   // ROS_INFO_STREAM("calc speed done  ");
 }
 
 
@@ -294,7 +328,8 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
         {
             distance_to_last.push_back( sqrt(pow(last_pt.at(0)-x,2) + pow(last_pt.at(1)-y,2)) );
             double angle_diff = zangle - last_pt.at(2);
-            //ROS_INFO_STREAM("distance_to_last at iter: "  << i << "  is:  " << distance_to_last[i-1]  << "  angle diff:  " << angle_diff);
+            angle_diff_per_m.push_back(angle_diff/distance_to_last.back());
+            ROS_INFO_STREAM("distance_to_last at iter: "  << i << "  is:  " << distance_to_last[i-1]  << "  angle_diff_per_m:  " << angle_diff_per_m.back());
         }
 
         last_pt.at(0) = x;
@@ -310,6 +345,13 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
 
 
     calc_des_speed();
+}
+
+void lqr::imuCallback(const sensor_msgs::Imu::ConstPtr& data)
+{
+    imu_angular_z_vel_uf = data->angular_velocity.z;
+    ROS_INFO_STREAM("imu ang z "  << imu_angular_z_vel_uf );
+
 }
 
 void lqr::publish_sim()

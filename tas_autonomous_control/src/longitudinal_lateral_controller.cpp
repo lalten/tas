@@ -47,10 +47,17 @@ int main(int argc, char** argv)
         lqr1.mapcoord[1] = transform.getOrigin().y();
         lqr1.mapcoord[2] = transform.getRotation().getAngle()/PI*180.0* transform.getRotation().getAxis().getZ();  //this assumes rotation only around z axis!
 
-        if(lqr1.inited==0){
+        if(lqr1.inited==0) //if not inited yet:
+        {
             memcpy(lqr1.last_mapcoord, lqr1.mapcoord, 3*sizeof(double));
             lqr1.timelast = ros::Time::now();
-            ROS_INFO_STREAM("inited " << lqr1.inited);
+            ROS_INFO_STREAM("inited" << lqr1.inited);
+
+            while(lqr1.angular_vel_offset == 0.0)     // spin as long as /imu message has not been read
+            {
+                ros::spinOnce();
+                lqr1.angular_vel_offset = lqr1.imu_angular_z_vel_uf;
+            }
         }
 
         //ROS_INFO_STREAM("Current Pos   x:   " << lqr1.mapcoord[0]  << "y:   " << lqr1.mapcoord[0] <<   "z-angle:   " << lqr1.mapcoord[2] );

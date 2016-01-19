@@ -8,16 +8,40 @@ using namespace std;
 #include "visualization_msgs/MarkerArray.h"
 #include "std_msgs/Float32MultiArray.h"
 #include "ackermann_msgs/AckermannDriveStamped.h"
+#include "sensor_msgs/Imu.h"
 
 #include <vector>
 
 #define PI 3.14159265
+
+
+class iir
+{
+    public:
+    iir()
+    {
+        inited = 0;
+    }
+    double filter(double in, double alpha)
+    {
+        if(inited ==0)
+            out_last = in;
+        inited = 1;
+        double out = out_last*(1-alpha) + alpha* in;
+        out_last = out;
+        return out;
+    }
+    private:
+        int inited;
+        double out_last;
+};
 
 class lqr
 {
     public:
         lqr();
         ros::Subscriber glpath_sub_;
+        ros::Subscriber imu_sub_;
         ros::NodeHandle node;
         double control();                   // calculate control output and publish
         void getclosestpoint();             // calculate piont on the path with smallest distance to vehicle
@@ -33,25 +57,30 @@ class lqr
         void estimate_state();              //estimate the current velocity and angular veloctiy
         ros::Time timenow;                  // time stamps used in state estimate
         ros::Time timelast;
+        double imu_angular_z_vel_uf;
+        double angular_vel_offset;
 
     private:
         double Kvec[3];                     // LQR-control gains (computed by Matlab)
+        double Kvec_1[3];                     // LQR-control gains at vel_ref (computed by Matlab)
+        double vel_ref;
         double err[3];                      // errors of the three states
         vector < double > des_speed_vec;    //vector containing desired velocity for each point on the path
         vector < double > distance_to_last; //distance from one point to the other on the path            
         vector < double > path_curv;        //the curvature of the path
+        vector < double > angle_diff_per_m;        //the curvature of the path
         void calc_des_speed();
         void glpathCallback(const nav_msgs::Path::ConstPtr& path);      //called when there is a new global path
+        void imuCallback(const sensor_msgs::Imu::ConstPtr& data);      //called when there is a new global path
         void publish_sim();
         double max_vel;          //maximum allowd velocity
         double acc_distance;     //distance from pathstart after which max_vel shall be reached, in m
         double decc_distance;    //distance to pathend in which max_vel shall to 0, in m
         double dphi;            //current estimate of angular velocity in deg/s
-        double last_dphi;
         double vel;             //current estimate of linear velocity in m/s
-        double last_vel;
         double des_vel;         //desired velocity derived from path geometry in m/s
         double steering_deg;    //positive makes left turn
+        iir filter_phi, filter_vel, filter_imu;
         ros::Publisher pub_ball;
         ros::Publisher pub_arrow;
         ros::Publisher pub_arrow_array;
