@@ -18,14 +18,14 @@
 #define DIST_BOX 0.40  /*!< in cm !! if distance smaller -> say box / not wall */
 //distance box <-> startpoint = 29 = 40 (+20 car) - 31 box
 //distance wall <-> startpoint = 40 (+20 car)
-#define SPEED 20  /*!< Speed in x direction */
-#define SPEED_CURVE 190 /*!< Speed in curve */
+#define SPEED 38 //20  /*!< Speed in x direction */
+#define SPEED_CURVE 21//190 /*!< Speed in curve */
 #define TURN 400  /*!< max of y to turn */
 #define SEGMENTLEFT 50 /*!< laser segment start value for left look */
 #define SEGMENTLEFT_SECOUND 50 /*!< laser segment start value secound box left look */
 #define SEGMENT_S 85 /*!< laser segment start value for 30 degree look */
 #define SEGMENT_BACK 260 /*!< laser segment start value for back look */
-#define DIST_WALL_S_END 0.43 /*!< distance to wall when ending first part of s curve */
+#define DIST_WALL_S_END 0.45 /*!< distance to wall when ending first part of s curve */
 #define DIST_BOX_S_END 0.15 /*!< distance to box when ending the whole s curve */
 #define DIST_BOX_Mid_END 0.20 /*!< distance to box when stopping the park process */
 #define STATE_DELAY 3000000000
@@ -33,7 +33,7 @@
 
 //+++++++++++ STATIC REGLER +++++++++++++++++//
 #define NoBoxDistance 0.45 /*!< ###### */
-#define SollWallDistance 0.555 /*!< ###### */
+#define SollWallDistance 0.58//0.555 /*!< ###### */
 #define SollWallBox 0.27 /*!< ###### */
 #define TURN_RATE_REGLER 30 /*!< ###### */
 #define FRONT_SEGMENT_END 718
@@ -87,7 +87,7 @@ void scanFrontCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         temp_laser = temp_laser + msg->ranges[i];
     }
     laser_Front = temp_laser / SUM_DIST;
-    //if(quirinWillDebug){ROS_INFO("Laser avarage FRONT to LEFT is:  %lf",laser_Front);}
+    if(quirinWillDebug){ROS_INFO("Laser avarage FRONT to LEFT is:  %lf",laser_Front);}
 
 }
 
@@ -142,7 +142,7 @@ void parkingCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         {
             if((ros::Time::now().toNSec() - zeit_start.toNSec()) < STATE_DELAY/4 )
             {
-                setSpeed(-SPEED_CURVE, TURN);
+                //setSpeed(-SPEED_CURVE, TURN); //vettel only
             }
             else
             {
@@ -205,7 +205,7 @@ void parkingCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         {
             if((ros::Time::now().toNSec() - zeit_start.toNSec() < MAX_DELAY/3*2))
             {
-                setSpeed(SPEED, TURN);
+                setSpeed(SPEED+5, TURN);
             }
             else
             {
