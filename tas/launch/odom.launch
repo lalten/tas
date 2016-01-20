@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="/use_sim_time" value="false"/>
   
   <!-- merge lasers -->
   <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
@@ -61,7 +60,7 @@
        false, false, true,    <!-- 2D mode, so roll and pitch do nothing -->
        false, false, false,
        false, false, true,    <!-- As above -->
-       false, false, false]     <!-- We start with these turned off, verify that everything works, then turn X and Y back on (Z does nothing in 2D mode) -->
+       false, false, false]   <!-- We start with these turned off, verify that everything works, then turn X and Y back on (Z does nothing in 2D mode) -->
     </rosparam>
     <!-- The order of the values is x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. -->
     <param name="imu0_differential" value="true"/>
@@ -97,13 +96,21 @@
        false, false, true,
        false, false, false,
        false, false, true,
-       false, false, false]   <!-- just for testing, orig: all false! (later: t,t,f) -->
+       false, false, false]
     </rosparam>
     <param name="imu0_relative" value="true"/>
     <param name="imu0_differential" value="false"/>
 
-    <remap from="odometry/filtered" to="odometry_map/filtered"/>
+    <!--
+    <param name="twist0" value="/visual_odom"/>
+    <rosparam param="twist0_config">
+      [false, false, false,
+      false,  false,  false,
+      false, false, false,
+      true,  true,  false,
+      false, false, false]
+    </rosparam>
+    -->
   </node> 
-
 
 </launch>

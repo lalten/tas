@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.759599371">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.759599371" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="it.baeyens.arduino.core.toolChain.release.759599371" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="it.baeyens.arduino.core.toolChain.release.759599371.1001882528" name="/" resourcePath="">
+						<toolChain id="it.baeyens.arduino.core.toolChain.release.744579355" name="Arduino Toolchain" superClass="it.baeyens.arduino.core.toolChain.release">
+							<targetPlatform archList="all" id="it.baeyens.arduino.targetplatform.292539211" name="Arduino Target" osList="all" superClass="it.baeyens.arduino.targetplatform"/>
+							<builder buildPath="${workspace_loc:/MotorOdometry}/Release" id="it.baeyens.arduino.sketch.builder.1188326787" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Arduino sketch builder" superClass="it.baeyens.arduino.sketch.builder"/>
+							<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.100655508" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp">
+								<option id="it.baeyens.arduino.compiler.cpp.sketch.option.incpath.1973033191" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.cpp.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/arduino/core}&quot;"/>
+									<listOptionValue builtIn="false" value="/home/laurenz/Arduino/libraries/ros_lib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/arduino/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/ros}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/rosserial_arduino}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/rosserial_msgs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/std_msgs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/roscpp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/ros_lib}&quot;"/>
+								</option>
+								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.452502040" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
+							</tool>
+							<tool id="it.baeyens.arduino.tool.compiler.c.810704958" name="Arduino C Compiler" superClass="it.baeyens.arduino.tool.compiler.c">
+								<option id="it.baeyens.arduino.compiler.c.sketch.option.incpath.431762764" name="Include Paths (-I)" superClass="it.baeyens.arduino.compiler.c.sketch.option.incpath" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/arduino/core}&quot;"/>
+									<listOptionValue builtIn="false" value="/home/laurenz/Arduino/libraries/ros_lib"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/arduino/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/ros}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/rosserial_arduino}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/rosserial_msgs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/std_msgs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/Libraries/roscpp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/MotorOdometry/ros_lib}&quot;"/>
+								</option>
+								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.168736428" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
+							</tool>
+							<tool id="it.baeyens.arduino.tool.sketch.compiler.s.976747868" name="Arduino Assembler" superClass="it.baeyens.arduino.tool.sketch.compiler.s"/>
+							<tool id="it.baeyens.arduino.tool.ar.235937528" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar"/>
+							<tool command="${A.RECIPE.C.COMBINE.PATTERN}" commandLinePattern="${A.RECIPE.C.COMBINE.PATTERN.1} ${FLAGS} ${INPUTS} ${A.RECIPE.C.COMBINE.PATTERN.2} ${A.RECIPE.C.COMBINE.PATTERN.3}" id="it.baeyens.arduino.tool.combine.1620340851" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine"/>
+							<tool id="it.baeyens.arduino.tool.objcopy.eep.710437116" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
+							<tool id="it.baeyens.arduino.tool.objcopy.flash.1507097593" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
+							<tool id="it.baeyens.arduino.tool.size.1670005220" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="MotorOdometry.null.1422346686" name="MotorOdometry"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/MotorOdometry"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+</cproject>
