@@ -8,4 +8,4 @@ rosrun map_server map_saver -f "$(rospack find tas)/launch/config/map_server/hec
 kill $(pidof hector_mapping) $(pidof ekf_localization_node)
 
 # ROS-Launch the nodes needed for amcl mode
-roslaunch tas odom_amcl.launch
+roslaunch tas odom_amcl.launch &
