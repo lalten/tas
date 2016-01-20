@@ -17,7 +17,6 @@
   <!-- Run map server  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find tas)/launch/config/map_server/hectormap.yaml" output="screen"/>
 
-
   <!-- EKF odom -> base_link -->
   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
     <param name="map_frame" value="map"/>

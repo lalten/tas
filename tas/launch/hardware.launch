@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="/use_sim_time" value="false"/>
 
   <!-- Rosserial to servo-controlling Arduino -->
   <node name="rosserial_servos" pkg="rosserial_python" type="serial_node.py" args="/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_75330303035351E0E1A0-if00"/>
@@ -13,10 +12,9 @@
 
   <!-- run wii stack -->
   <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
-	<remap from="imu/data" to="wii_imu/data"/>
-	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
+	  <remap from="imu/data" to="wii_imu/data"/>
+	  <remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
-
   <node pkg="wii_control" type="wii_node" name="wii_control" output="screen"/>
 
 
@@ -49,7 +47,6 @@
 
   <!-- IMU -->
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 50" />
-  <!-- increase rate? -->
   <node pkg="xsens_driver" type="mtnode.py" name="xsens_driver" output="screen" >
     <param name="frame_id" value="base_imu"/>
   </node>
