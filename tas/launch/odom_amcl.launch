@@ -33,18 +33,17 @@
     <param name="imu0_remove_gravitational_acceleration" value="true"/>
     <rosparam param="imu0_config">
       [false, false, false, # x, y, z,
-      false, false, true,   # roll, pitch, yaw, --- we want yaw
+      false, false, true,   # roll, pitch, yaw, - we want yaw
       false, false, false,  # vx, vy, vz,
-      false, false, true,   # vroll, vpitch, vyaw,
+      false, false, true,   # vroll, vpitch, vyaw, - and vyaw
       false, false, false]  # ax, ay, az
     </rosparam>
 
-    <param name="pose0" value="/motor_odom"/>
-    <param name="pose0_differential" value="true"/>    
-    <rosparam param="pose0_config">
-      [true, false, false,  # x, y, z, -- we want x, y from encoders
+    <param name="twist0" value="/motor_odom"/>
+    <rosparam param="twist0_config">
+      [false,false, false,  # x, y, z,
       false, false, false,  # roll, pitch, yaw,
-      false, false, false,  # vx, vy, vz,
+      true,  false, false,  # vx, vy, vz, - we compute vx from encoders
       false, false, false,  # vroll, vpitch, vyaw,
       false, false, false]  # ax, ay, az
     </rosparam>
@@ -54,15 +53,15 @@
   <!-- Run AMCL for map->odom -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <rosparam>
-update_min_d: 0.01    # Translational movement required before performing a filter update. (default 0.2)
-update_min_a: 0.01    # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
-odom_model_type: diff
-odom_alpha1: 0.1      # expected noise in odometry rotation from rotational robot motion (default 0.2)
-odom_alpha2: 0.2      # expected noise in odometry rotation from translational robot motion (default 0.2)  
-odom_alpha3: 2.0      # expected noise in odometry translation from translational robot motion (default 0.2)
-odom_alpha4: 0.2      # expected noise in odometry translation from rotational robot motion (default 0.2)
-odom_alpha5: 0.2      # Translation-related noise parameter (default 0.2)
-tf_broadcast: true    # prevent amcl from publishing the transform between the global frame and the odometry frame
+      update_min_d: 0.005   # Translational movement required before performing a filter update. (default 0.2)
+      update_min_a: 0.005   # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
+      odom_model_type: diff
+      odom_alpha1: 0.1      # expected noise in odometry rotation from rotational robot motion (default 0.2)
+      odom_alpha2: 0.2      # expected noise in odometry rotation from translational robot motion (default 0.2)  
+      odom_alpha3: 2.0      # expected noise in odometry translation from translational robot motion (default 0.2)
+      odom_alpha4: 0.2      # expected noise in odometry translation from rotational robot motion (default 0.2)
+      odom_alpha5: 0.2      # Translation-related noise parameter (default 0.2)
+      tf_broadcast: true    # allow amcl to publish the transform between the global frame and the odometry frame
     </rosparam>
   </node>
 
