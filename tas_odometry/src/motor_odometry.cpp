@@ -11,56 +11,50 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <std_msgs/Int32.h>
-#include <std_msgs/Int32MultiArray.h>
-#include <boost/circular_buffer.hpp>
-#include <tuple>
+#include <tas_odometry/Encoder.h>
 
 ros::Publisher pose_publisher;
 ros::Publisher encoder_publisher;
 
 geometry_msgs::TwistWithCovarianceStamped twist;
-uint32_t seq = 0;
 int32_t encoder_abs = 0;
 
 std::string frame_id;
 double ticks_per_meter;
 double uncertainty_fixed;
-
-boost::circular_buffer< std::tuple<double, double> > velocity_buf;
+ros::Duration time_offset;
 
 // We get new encoder values here
-void encoder_callback(const std_msgs::Int32MultiArray::ConstPtr& encoder_data) {
+void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 
-	// Update header
+	// On the first message, save time offset so later timestamps are correct
+//	if(time_offset.isZero()) {
+//		time_offset = ros::Time::now() - encoder_data->header.stamp;
+//	}
+
+	// Build twist msg header
 	twist.header.frame_id = frame_id;
-	twist.header.stamp = ros::Time::now();
-	twist.header.seq = seq++;
+	twist.header.stamp = encoder_data->header.stamp + time_offset;
+	twist.header.seq = encoder_data->header.seq;
 
 	// save time of message arrival
 	double time_now = twist.header.stamp.toSec();
 
 	// Publish integrated/absolute encoder value
-	encoder_abs += encoder_data->data[0];
+	encoder_abs += encoder_data->encoder_ticks;
 	std_msgs::Int32 msg;
 	msg.data = encoder_abs;
 	encoder_publisher.publish(msg);
 
 	// Convert length to meter
-	double change_meter = (double) encoder_data->data[0] / ticks_per_meter;
+	double change_meter = (double) encoder_data->encoder_ticks / ticks_per_meter;
 	// Convert time to seconds
-	double change_time = (double) encoder_data->data[1] / 1e6;
+	double change_time = (double) encoder_data->duration / 1e6;
 	// Calc velocity
 	double vel = change_meter / change_time;
 
 	// Add it to message
 	twist.twist.twist.linear.x = vel;
-
-	// Maintain ringbuffer of velocities
-	velocity_buf.push_back(std::make_tuple(time_now, vel));
-	while(time_now - std::get<0>(velocity_buf.front()) > 0.100)	// trim to last 100ms
-		velocity_buf.pop_front();
-
-
 
 	// Send out message
 	pose_publisher.publish(twist);
