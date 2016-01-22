@@ -65,7 +65,6 @@ class lqr
     private:
         double Kvec[3];                     // LQR-control gains (computed by Matlab)
         double Kvec_1[3];                     // LQR-control gains at vel_ref (computed by Matlab)
-        double kv;  // speed controller gain
         double cmd_thrust;
         double vel_ref;                     //velocity reference value for time-varying control interpolation
         double err[3];                      // errors of the three states
@@ -85,6 +84,7 @@ class lqr
         double vel;             //current estimate of linear velocity in m/s
         double des_vel;         //desired velocity derived from path geometry in m/s
         double steering_deg;    //positive makes left turn
+        double int_err;         //integrated error of PI-speed-controller
         iir filter_phi, filter_vel, filter_imu;
         ros::Publisher pub_ball;
         ros::Publisher pub_arrow;

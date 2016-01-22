@@ -22,7 +22,9 @@ lqr::lqr()
       decc_distance = 1.5;
       acc_distance = 1;
 
-      max_vel = 1;
+      int_err = 0;
+
+      max_vel = 1;      //set maximum speed
 
       inited=0;
 
@@ -66,8 +68,15 @@ double lqr::control()
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
     publish_sim();
 
-    kv = 2.0;
-    cmd_thrust = (vel-des_vel)*kv; // 1 full thrust, 0 no thrust , -1 reverse full thrust
+    double kv = 2.0;
+    double ki = 0.01;
+    double vel_err = vel-des_vel;
+    int_err += vel_err;
+
+    double pc = vel_err*kv;
+    double ic = int_err*ki;
+    ROS_INFO_STREAM("p-component "  << pc << "i-component " << ic);
+    cmd_thrust =  pc + ic ; // 1 full thrust, 0 no thrust , -1 reverse full thrust
     if(cmd_thrust > 1)
         cmd_thrust=1;
     if(cmd_thrust < 1)
@@ -444,9 +453,15 @@ void lqr::publish_car()
 
 
     double addition = 50;
+    double forward_treshold = 1539;
+    double backward_treshold = 1488;
 
     geometry_msgs::Vector3 control_servo;
-    control_servo.x = 1548;
+    if (cmd_thrust > 0 )
+        control_servo.x = forward_treshold + addition*cmd_thrust;
+    if (cmd_thrust < 0 )
+        control_servo.x = backward_treshold - addition*cmd_thrust;
+
     control_servo.y = cmd_steeringAngle;
 
     pub_servo.publish(control_servo);
