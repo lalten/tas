@@ -12,7 +12,8 @@
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/Int32MultiArray.h>
-#include <sensor_msgs/Imu.h>
+#include <boost/circular_buffer.hpp>
+#include <tuple>
 
 ros::Publisher pose_publisher;
 ros::Publisher encoder_publisher;
@@ -24,6 +25,8 @@ int32_t encoder_abs = 0;
 std::string frame_id;
 double ticks_per_meter;
 double uncertainty_fixed;
+
+boost::circular_buffer< std::tuple<double, double> > velocity_buf;
 
 // We get new encoder values here
 void encoder_callback(const std_msgs::Int32MultiArray::ConstPtr& encoder_data) {
@@ -51,6 +54,13 @@ void encoder_callback(const std_msgs::Int32MultiArray::ConstPtr& encoder_data) {
 
 	// Add it to message
 	twist.twist.twist.linear.x = vel;
+
+	// Maintain ringbuffer of velocities
+	velocity_buf.push_back(std::make_tuple(time_now, vel));
+	while(time_now - std::get<0>(velocity_buf.front()) > 0.100)	// trim to last 100ms
+		velocity_buf.pop_front();
+
+
 
 	// Send out message
 	pose_publisher.publish(twist);

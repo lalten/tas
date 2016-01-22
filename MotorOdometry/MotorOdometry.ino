@@ -12,7 +12,7 @@
 #define USE_USBCON
 
 #include <ros.h>
-#include <std_msgs/Int32MultiArray.h>
+#include <tas_odometry/Encoder.h>
 
 // IO pin numbers
 static const uint8_t pinA = 3;
@@ -25,7 +25,7 @@ bool published_0vel = false;
 
 // ROS objects
 ros::NodeHandle nh;
-std_msgs::Int32MultiArray msg;
+tas_odometry::Encoder msg;
 ros::Publisher pub("motor_encoder", &msg);
 
 // The three hall encoder data lines
@@ -155,6 +155,8 @@ void setup() {
 	attachInterrupt(digitalPinToInterrupt(pinC), isr_c, CHANGE);
 
 	// Setup ROS
+	msg.header.frame_id = "base_motor";
+	msg.header.seq = 0;
 	nh.initNode();
 	nh.advertise(pub);
 }
@@ -167,21 +169,25 @@ void loop() {
 
 	// If new data is available, publish it
 	if (dirty) {
+		msg.header.seq ++;
+		msg.header.stamp = nh.now(); // like ros::Time::now(), but optimized for HW
+		msg.duration = accumulated_duration;
+		msg.encoder_ticks = counter;
+		counter = 0;
+		accumulated_duration = 0;
 		dirty = false;
 		published_0vel = false;
-		msg.data[0] = counter;
 		ledcounter += counter;
-		counter = 0;
-		msg.data[1] = accumulated_duration;
-		accumulated_duration = 0;
-		pub.publish(&msg);
 		last_sent = now;
+		pub.publish(&msg);
 	} else
 	// If no update happens, after 100ms publish 0 - once!
 	if (!published_0vel && now - last_sent > pub_0vel_after) {
 		published_0vel = true;
-		msg.data[0] = 0;
-		msg.data[1] = 1; // avoid accidental divisions by zero...
+		msg.header.seq ++;
+		msg.header.stamp = nh.now();
+		msg.duration = 1; // avoid accidental divisions by zero...
+		msg.encoder_ticks = 0;
 		pub.publish(&msg);
 	}
 
