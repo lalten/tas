@@ -72,6 +72,7 @@ class lqr
         vector < double > distance_to_last; //distance from one point to the other on the path            
         vector < double > path_curv;        //the curvature of the path
         vector < double > angle_diff_per_m;        //the curvature of the path
+        vector < int > dir_vec;          // 1 forward -1 backward
         void calc_des_speed();
         void glpathCallback(const nav_msgs::Path::ConstPtr& path);      //called when there is a new global path
         void imuCallback(const sensor_msgs::Imu::ConstPtr& data);      //called when there is a new global path
@@ -85,6 +86,7 @@ class lqr
         double des_vel;         //desired velocity derived from path geometry in m/s
         double steering_deg;    //positive makes left turn
         double int_err;         //integrated error of PI-speed-controller
+        int des_dir;            //1 forward -1 backwards
         iir filter_phi, filter_vel, filter_imu;
         ros::Publisher pub_ball;
         ros::Publisher pub_arrow;

@@ -2,29 +2,23 @@
 
 lqr::lqr()
 {    
-      vel_ref=1.0;
+      vel_ref=1.0;      //veloctiy at which control gains match Kvec_1
 
-      Kvec[0]=0.5232;
-      Kvec[1]=-3.0107;
-      Kvec[2]=-5.4772;
-
-
-      Kvec_1[0]=0.8232;
+      //gains at speed vel_ref:
+      Kvec_1[0]=0.8232;   //phi-dot gain
       Kvec_1[1]=-2.0107;  //dphi error gain
       Kvec_1[2]=-1.4772;  //laterl d error gain
 
-      //worked ok with maxvel m/s
-//      Kvec_1[0]=0.8232;
-//      Kvec_1[1]=-2.0107;  //dphi error gain
-//      Kvec_1[2]=-1.4772;  //laterl d error gain
-
+      Kvec[0]=0.5232;       //gains at speed 0
+      Kvec[1]=-3.0107;
+      Kvec[2]=-5.4772;
 
       decc_distance = 1.5;
       acc_distance = 1;
 
       int_err = 0;
 
-      max_vel = 1;      //set maximum speed
+      max_vel = 0.2;      //set maximum speed
 
       inited=0;
 
@@ -61,28 +55,34 @@ double lqr::control()
         Kvec_res[i]= vel_t/vel_ref*Kvec_1[i] + Kvec[i]*(1-vel_t/vel_ref);
     }
 
-    steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180/PI;
+    steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180/PI * des_dir;
     //steering_deg = -(Kvec[0]*err[0] + Kvec[1]*err[1]  + Kvec[2]*err[2])*180/PI;
 
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
-    publish_sim();
 
     double kv = 2.0;
     double ki = 0.01;
-    double vel_err = vel-des_vel;
+    double vel_err = vel*des_dir-des_vel;  //using desired movement direction
     int_err += vel_err;
 
     double pc = vel_err*kv;
     double ic = int_err*ki;
+
+    if(ic > 0.2)
+        ic=0.2;
+    if(ic < -0.2)
+        ic=-0.2;
     ROS_INFO_STREAM("p-component "  << pc << "i-component " << ic);
+
     cmd_thrust =  pc + ic ; // 1 full thrust, 0 no thrust , -1 reverse full thrust
     if(cmd_thrust > 1)
         cmd_thrust=1;
-    if(cmd_thrust < 1)
+    if(cmd_thrust < -1)
         cmd_thrust=-1;
 
     publish_car();
+    publish_sim();
 }
 
 void lqr::getclosestpoint()
@@ -111,6 +111,7 @@ void lqr::getclosestpoint()
     closestpt.push_back( glpath.at(indclose).at(2));
 
     des_vel = des_speed_vec.at(indclose);
+    des_dir = dir_vec.at(indclose);
 
     //ROS_INFO_STREAM("closes pt index  "  << indclose);
     //ROS_INFO_STREAM("shortest distance  "  << shortestdistance);
@@ -196,6 +197,7 @@ void lqr::visualize()
 
     int interval = 10;
     int num_makers = des_speed_vec.size()/interval;
+    arrow_ar.markers.clear();
     arrow_ar.markers.resize(num_makers);
     //ROS_INFO_STREAM("num markers "  << num_makers);
 
@@ -222,9 +224,19 @@ void lqr::visualize()
         arrow_ar.markers.at(i).scale.y = 0.02;
         arrow_ar.markers.at(i).scale.z = 0.02;
         arrow_ar.markers.at(i).color.a = 1.0; // Don't forget to set the alpha!
-        arrow_ar.markers.at(i).color.r = 0.0;
-        arrow_ar.markers.at(i).color.g = 0.7;
-        arrow_ar.markers.at(i).color.b = 0.7;
+
+        if(dir_vec.at(i*interval) < 0) {
+            arrow_ar.markers.at(i).color.r = 0.7;
+            arrow_ar.markers.at(i).color.g = 0.0;
+            arrow_ar.markers.at(i).color.b = 0.7;
+        }
+        else
+        {
+            arrow_ar.markers.at(i).color.r = 0.0;
+            arrow_ar.markers.at(i).color.g = 0.7;
+            arrow_ar.markers.at(i).color.b = 0.7;
+        }
+
         //only if using a MESH_RESOURCE marker type:
         arrow_ar.markers.at(i).mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
     }
@@ -250,7 +262,7 @@ void lqr::estimate_state()
     shiftvec[0]= mapcoord[0] - last_mapcoord[0];
     shiftvec[1]= mapcoord[1] - last_mapcoord[1];
     double vel_uf = (hvec[0]*shiftvec[0] +  hvec[1]*shiftvec[1]) / dt; //unfiltered
-    vel = filter_vel.filter(vel_uf,0.1);
+    vel = filter_vel.filter(vel_uf,0.05);
 
     memcpy(last_mapcoord, mapcoord, 3*sizeof(double));
     timelast = timenow;
@@ -327,10 +339,10 @@ void lqr::test_motor()
 
 void lqr::calc_des_speed()
 {
-    //ROS_INFO_STREAM("calcspeed");
-
+    ROS_INFO_STREAM("calcspeed");
+    des_speed_vec.clear();
     des_speed_vec.resize(glpath.size());
-    //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
+    ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
     double intdistance = 0;
     for(int i= des_speed_vec.size()-1; i>= 0; i--)      //asigning velocities backwards from goal to start
     {
@@ -357,9 +369,11 @@ void lqr::calc_des_speed()
             des_speed_vec.at(i) =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
         }
 
-     //   ROS_INFO_STREAM("i  " << i  << " des speed  " << des_speed_vec.at(i));
+        ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
+        ROS_INFO_STREAM("i  " << i << " dist to last:  " << distance_to_last.at(i)  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
+
     }
-   // ROS_INFO_STREAM("calc speed done  ");
+    ROS_INFO_STREAM("calc speed done  ");
 }
 
 
@@ -370,6 +384,8 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
     inited = 1;
     glpath.clear();
     distance_to_last.clear();
+    dir_vec.clear();
+
     vector <double> last_pt(3,0);
 
     for(int i = 0; i<num_points; i++)
@@ -397,10 +413,18 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
 
         if(i>0)
         {
-            distance_to_last.push_back( sqrt(pow(last_pt.at(0)-x,2) + pow(last_pt.at(1)-y,2)) );
+            distance_to_last.push_back( sqrt(pow(last_pt.at(0)-x,2) + pow(last_pt.at(1)-y,2)) );            
             double angle_diff = zangle - last_pt.at(2);
             angle_diff_per_m.push_back(angle_diff/distance_to_last.back());
             //ROS_INFO_STREAM("distance_to_last at iter: "  << i << "  is:  " << distance_to_last[i-1]  << "  angle_diff_per_m:  " << angle_diff_per_m.back());
+
+            double heading[2] = {cos(zangle*PI/180),sin(zangle*PI/180)};
+            double shiftvec[2] = {x - last_pt.at(0), y - last_pt.at(1)};
+
+            if((shiftvec[0]*heading[0]+ shiftvec[1]*heading[1] ) > 0 )
+                dir_vec.push_back(1);
+            else
+                dir_vec.push_back(-1);
         }
 
         last_pt.at(0) = x;
@@ -429,7 +453,7 @@ void lqr::publish_sim()
 {
     ackermann_msgs::AckermannDriveStamped ackermannMsg;
 
-    ackermannMsg.drive.speed = des_vel;
+    ackermannMsg.drive.speed = des_vel*des_dir;
     ackermannMsg.drive.steering_angle = steering_deg/180*PI;
 
     pub_ackermann_sim.publish(ackermannMsg);
@@ -460,7 +484,7 @@ void lqr::publish_car()
     if (cmd_thrust > 0 )
         control_servo.x = forward_treshold + addition*cmd_thrust;
     if (cmd_thrust < 0 )
-        control_servo.x = backward_treshold - addition*cmd_thrust;
+        control_servo.x = backward_treshold + addition*cmd_thrust;
 
     control_servo.y = cmd_steeringAngle;
 
