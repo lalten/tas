@@ -13,6 +13,7 @@
 
 #include <ros.h>
 #include <tas_odometry/Encoder.h>
+#include <util/atomic.h>
 
 // IO pin numbers
 static const uint8_t pinA = 3;
@@ -38,8 +39,6 @@ volatile unsigned long last_tick = 0;
 volatile unsigned long accumulated_duration = 0;
 // Flag telling if new data is available
 volatile bool dirty = false;
-// Flag telling if there was a error during quadrature decoding
-volatile bool error = false;
 
 // Time of last message having been published
 unsigned long last_sent = 0;
@@ -171,13 +170,16 @@ void loop() {
 	if (dirty) {
 		msg.header.seq ++;
 		msg.header.stamp = nh.now(); // like ros::Time::now(), but optimized for HW
-		msg.duration = accumulated_duration;
-		msg.encoder_ticks = counter;
-		counter = 0;
-		accumulated_duration = 0;
+		// Don't let race conditions happen!
+		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+			msg.duration = accumulated_duration;
+			msg.encoder_ticks = counter;
+			counter = 0;
+			accumulated_duration = 0;
+		}
+		ledcounter += msg.encoder_ticks;
 		dirty = false;
 		published_0vel = false;
-		ledcounter += counter;
 		last_sent = now;
 		pub.publish(&msg);
 	} else
@@ -195,7 +197,7 @@ void loop() {
 	nh.spinOnce();
 
 	// TXLED blinks when data is published
-	if(now - last_sent < 10)
+	if(now - last_sent < 20)
 		TXLED0; //on
 	else
 		TXLED1; //off
