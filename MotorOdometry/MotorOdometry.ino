@@ -12,25 +12,30 @@
 #define USE_USBCON
 
 #include <ros.h>
-#include <std_msgs/Int32.h>
+#include <std_msgs/Int32MultiArray.h>
 
 // IO pin numbers
 static const uint8_t pinA = 3;
 static const uint8_t pinB = 2;
 static const uint8_t pinC = 7;
 
-// WHen this time has passed, publish a message even though nothing changed
-static const uint16_t pub_max_idle_ms = 50;
+// When this time (ms) has passed, publish a message even though nothing changed
+static const uint16_t pub_0vel_after = 100;
+bool published_0vel = false;
 
 // ROS objects
 ros::NodeHandle nh;
-std_msgs::Int32 msg;
+std_msgs::Int32MultiArray msg;
 ros::Publisher pub("motor_encoder", &msg);
 
 // The three hall encoder data lines
 volatile bool A, B, C;
 // The encoder counter. It's 32b, because with 16b, at 17000rpm (max motor speed) it would overflow 3 times a second
 volatile int32_t counter = 0;
+// Timestamp of last encoder tick (in 1us, 4us resolution)
+volatile unsigned long last_tick = 0;
+// Time between ticks that actually get published
+volatile unsigned long accumulated_duration = 0;
 // Flag telling if new data is available
 volatile bool dirty = false;
 // Flag telling if there was a error during quadrature decoding
@@ -59,6 +64,9 @@ void error_reset() {
 }
 
 void isr_a() {
+	// Measure inter-tick duration right at ISR entry and add it to time since last publishing
+	accumulated_duration += micros() - last_tick;
+	last_tick = micros();
 	if (A) { // channel was high before, so this is a falling edge
 		if (B && C) // the other channels are both high
 			counter++; // this indicates forward motion
@@ -81,6 +89,8 @@ void isr_a() {
 }
 
 void isr_b() {
+	accumulated_duration += micros() - last_tick;
+	last_tick = micros();
 	if (B) {
 		if (!A && C)
 			counter++;
@@ -101,6 +111,8 @@ void isr_b() {
 }
 
 void isr_c() {
+	accumulated_duration += micros() - last_tick;
+	last_tick = micros();
 	if (C) {
 		if (!A && !B)
 			counter++;
@@ -154,14 +166,23 @@ void loop() {
 	unsigned long now = millis();
 
 	// If new data is available, publish it
-	// Also publish 0s every second if no update happens
-	if (dirty || now - last_sent > pub_max_idle_ms) {
+	if (dirty) {
 		dirty = false;
-		msg.data = counter;
+		published_0vel = false;
+		msg.data[0] = counter;
 		ledcounter += counter;
 		counter = 0;
+		msg.data[1] = accumulated_duration;
+		accumulated_duration = 0;
 		pub.publish(&msg);
 		last_sent = now;
+	} else
+	// If no update happens, after 100ms publish 0 - once!
+	if (!published_0vel && now - last_sent > pub_0vel_after) {
+		published_0vel = true;
+		msg.data[0] = 0;
+		msg.data[1] = 1; // avoid accidental divisions by zero...
+		pub.publish(&msg);
 	}
 
 	// Handle ROS

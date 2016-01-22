@@ -11,6 +11,8 @@
 #include <ros/ros.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Int32MultiArray.h>
+#include <sensor_msgs/Imu.h>
 
 ros::Publisher pose_publisher;
 ros::Publisher encoder_publisher;
@@ -22,13 +24,9 @@ int32_t encoder_abs = 0;
 std::string frame_id;
 double ticks_per_meter;
 double uncertainty_fixed;
-double last_change_timestamp;
-double vel_now = 0;
-double acc_now = 0;
-double extrapolated_stopping_time = std::numeric_limits<double>::infinity();
 
 // We get new encoder values here
-void encoder_callback(const std_msgs::Int32::ConstPtr& encoder_change) {
+void encoder_callback(const std_msgs::Int32MultiArray::ConstPtr& encoder_data) {
 
 	// Update header
 	twist.header.frame_id = frame_id;
@@ -39,37 +37,20 @@ void encoder_callback(const std_msgs::Int32::ConstPtr& encoder_change) {
 	double time_now = twist.header.stamp.toSec();
 
 	// Publish integrated/absolute encoder value
-	encoder_abs += encoder_change->data;
+	encoder_abs += encoder_data->data[0];
 	std_msgs::Int32 msg;
 	msg.data = encoder_abs;
 	encoder_publisher.publish(msg);
 
 	// Convert length to meter
-	double change_meter = (double) encoder_change->data / ticks_per_meter;
-
-	// If encoder value did change, compute current velocity
-	double time_diff = time_now - last_change_timestamp;
-	if(change_meter != 0 && time_diff != 0) {
-		last_change_timestamp = time_now;
-		double vel_last = vel_now;
-		vel_now = change_meter / time_diff;
-		acc_now = (vel_last - vel_now) / time_diff;
-
-		// if slowing down, linearly extrapolate stop time
-		if ( (acc_now > 0 && vel_now < 0) || (acc_now > 0 && vel_now > 0) ) {
-			extrapolated_stopping_time = - vel_now/acc_now + time_now;
-		} else {
-			// we're accelerating, never going to stop! (maybe ;) )
-			extrapolated_stopping_time = std::numeric_limits<double>::infinity();
-		}
-	}
-	// If we should have stopped by now (we can't really know, as this doesn't create ticks), set v=0
-	else if (time_now >= extrapolated_stopping_time) {
-		vel_now = 0;
-	}
+	double change_meter = (double) encoder_data->data[0] / ticks_per_meter;
+	// Convert time to seconds
+	double change_time = (double) encoder_data->data[1] / 1e6;
+	// Calc velocity
+	double vel = change_meter / change_time;
 
 	// Add it to message
-	twist.twist.twist.linear.x = vel_now;
+	twist.twist.twist.linear.x = vel;
 
 	// Send out message
 	pose_publisher.publish(twist);
@@ -89,9 +70,6 @@ int main(int argc, char** argv) {
 	for (int i=0; i<36; i+=7)
 		twist.twist.covariance.elems[i] = 999;
 	twist.twist.covariance.elems[0] = uncertainty_fixed; // x
-
-	// Initialize some other values
-	last_change_timestamp = ros::Time::now().toSec();
 
 	// ROS subs, pubs
 	ros::Subscriber encoder_sub = n.subscribe("/motor_encoder", 100, encoder_callback);
