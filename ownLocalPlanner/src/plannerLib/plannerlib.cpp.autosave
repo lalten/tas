@@ -105,31 +105,31 @@ void plannerLib::handleNewCostmap(std::vector<> data)
     if (bestcost > THRESHOLD)
     {
         std::vector<float> mPoP(2);    // Middle Point of Path
-        mPoP(0) = originalPathX.at(0) + (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0))/2;
-        mPoP(1) = originalPathY.at(0) + (originalPathY.at(originalPathX.size()-1)-originalPathY.at(0))/2;
+        mPoP(0) = startPoint.at(0) + (endPoint.at(0) - startPoint.at(0))/2;
+        mPoP(1) = startPoint.at(1) + (endPoint.at(1) - startPoint.at(1))/2;
 
         for (float alpha = -rad(MAX_ANGLE); alpha <= rad(MAX_ANGLE); alpha += RESOLUTION)
         {
             float beta;
 
-            if (originalPathX.at(originalPathX.size()-1) == originalPathX.at(0))
+            if (endPoint.at(0) == startPoint.at(0))
                 beta = (PI/2) - alpha;
-            else if (originalPathX.at(originalPathX.size()-1) < originalPathX.at(0))
-                beta =  atan((originalPathY.at(originalPathY.size()-1)-originalPathY.at(0))/
-                             (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0)))  - alpha;
+            else if (endPoint.at(0) < startPoint.at(0))
+                beta =  atan((endPoint.at(1) - startPoint.at(1))/
+                             (endPoint.at(0) - startPoint.at(0)))  - alpha;
             else
-                beta =  atan((originalPathY.at(originalPathY.size()-1)-originalPathY.at(0))/
-                             (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0)))  + alpha + PI;
+                beta =  atan((endPoint.at(1) - startPoint.at(1))/
+                             (endPoint.at(0) - startPoint.at(0)))  + alpha + PI;
 
-            float mp_length = sqrt(pow(mPoP(2)-originalPathY.at(0),2) + pow(mPoP(1)-originalPathX.at(0))) / sin((PI/2) - alpha);
+            float mp_length = sqrt(pow(mPoP(2)-startPoint.at(1),2) + pow(mPoP(1)-startPoint.at(0))) / sin((PI/2) - alpha);
             std::vector<float> cmp(2);                                      // Current Middel Point of new Path
-            cmp(0) = originalPathX.at(0) + mp_length*sin((PI/2)-beta);
-            cmp(1) = originalPathY.at(0) + mp_length*sin(beta);
+            cmp(0) = startPoint.at(0) + mp_length*sin((PI/2)-beta);
+            cmp(1) = startPoint.at(1) + mp_length*sin(beta);
 
             std::vector<float> alternativPathX;
             std::vector<float> alternativPathY;
 
-            for (float t = 0; t <= 1; t+=(1/originalPathX.size()))
+            for (float t = 0; t <= 1; t+=(1/(originalPathX.size()-1)))
             {
                 float aX = getPt_bezier(originalPathX.at(0), cmp(0), t);
                 float aY = getPt_bezier(originalPathY.at(0), cmp(1), t);

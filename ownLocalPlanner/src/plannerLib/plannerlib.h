@@ -54,8 +54,15 @@ private:
     float calcCost(std::vector<float> xPoints, std::vector<float> yPoints,                  // INPUT: VectorPoints of Path X, VectorPoints of Path y
                    std::vector<int> costMap, int width, int hight);                         // INPUT: Vector of Costmap, width of costmap, hight of costmap
 
+    // This Function creats a List of points, which are needed to calculate the cost of the current Path
+    void createArtificialPath(std::vector<float> startPoint, std::vector<float> endPoint,   // INPUT: Startpoint as Vector, Endpoint as Vector
+                              int steps,                                                    // INPUT: How many steps for the path
+                              std::vector<float> &newPathX, std::vector<float> &newPathY);  // OUTPUT: new linar Path with # steps from start to endpoint
+
     // Calculates the Index for Vector of Costmap to given x and y points
     int getIndex(int x, int y, int width, int hight);
+
+
 
     void refreshGlobalPosition();
     void refreshGlobalPath(const nav_msgs::Path::ConstPtr& path);
