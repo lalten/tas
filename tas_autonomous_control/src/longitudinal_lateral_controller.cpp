@@ -62,20 +62,24 @@ int main(int argc, char** argv)
 
         //ROS_INFO_STREAM("Current Pos   x:   " << lqr1.mapcoord[0]  << "y:   " << lqr1.mapcoord[0] <<   "z-angle:   " << lqr1.mapcoord[2] );
 
+        //lqr1.test_motor();
+
         if( lqr1.inited == 1)
         {           
             lqr1.getclosestpoint();            
             lqr1.visualize();
             lqr1.estimate_state();
             lqr1.control();
-            //ROS_INFO_STREAM("closest point on path:   " << lqr1.closestpt.at(0) << "  " << lqr1.closestpt.at(1) << "  " << lqr1.closestpt.at(2));
-            /*ROS_INFO_STREAM("glpath size:   " << lqr1.glpath.size());
-            for (int i=0; i< lqr1.glpath.size()/1.0; i++)
+            ROS_INFO_STREAM("closest point on path:   " << lqr1.closestpt.at(0) << "  " << lqr1.closestpt.at(1) << "  " << lqr1.closestpt.at(2));
+            ROS_INFO_STREAM("glpath size:   " << lqr1.glpath.size());
+            /*for (int i=0; i< lqr1.glpath.size()/1.0; i++)
             {
                 int j= i*1;
                 ROS_INFO_STREAM("glpath_point x: " << lqr1.glpath.at(j).at(0) << " y: " << lqr1.glpath.at(j).at(1) <<  " zangle: " << lqr1.glpath.at(j).at(2));
 
             }*/
+
+
         }
 
         ros::spinOnce();

@@ -60,6 +60,7 @@ class lqr
         ros::Time timelast;
         double imu_angular_z_vel_uf;
         double angular_vel_offset;
+        void test_motor();
 
     private:
         double Kvec[3];                     // LQR-control gains (computed by Matlab)

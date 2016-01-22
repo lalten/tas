@@ -25,8 +25,10 @@ lqr::lqr()
       max_vel = 1;
 
       inited=0;
+
       glpath_sub_ = node.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &lqr::glpathCallback,this);
       imu_sub_ = node.subscribe<sensor_msgs::Imu>("/imu", 100, &lqr::imuCallback,this);
+
       pub_ball = node.advertise<visualization_msgs::Marker>( "closest_pt", 0, true);
       pub_arrow = node.advertise<visualization_msgs::Marker>( "closest_pt_dir", 0);
       pub_arrow_array = node.advertise<visualization_msgs::MarkerArray>( "des_speed_dir", 0);
@@ -77,7 +79,7 @@ void lqr::getclosestpoint()
 {
     double shortestdistance = 100000;
     int indclose = 0;
-    ROS_INFO_STREAM("glpath.size  "  << glpath.size());
+    //ROS_INFO_STREAM("glpath.size  "  << glpath.size());
     for(int i = 0; i<glpath.size(); i++)
     {
         double px = glpath.at(i).at(0);
@@ -255,12 +257,38 @@ void lqr::estimate_state()
     lqr_vel.data.at(2)=vel;
     lqr_vel.data.at(3)=vel_uf;
     lqr_vel.data.at(4)=imu_angular_z_vel_uf;
-    ROS_INFO_STREAM("imu_angular_z_vel unfiltered: " <<  imu_angular_z_vel_uf);
+    //ROS_INFO_STREAM("imu_angular_z_vel unfiltered: " <<  imu_angular_z_vel_uf);
     double imu_angular_z_vel =filter_imu.filter(imu_angular_z_vel_uf,0.1);
     lqr_vel.data.at(5)=imu_angular_z_vel;
-    ROS_INFO_STREAM("imu_angular_z_vel filtered: " <<  imu_angular_z_vel);
+    //ROS_INFO_STREAM("imu_angular_z_vel filtered: " <<  imu_angular_z_vel);
 
     pub_vel.publish(lqr_vel);
+}
+
+void lqr::test_motor()
+{
+    geometry_msgs::Vector3 control_servo;
+    control_servo.x = 1500;
+    control_servo.y = 1500;
+
+    for(int i=0; i< 30; i++)
+    {
+        control_servo.x += 3;
+        pub_servo.publish(control_servo);
+        ROS_INFO_STREAM(" servo.x " <<  control_servo.x);
+        ros::Duration(0.5).sleep();
+    }
+
+    control_servo.x = 1500;
+
+    for(int i=0; i< 30; i++)
+    {
+        control_servo.x += 3;
+        pub_servo.publish(control_servo);
+        ROS_INFO_STREAM(" servo.x " <<  control_servo.x);
+        ros::Duration(0.5).sleep();
+    }
+
 }
 
 void lqr::calc_des_speed()
@@ -338,7 +366,7 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
             distance_to_last.push_back( sqrt(pow(last_pt.at(0)-x,2) + pow(last_pt.at(1)-y,2)) );
             double angle_diff = zangle - last_pt.at(2);
             angle_diff_per_m.push_back(angle_diff/distance_to_last.back());
-            ROS_INFO_STREAM("distance_to_last at iter: "  << i << "  is:  " << distance_to_last[i-1]  << "  angle_diff_per_m:  " << angle_diff_per_m.back());
+            //ROS_INFO_STREAM("distance_to_last at iter: "  << i << "  is:  " << distance_to_last[i-1]  << "  angle_diff_per_m:  " << angle_diff_per_m.back());
         }
 
         last_pt.at(0) = x;
@@ -359,7 +387,7 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
 void lqr::imuCallback(const sensor_msgs::Imu::ConstPtr& data)
 {
     imu_angular_z_vel_uf = data->angular_velocity.z;
-    ROS_INFO_STREAM("imu ang z "  << imu_angular_z_vel_uf );
+    //ROS_INFO_STREAM("imu ang z "  << imu_angular_z_vel_uf );
 
 }
 
@@ -393,7 +421,7 @@ void lqr::publish_car()
     double addition = 50;
 
     geometry_msgs::Vector3 control_servo;
-    control_servo.x = 1500 + addition*cmd_thrust;
+    control_servo.x = 1548;
     control_servo.y = cmd_steeringAngle;
 
     pub_servo.publish(control_servo);
