@@ -6,13 +6,15 @@
 
 plannerLib::plannerLib()
 {
-    // Subscribe Local Costmap
-    //costmap_Sub = nh.subscribe<>("",2,&,this);
 
+    // Publish own optimized Path
+    path_Pub = nh.advertise<nav_msgs::Path>("ownPath",1);
 
+    // Subscribe the global Path
+    globalPath_Sub = nh.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &plannerLib::refreshGlobalPath,this);
 
-    //wii_communication_pub = nh_.advertise<std_msgs::Int16MultiArray>("wii_communication",1);
-    glpath_sub_ = nh.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &plannerLib::refreshGlobalPath,this);
+    // Subscribe the local costmap
+    costmap_Sub = nh.subscribe<nav_msgs::OccupancyGrid>("/move_base_node/local_costmap/costmap", 1, &plannerLib::handleNewCostmap, this);
 
     // PRESETS
     globalCoords[0] = 0;
@@ -27,8 +29,10 @@ void plannerLib::refreshGlobalPosition()
 
     while(nh.ok())
     {
+        tf::StampedTransform transform;
+
         try {
-            listener.lookupTransform(("/map", "/base_link",ros::Time(0), listener));
+            listener.lookupTransform("/map", "/base_link",ros::Time(0), transform);
         } catch (tf::TransformException &ex) {
             ROS_ERROR("%s",ex.what());
             ros::Duration(1).sleep();
@@ -37,8 +41,8 @@ void plannerLib::refreshGlobalPosition()
         globalCoords[0] = (float) transform.getOrigin().x();
         globalCoords[1] = (float) transform.getOrigin().y();
         globalCoords[2] = (float) (transform.getRotation().getAngle()/PI*180.0* transform.getRotation().getAxis().getZ());
+        globalCoords[2] = globalCoords[2]*PI/180;
     }
-
 }
 
 void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
@@ -50,103 +54,176 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
     originalPathX.clear();
     originalPathY.clear();
 
-    while (cp < path.poses.size() && distance < PATH_LENGTH)
+    // Clear the current RestList
+    restPath.clear();
+
+    while (cp < path->poses.size())
     {
-        std::vector<float> pose(2);
-        pose.at(0) = path->poses.at(cp).pose.position.x;
-        pose.at(1) = path->poses.at(cp).pose.position.y;
+        if (distance < PATH_LENGTH)
+        {
+            std::vector<float> pose;
+            pose.push_back(path->poses.at(cp).pose.position.x); // 0
+            pose.push_back(path->poses.at(cp).pose.position.y); // 1
 
-        /// TODO: Convert global Coordinates to lokal costmap coordinates
-        /// TODO: Calculate distance
+            // Move x,y
+            pose.push_back(pose.at(0)-globalCoords[0]);         // 2
+            pose.push_back(pose.at(1)-globalCoords[1]);         // 3
 
-        originalPathX.push_back(pose.at(0));
-        originalPathY.push_back(pose.at(1));
+            // Rotate
+            pose.push_back(pose.at(2)*cos(globalCoords[2]) - pose.at(3)*sin(globalCoords[2]));  // 4
+            pose.push_back(pose.at(2)*sin(globalCoords[2]) + pose.at(3)*cos(globalCoords[2]));  // 5
+
+            // Save Value
+            originalPathX.push_back(pose.at(4));
+            originalPathY.push_back(pose.at(5));
+
+            // Update Distance
+            if (cp > 0)
+                distance += sqrt(pow( (pose.at(0) - originalPathX.at(cp-1)), 2) +
+                                 pow( (pose.at(1) - originalPathY.at(cp-1)), 2));
+
+        } else {
+            std::vector<float> appendedPoint;
+            appendedPoint.push_back(path->poses.at(cp).pose.position.x);
+            appendedPoint.push_back(path->poses.at(cp).pose.position.y);
+
+            restPath.push_back(appendedPoint);
+        }
     }
 
 }
 
-void plannerLib::handleNewCostmap(std::vector<> data)
+void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-    std::vector<int> costmap = data.;
-    int width = data.;
-    int hight = data.;
-    float res = data.;
+    std_msgs::Header header = msg->header;
+    nav_msgs::MapMetaData data = msg->info;
+
+    std::vector<int> costmap;
+    int width = data.width;
+    int height = data.height;
+    float res = data.resolution;
+
+    // Read in the costmap
+    for (unsigned int x = 0; x < width; x++)
+      for (unsigned int y = 0; y < height; y++)
+          costmap.push_back(msg->data[x + width * y]);
 
     carWidth = CAR_WIDTH / res;
     carLength = CAR_LENGTH / res;
 
 
     float bestcost;
+    std::vector< std::vector<float> > bestPath;
 
     // The starting-Point is set to the middle of the costmap
     std::vector<float> startPoint(2);
-    startPoint(0) = width/2;//originalPathX.at(0);
-    startPoint(1) = hight/2;//originalPathY.at(0);
+    startPoint.push_back(width/2);//originalPathX.at(0);
+    startPoint.push_back(height/2);//originalPathY.at(0);
 
     // Set the end-Point
     std::vector<float> endPoint(2);
-    endPoint(0) = originalPathX.at(originalPathX.size()-1);
-    endPoint(1) = originalPathY.at(originalPathY.size()-1);
+    endPoint.push_back(originalPathX.at(originalPathX.size()-1));
+    endPoint.push_back(originalPathY.at(originalPathY.size()-1));
 
 
     // Check the original Path
-    std::vector<float> pointsX, pointsY;
+    std::vector<int> pointsX, pointsY;
     if (false) {    // If the globalPath always starts at the car Position
         createCalcPoints(originalPathX, originalPathY, pointsX, pointsY);
     } else {        // The middle of the costmap is the position of the car
         std::vector<float> artificialPathX, artificialPathY;
         createArtificialPath(startPoint, endPoint, originalPathX.size(),artificialPathX, artificialPathY);
         createCalcPoints(artificialPathX, artificialPathY, pointsX, pointsY);
+        bestPath = convertToBestPath(artificialPathX, artificialPathY);
     }
 
-    bestcost = calcCost(pointsX, pointsY, costmap, width, hight);
+    bestcost = calcCost(pointsX, pointsY, costmap, width, height);
+
 
     // If the cost of the Original Path is over the Threshold
     if (bestcost > THRESHOLD)
     {
         std::vector<float> mPoP(2);    // Middle Point of Path
-        mPoP(0) = originalPathX.at(0) + (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0))/2;
-        mPoP(1) = originalPathY.at(0) + (originalPathY.at(originalPathX.size()-1)-originalPathY.at(0))/2;
+        mPoP.push_back(startPoint.at(0) + (endPoint.at(0) - startPoint.at(0))/2);
+        mPoP.push_back(startPoint.at(1) + (endPoint.at(1) - startPoint.at(1))/2);
 
         for (float alpha = -rad(MAX_ANGLE); alpha <= rad(MAX_ANGLE); alpha += RESOLUTION)
         {
             float beta;
 
-            if (originalPathX.at(originalPathX.size()-1) == originalPathX.at(0))
+            if (endPoint.at(0) == startPoint.at(0))
                 beta = (PI/2) - alpha;
-            else if (originalPathX.at(originalPathX.size()-1) < originalPathX.at(0))
-                beta =  atan((originalPathY.at(originalPathY.size()-1)-originalPathY.at(0))/
-                             (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0)))  - alpha;
+            else if (endPoint.at(0) < startPoint.at(0))
+                beta =  atan((endPoint.at(1) - startPoint.at(1))/
+                             (endPoint.at(0) - startPoint.at(0)))  - alpha;
             else
-                beta =  atan((originalPathY.at(originalPathY.size()-1)-originalPathY.at(0))/
-                             (originalPathX.at(originalPathX.size()-1)-originalPathX.at(0)))  + alpha + PI;
+                beta =  atan((endPoint.at(1) - startPoint.at(1))/
+                             (endPoint.at(0) - startPoint.at(0)))  + alpha + PI;
 
-            float mp_length = sqrt(pow(mPoP(2)-originalPathY.at(0),2) + pow(mPoP(1)-originalPathX.at(0))) / sin((PI/2) - alpha);
+            float mp_length = sqrt(pow(mPoP.at(2)-startPoint.at(1),2) + pow(mPoP.at(1)-startPoint.at(0),2)) / sin((PI/2) - alpha);
             std::vector<float> cmp(2);                                      // Current Middel Point of new Path
-            cmp(0) = originalPathX.at(0) + mp_length*sin((PI/2)-beta);
-            cmp(1) = originalPathY.at(0) + mp_length*sin(beta);
+            cmp.push_back(startPoint.at(0) + mp_length*sin((PI/2)-beta));
+            cmp.push_back(startPoint.at(1) + mp_length*sin(beta));
 
-            std::vector<float> alternativPathX;
-            std::vector<float> alternativPathY;
+            std::vector<float> alternativPathX, alternativPathY;
 
-            for (float t = 0; t <= 1; t+=(1/originalPathX.size()))
+            for (float t = 0; t <= 1; t+=(1/(originalPathX.size()-1)))
             {
-                float aX = getPt_bezier(originalPathX.at(0), cmp(0), t);
-                float aY = getPt_bezier(originalPathY.at(0), cmp(1), t);
-                float bX = getPt_bezier(cmp(0), originalPathX.at(originalPathX.size()-1), t);
-                float aY = getPt_bezier(cmp(1), originalPathY.at(originalPathY.size()-1), t);
+                float aX = getPt_bezier(originalPathX.at(0), cmp.at(0), t);
+                float aY = getPt_bezier(originalPathY.at(0), cmp.at(1), t);
+                float bX = getPt_bezier(cmp.at(0), originalPathX.at(originalPathX.size()-1), t);
+                float bY = getPt_bezier(cmp.at(1), originalPathY.at(originalPathY.size()-1), t);
 
                 alternativPathX.push_back( getPt_bezier(aX, bX, t) );
                 alternativPathY.push_back( getPt_bezier(aY, bY, t) );
-
             }
 
 
+            createCalcPoints(alternativPathX, alternativPathY, pointsX, pointsY);
+            float currentCost = calcCost(pointsX, pointsY,costmap,width,height);
+
+            if(currentCost < bestcost)
+            {
+                bestcost = currentCost;
+                bestPath.clear();
+                bestPath = convertToBestPath(alternativPathX, alternativPathY);
+            }
         }
     }
 
+    ownPath.poses.clear();
 
+    // Convert Own Local Path to Global Path
+    for (int i = 0; i < bestPath.size(); i++)
+    {
+        std::vector<double> op;
+        op.push_back(bestPath.at(i).at(0));         // 0
+        op.push_back(bestPath.at(i).at(1));         // 1
 
+        // Rotate back
+        op.push_back(op.at(0)*cos(-globalCoords[2]) - op.at(1)*sin(-globalCoords[2]));  // 2
+        op.push_back(op.at(0)*sin(-globalCoords[2]) + op.at(1)*cos(-globalCoords[2]));  // 3
+
+        // Move back
+        op.push_back(op.at(2)+globalCoords[0]);     // 4
+        op.push_back(op.at(3)+globalCoords[1]);     // 5
+
+        geometry_msgs::PoseStamped ps;
+        ps.pose.position.x = op.at(4);
+        ps.pose.position.y = op.at(5);
+        ownPath.poses.push_back(ps);
+    }
+
+    // Append the rest of the old Path
+    for (int i = 0; i < restPath.size(); i++)
+    {
+        geometry_msgs::PoseStamped ps;
+        ps.pose.position.x = restPath.at(i).at(0);
+        ps.pose.position.y = restPath.at(i).at(1);
+        ownPath.poses.push_back(ps);
+    }
+
+    path_Pub.publish(ownPath);
 }
 
 /*  CREATE BOX
@@ -210,7 +287,7 @@ void plannerLib::createArtificialPath(std::vector<float> startPoint, std::vector
  *  This Function creats a List of points, which are needed to calculate the cost of the current Path
  *
  *                                                                                                                      */
-void plannerLib::createCalcPoints(std::vector<float> coordinatsX, std::vector<float> coordinatsY, std::vector<float> &xPoints, std::vector<float> &yPoints)
+void plannerLib::createCalcPoints(std::vector<float> coordinatsX, std::vector<float> coordinatsY, std::vector<int> &xPoints, std::vector<int> &yPoints)
 {
     // There must be an equal number of X and Y Coordinates
     if (coordinatsX.size() != coordinatsY.size()){
@@ -251,8 +328,8 @@ void plannerLib::createCalcPoints(std::vector<float> coordinatsX, std::vector<fl
         // Round Points to full number and add to List
         for (int i = 0; i < 4; i++)
         {
-            xPoints.push_back(floor(xPointsCar.at(i)+0.5f));
-            yPoints.push_back(floor(yPointsCar.at(i)+0.5f));
+            xPoints.push_back((int)floor(xPointsCar.at(i)+0.5f));
+            yPoints.push_back((int)floor(yPointsCar.at(i)+0.5f));
         }
     }
 }
@@ -262,19 +339,22 @@ void plannerLib::createCalcPoints(std::vector<float> coordinatsX, std::vector<fl
  *  This Function calculates the Costs to the Points out of CREATE CALC POINTS
  * .
  *                                                                                                                      */
-float plannerLib::calcCost(std::vector<float> xPoints, std::vector<float> yPoints, std::vector<int> costMap, int width, int hight)
+float plannerLib::calcCost(std::vector<int> xPoints, std::vector<int> yPoints, std::vector<int> costMap, int width, int hight)
 {
     // There must be an equal number of X and Y Coordinates
     if (xPoints.size() != yPoints.size()){
         ROS_ERROR("Wrong use of calcCost");
-        return;
+        return -1;
     }
 
     float cost = 0;
     for (int i = 1; i < xPoints.size(); i++)
     {
-        // II the calculated point is outside the costmap
+        // If the calculated point is outside the costmap
         if (xPoints.at(i) < 1 || yPoints.at(i) < 1 | xPoints.at(i) > width | yPoints.at(i) > hight)
+            cost += COST_OUTSIDE;
+        // If the cost at this point is undefined
+        else if (costMap.at(getIndex(xPoints.at(i), yPoints.at(i), width, hight)) < 0)
             cost += COST_OUTSIDE;
         // ELSE get the cost out of the costmap
         else
@@ -284,13 +364,33 @@ float plannerLib::calcCost(std::vector<float> xPoints, std::vector<float> yPoint
     return cost;
 }
 
+
+std::vector< std::vector<float> > plannerLib::convertToBestPath(std::vector<float> xVals, std::vector<float> yVals)
+{
+    if (xVals.size() != yVals.size())
+    {
+        ROS_ERROR("Wrong use of convertToBestPath");
+    }
+
+    std::vector< std::vector<float> > result;
+    for (int i = 0; i < xVals.size(); i++)
+    {
+        std::vector<float> point(2);
+        point.push_back(xVals.at(i));
+        point.push_back(yVals.at(i));
+        result.push_back(point);
+    }
+    return result;
+}
+
+
 /*  Calculates the Index for Vector of Costmap to given x and y points
  *
  *                                                                                                                      */
 int plannerLib::getIndex(int x, int y, int width, int hight)
 {
-    //return (y-1)*hight + (x-1)    // IF FLIPPED
-    return (x-1)*width + (y-1);
+    return (y-1)*hight + (x-1);
+    //return (x-1)*width + (y-1);   // IF FLIPPED
 }
 
 float plannerLib::rad(float deg)
