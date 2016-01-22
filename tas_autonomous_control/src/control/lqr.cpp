@@ -60,6 +60,7 @@ double lqr::control()
     }
 
     steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180/PI;
+    //steering_deg = -(Kvec[0]*err[0] + Kvec[1]*err[1]  + Kvec[2]*err[2])*180/PI;
 
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
@@ -283,11 +284,35 @@ void lqr::test_motor()
 
     for(int i=0; i< 30; i++)
     {
-        control_servo.x += 3;
+        control_servo.x -= 3;
         pub_servo.publish(control_servo);
         ROS_INFO_STREAM(" servo.x " <<  control_servo.x);
         ros::Duration(0.5).sleep();
     }
+
+
+    control_servo.x = 1500;
+    control_servo.y = 1500;
+
+    for(int i=0; i< 30; i++)
+    {
+        control_servo.y += 30;
+        pub_servo.publish(control_servo);
+        ROS_INFO_STREAM(" servo.y " <<  control_servo.y);
+        ros::Duration(0.5).sleep();
+    }
+
+    control_servo.y = 1500;
+
+    for(int i=0; i< 30; i++)
+    {
+        control_servo.y -= 30;
+        pub_servo.publish(control_servo);
+        ROS_INFO_STREAM(" servo.y " <<  control_servo.y);
+        ros::Duration(0.5).sleep();
+    }
+
+
 
 }
 
