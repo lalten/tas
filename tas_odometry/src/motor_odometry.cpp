@@ -27,17 +27,11 @@ ros::Duration time_offset;
 // We get new encoder values here
 void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 
-	// On the first message, save time offset so later timestamps are correct
-//	if(time_offset.isZero()) {
-//		time_offset = ros::Time::now() - encoder_data->header.stamp;
-//	}
+	// Update twist msg header
+	twist.header.stamp = ros::Time::now();
+	twist.header.seq++;
 
-	// Build twist msg header
-	twist.header.frame_id = frame_id;
-	twist.header.stamp = encoder_data->header.stamp + time_offset;
-	twist.header.seq = encoder_data->header.seq;
-
-	// save time of message arrival
+	// Convert and save time of message arrival
 	double time_now = twist.header.stamp.toSec();
 
 	// Publish integrated/absolute encoder value
@@ -68,6 +62,10 @@ int main(int argc, char** argv) {
 	n.param<double>("ticks_per_meter", ticks_per_meter, 100);
 	n.param<std::string>("frame_id", frame_id, "base_link");
 	n.param<double>("uncertainty_fixed", uncertainty_fixed, 1e-3);
+
+	// Setup twist message
+	twist.header.seq = 0;
+	twist.header.frame_id = frame_id;
 
 	// Fill covariance. Order: (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
 	twist.twist.covariance.assign(0.0); // Generally uncorrelated
