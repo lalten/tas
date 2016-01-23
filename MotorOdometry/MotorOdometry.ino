@@ -13,11 +13,10 @@
 
 #include <ros.h>
 #include <tas_odometry/Encoder.h>
-#include <util/atomic.h>
 
 // IO pin numbers
-static const uint8_t pinA = 3;
-static const uint8_t pinB = 2;
+static const uint8_t pinA = 2;
+static const uint8_t pinB = 3;
 static const uint8_t pinC = 7;
 
 // When this time (ms) has passed, publish a message even though nothing changed
@@ -36,7 +35,7 @@ volatile int32_t counter = 0;
 // Timestamp of last encoder tick (in 1us, 4us resolution)
 volatile unsigned long last_tick = 0;
 // Time between ticks that actually get published
-volatile unsigned long accumulated_duration = 0;
+volatile unsigned long accumulated_duration = 1;
 // Flag telling if new data is available
 volatile bool dirty = false;
 
@@ -53,43 +52,59 @@ void error_reset() {
 	cli();
 
 	// Re-read channel values
+	bool A_old = A;
+	bool B_old = B;
+	bool C_old = C;
 	A = digitalRead(pinA);
 	B = digitalRead(pinB);
 	C = digitalRead(pinC);
 	dirty = false;
 
+	// Efficiently build a string like "E: 100/110"
+	char err_str[] = {'E', ':', ' ',
+			(char) (A_old+'0'), (char) (B_old+'0'), (char) (C_old+'0'),
+			'/',
+			(char) (A+'0'), (char) (B+'0'), (char) (C+'0'),
+			0};
+
 	// re-enable interrupts
 	SREG = oldSREG;
+
+	// Write the string to the roslog
+	nh.logwarn(err_str);
 }
 
+// This ISR (Interrupt Service Routine) will be called whenever there is a change on pinA. Normal code execution is halted until the ISR returns.
 void isr_a() {
 	// Measure inter-tick duration right at ISR entry and add it to time since last publishing
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	if (A) { // channel was high before, so this is a falling edge
-		if (B && C) // the other channels are both high
+	// Update channel value
+	A = digitalRead(pinA);
+	if (A) { // Rising edge
+		if (B && !C) // if channel B is high, channel C is low
 			counter++; // this indicates forward motion
-		else if (!B && !C)
-			counter--; // both low means backwards motion
+		else if (!B && C) // the other way round?
+			counter--; // then backwards
 		else
 			// any other state indicates either input overflow or wrong logic (interchanged wires...)
 			error_reset();
-	} else { // rising edge
-		if (!B && !C)
+	} else { // Falling edge
+		if (!B && C)
 			counter++;
-		else if (B && C)
+		else if (B && !C)
 			counter--;
 		else
 			error_reset();
 	}
-	// Update channel value and dirty flag
-	A = digitalRead(pinA);
+	// Set dirty flag
 	dirty = true;
 }
 
-void isr_b() {
+void isr_b() { // analogous to isr_a
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
+	B = digitalRead(pinB);
 	if (B) {
 		if (!A && C)
 			counter++;
@@ -105,29 +120,28 @@ void isr_b() {
 		else
 			error_reset();
 	}
-	B = digitalRead(pinB);
 	dirty = true;
 }
 
-void isr_c() {
+void isr_c() { // analogous to isr_a
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
+	C = digitalRead(pinC);
 	if (C) {
-		if (!A && !B)
+		if (A && !B)
 			counter++;
-		else if (A && B)
+		else if (!A && B)
 			counter--;
 		else
 			error_reset();
 	} else {
-		if (A && B)
+		if (!A && B)
 			counter++;
-		else if (!A && !B)
+		else if (A && !B)
 			counter--;
 		else
 			error_reset();
 	}
-	C = digitalRead(pinC);
 	dirty = true;
 }
 
@@ -154,8 +168,6 @@ void setup() {
 	attachInterrupt(digitalPinToInterrupt(pinC), isr_c, CHANGE);
 
 	// Setup ROS
-	msg.header.frame_id = "base_motor";
-	msg.header.seq = 0;
 	nh.initNode();
 	nh.advertise(pub);
 }
@@ -168,15 +180,13 @@ void loop() {
 
 	// If new data is available, publish it
 	if (dirty) {
-		msg.header.seq ++;
-		msg.header.stamp = nh.now(); // like ros::Time::now(), but optimized for HW
-		// Don't let race conditions happen!
-		ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-			msg.duration = accumulated_duration;
-			msg.encoder_ticks = counter;
-			counter = 0;
-			accumulated_duration = 0;
-		}
+//		uint8_t oldSREG = SREG;
+//		cli();		// Temporarily disable interrupts to prevent race conditions
+		msg.duration = accumulated_duration;
+		msg.encoder_ticks = counter;
+		counter = 0;
+		accumulated_duration = 0;
+//		SREG = oldSREG; // reactivate ISRs
 		ledcounter += msg.encoder_ticks;
 		dirty = false;
 		published_0vel = false;
@@ -186,8 +196,6 @@ void loop() {
 	// If no update happens, after 100ms publish 0 - once!
 	if (!published_0vel && now - last_sent > pub_0vel_after) {
 		published_0vel = true;
-		msg.header.seq ++;
-		msg.header.stamp = nh.now();
 		msg.duration = 1; // avoid accidental divisions by zero...
 		msg.encoder_ticks = 0;
 		pub.publish(&msg);
@@ -207,7 +215,6 @@ void loop() {
 		RXLED0;
 	else
 		RXLED1;
-
 
 }
 
