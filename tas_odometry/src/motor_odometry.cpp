@@ -12,6 +12,7 @@
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <std_msgs/Int32.h>
 #include <tas_odometry/Encoder.h>
+#include <boost/circular_buffer.hpp>
 
 ros::Publisher pose_publisher;
 ros::Publisher encoder_publisher;
@@ -22,7 +23,10 @@ int32_t encoder_abs = 0;
 std::string frame_id;
 double ticks_per_meter;
 double uncertainty_fixed;
-ros::Duration time_offset;
+
+struct VelSample { double timestamp; double velocity; };
+boost::circular_buffer<VelSample> vel_buffer;
+
 
 // We get new encoder values here
 void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
@@ -49,6 +53,31 @@ void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 
 	// Add it to message
 	twist.twist.twist.linear.x = vel;
+
+
+
+	// Maintain ring buffer
+	vel_buffer.push_back(VelSample {time_now, vel});
+	while (vel_buffer.size() > 1 && time_now - vel_buffer.front().timestamp > 0.100)
+		vel_buffer.pop_front();
+
+	// build 10ms-slice averages
+	std::vector<VelSample> averages;
+	for(boost::circular_buffer<VelSample>::iterator i = vel_buffer.end(); i>=vel_buffer.begin(); --i) {
+		double time_end = i->timestamp;
+		VelSample avg { time_end - 0.005, i->velocity };
+		int numSamples = 1;
+		while ((i-1)->timestamp > time_end - 0.100) {
+			i--;
+			avg.velocity += i->velocity;
+			numSamples++;
+		}
+		avg.velocity /= numSamples;
+		averages.push_back(avg);
+	}
+
+
+
 
 	// Send out message
 	pose_publisher.publish(twist);
