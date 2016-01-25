@@ -374,6 +374,29 @@ void lqr::calc_des_speed()
 
     }
     ROS_INFO_STREAM("calc speed done  ");
+
+
+    vector <int> start_curve;
+    vector <int> end_curve;
+
+    int last_angle_diff = angle_diff_per_m.at(0);
+    for(int i = 1; i< angle_diff_per_m.size(); i++)
+    {
+        if(angle_diff_per_m.at(i) > 1 && last_angle_diff < 1)
+        {
+            start_curve.push_back(i);
+            ROS_INFO_STREAM("start curve at  " << i);
+        }
+        if(angle_diff_per_m.at(i) < 1 && last_angle_diff > 1)
+        {
+            end_curve.push_back(i);
+            ROS_INFO_STREAM("end curve at  " << i);
+        }
+    }
+
+    ROS_INFO_STREAM("num start curve  " << start_curve.size());
+    ROS_INFO_STREAM("num start curve  " << end_curve.size());
+
 }
 
 
