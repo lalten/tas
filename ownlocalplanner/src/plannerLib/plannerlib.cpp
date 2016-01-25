@@ -1,52 +1,80 @@
 #include "plannerlib.h"
 #include <math.h>
-
+#include <vector>
 
 // Bezierkurve
 
-plannerLib::plannerLib()
+plannerLib::plannerLib(ros::NodeHandle nh)
 {
+
 
     // Publish own optimized Path
     path_Pub = nh.advertise<nav_msgs::Path>("ownPath",1);
 
     // Subscribe the global Path
-    globalPath_Sub = nh.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &plannerLib::refreshGlobalPath,this);
+    //globalPath_Sub = nh.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &plannerLib::refreshGlobalPath,this);
+    globalPath_Sub = nh.subscribe("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &plannerLib::refreshGlobalPath,this);
+    ROS_INFO("SUB: Global Plan");
 
     // Subscribe the local costmap
-    costmap_Sub = nh.subscribe<nav_msgs::OccupancyGrid>("/move_base_node/local_costmap/costmap", 1, &plannerLib::handleNewCostmap, this);
+    costmap_Sub = nh.subscribe<nav_msgs::OccupancyGrid>("/move_base_node/local_costmap/costmap", 100, &plannerLib::handleNewCostmap, this);
+    ROS_INFO("SUB: Local Costmap");
+
 
     // PRESETS
     globalCoords[0] = 0;
     globalCoords[1] = 0;
     globalCoords[2] = 0;
+
+    // TEMPORARE PATH
+    originalPathX.push_back(0.0);
+    originalPathX.push_back(2.0);
+    originalPathY.push_back(0.0);
+    originalPathY.push_back(2.0);
+
 }
 
-void plannerLib::refreshGlobalPosition()
+void plannerLib::refreshGlobalPosition(ros::NodeHandle nh)
 {
+    ROS_INFO("START to listen to Transform");
+
     tf::TransformListener listener;
-    ros::Rate rate(30);
+    //ros::Rate rate(30);
+    ros::Rate rate(10);
 
     while(nh.ok())
     {
         tf::StampedTransform transform;
-
-        try {
-            listener.lookupTransform("/map", "/base_link",ros::Time(0), transform);
-        } catch (tf::TransformException &ex) {
+        try{
+            ros::Time now = ros::Time(0);
+            listener.waitForTransform("/map", "/base_link",now, ros::Duration(1.0));
+            listener.lookupTransform("/map", "/base_link",now, transform);
+        }
+        catch(tf::TransformException &ex) {
             ROS_ERROR("%s",ex.what());
-            ros::Duration(1).sleep();
+            ros::Duration(1.0).sleep();
             continue;
         }
+
+        //listener.waitForTransform("/map", "/base_link",ros::Time(0), transform);
+
         globalCoords[0] = (float) transform.getOrigin().x();
         globalCoords[1] = (float) transform.getOrigin().y();
         globalCoords[2] = (float) (transform.getRotation().getAngle()/PI*180.0* transform.getRotation().getAxis().getZ());
         globalCoords[2] = globalCoords[2]*PI/180;
+
+       // ROS_INFO("  X: %f, Y: %f, , a: %f", globalCoords[0],globalCoords[1],globalCoords[2]);
+
+        ros::spinOnce(); // this is where the magic happens!!
+        rate.sleep();
     }
 }
 
 void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
 {
+    ROS_INFO("RECEIVED new global Path");
+
+
     float distance = 0;     // Distance of the Path
     int cp = 0;             // Current Point
 
@@ -95,6 +123,7 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
 
 void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
+
     std_msgs::Header header = msg->header;
     nav_msgs::MapMetaData data = msg->info;
 
@@ -102,8 +131,14 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     int width = data.width;
     int height = data.height;
     float res = data.resolution;
+     ROS_INFO("W: %d, H: %d", width, height);
 
-    // Read in the costmap
+     if(originalPathX.size() == 0){
+         ROS_INFO("No global Path -> return out of Map Function");
+         return;
+     }
+
+     // Read in the costmap
     for (unsigned int x = 0; x < width; x++)
       for (unsigned int y = 0; y < height; y++)
           costmap.push_back(msg->data[x + width * y]);
@@ -116,12 +151,13 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     std::vector< std::vector<float> > bestPath;
 
     // The starting-Point is set to the middle of the costmap
-    std::vector<float> startPoint(2);
+    std::vector<float> startPoint;
+    ROS_INFO("STELLE 0");
     startPoint.push_back(width/2);//originalPathX.at(0);
     startPoint.push_back(height/2);//originalPathY.at(0);
 
     // Set the end-Point
-    std::vector<float> endPoint(2);
+    std::vector<float> endPoint;
     endPoint.push_back(originalPathX.at(originalPathX.size()-1));
     endPoint.push_back(originalPathY.at(originalPathY.size()-1));
 
@@ -143,6 +179,7 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     // If the cost of the Original Path is over the Threshold
     if (bestcost > THRESHOLD)
     {
+        ROS_INFO("STELLE 3");
         std::vector<float> mPoP(2);    // Middle Point of Path
         mPoP.push_back(startPoint.at(0) + (endPoint.at(0) - startPoint.at(0))/2);
         mPoP.push_back(startPoint.at(1) + (endPoint.at(1) - startPoint.at(1))/2);
@@ -191,6 +228,7 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         }
     }
 
+            ROS_INFO("STELLE 4");
     ownPath.poses.clear();
 
     // Convert Own Local Path to Global Path
@@ -222,6 +260,8 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         ps.pose.position.y = restPath.at(i).at(1);
         ownPath.poses.push_back(ps);
     }
+
+            ROS_INFO("Start to Publisch");
 
     path_Pub.publish(ownPath);
 }
