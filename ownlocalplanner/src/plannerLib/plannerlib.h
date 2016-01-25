@@ -26,13 +26,12 @@
 class plannerLib
 {
 public:
-    plannerLib();
+    plannerLib(ros::NodeHandle nh);
 
-    ros::NodeHandle nh;
     ros::Subscriber costmap_Sub, globalPath_Sub;
     ros::Publisher path_Pub;
 
-    void refreshGlobalPosition();
+    void refreshGlobalPosition(ros::NodeHandle nh);
 
 
 private:
