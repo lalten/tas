@@ -27,10 +27,10 @@ plannerLib::plannerLib(ros::NodeHandle nh)
     globalCoords[2] = 0;
 
     // TEMPORARE PATH
-    originalPathX.push_back(0.0);
-    originalPathX.push_back(2.0);
-    originalPathY.push_back(0.0);
-    originalPathY.push_back(2.0);
+//    originalPathX.push_back(0.0);
+//    originalPathX.push_back(2.0);
+//    originalPathY.push_back(0.0);
+//    originalPathY.push_back(2.0);
 
 }
 
@@ -72,9 +72,6 @@ void plannerLib::refreshGlobalPosition(ros::NodeHandle nh)
 
 void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
 {
-    ROS_INFO("RECEIVED new global Path");
-
-
     float distance = 0;     // Distance of the Path
     int cp = 0;             // Current Point
 
@@ -110,6 +107,8 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
                 distance += sqrt(pow( (pose.at(0) - originalPathX.at(cp-1)), 2) +
                                  pow( (pose.at(1) - originalPathY.at(cp-1)), 2));
 
+            ROS_INFO("Distance: %f", distance);
+
         } else {
             std::vector<float> appendedPoint;
             appendedPoint.push_back(path->poses.at(cp).pose.position.x);
@@ -117,8 +116,9 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
 
             restPath.push_back(appendedPoint);
         }
+        cp++;
     }
-
+    ROS_INFO("RECEIVED: OP: %ld - RP: %ld",originalPathX.size(),restPath.size());
 }
 
 void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
@@ -137,6 +137,10 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
          ROS_INFO("No global Path -> return out of Map Function");
          return;
      }
+     int sizeIS = originalPathX.size();
+     ROS_INFO("OK! Size is %d", sizeIS);
+     int calcP = CALC_POINTS;// originalPathX.size();
+
 
      // Read in the costmap
     for (unsigned int x = 0; x < width; x++)
@@ -152,7 +156,6 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 
     // The starting-Point is set to the middle of the costmap
     std::vector<float> startPoint;
-    ROS_INFO("STELLE 0");
     startPoint.push_back(width/2);//originalPathX.at(0);
     startPoint.push_back(height/2);//originalPathY.at(0);
 
@@ -168,7 +171,8 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         createCalcPoints(originalPathX, originalPathY, pointsX, pointsY);
     } else {        // The middle of the costmap is the position of the car
         std::vector<float> artificialPathX, artificialPathY;
-        createArtificialPath(startPoint, endPoint, originalPathX.size(),artificialPathX, artificialPathY);
+
+        createArtificialPath(startPoint, endPoint, calcP,artificialPathX, artificialPathY);
         createCalcPoints(artificialPathX, artificialPathY, pointsX, pointsY);
         bestPath = convertToBestPath(artificialPathX, artificialPathY);
     }
@@ -179,13 +183,16 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     // If the cost of the Original Path is over the Threshold
     if (bestcost > THRESHOLD)
     {
-        ROS_INFO("STELLE 3");
+        ROS_INFO("STELLE 1");
         std::vector<float> mPoP(2);    // Middle Point of Path
         mPoP.push_back(startPoint.at(0) + (endPoint.at(0) - startPoint.at(0))/2);
         mPoP.push_back(startPoint.at(1) + (endPoint.at(1) - startPoint.at(1))/2);
+        ROS_INFO("STELLE 2");
 
-        for (float alpha = -rad(MAX_ANGLE); alpha <= rad(MAX_ANGLE); alpha += RESOLUTION)
+        for (float alpha = -rad(MAX_ANGLE); alpha <= rad(MAX_ANGLE); alpha += rad(RESOLUTION))
         {
+            float degrrI = alpha*180/PI;
+            ROS_INFO("STELLE 3: Angle is %f",degrrI);
             float beta;
 
             if (endPoint.at(0) == startPoint.at(0))
@@ -197,14 +204,23 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
                 beta =  atan((endPoint.at(1) - startPoint.at(1))/
                              (endPoint.at(0) - startPoint.at(0)))  + alpha + PI;
 
+            float degrrI2 = beta*180/PI;
+            ROS_INFO("STELLE 4: Beta is %f",degrrI2);
+
             float mp_length = sqrt(pow(mPoP.at(2)-startPoint.at(1),2) + pow(mPoP.at(1)-startPoint.at(0),2)) / sin((PI/2) - alpha);
             std::vector<float> cmp(2);                                      // Current Middel Point of new Path
             cmp.push_back(startPoint.at(0) + mp_length*sin((PI/2)-beta));
             cmp.push_back(startPoint.at(1) + mp_length*sin(beta));
 
+
+
             std::vector<float> alternativPathX, alternativPathY;
 
-            for (float t = 0; t <= 1; t+=(1/(originalPathX.size()-1)))
+            float erhoehung = (1.0f/((float)calcP));
+            int teilung = calcP;
+            ROS_INFO("STELLE 5. Teilung durch %d ---- Soll um folgendes Erhoehen: %f",teilung,erhoehung);
+
+            for (float t = 0; t <= 1; t+=erhoehung)
             {
                 float aX = getPt_bezier(originalPathX.at(0), cmp.at(0), t);
                 float aY = getPt_bezier(originalPathY.at(0), cmp.at(1), t);
@@ -215,9 +231,12 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
                 alternativPathY.push_back( getPt_bezier(aY, bY, t) );
             }
 
+            ROS_INFO("STELLE 6");
 
             createCalcPoints(alternativPathX, alternativPathY, pointsX, pointsY);
             float currentCost = calcCost(pointsX, pointsY,costmap,width,height);
+
+            ROS_INFO("STELLE 7");
 
             if(currentCost < bestcost)
             {
@@ -227,8 +246,8 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
             }
         }
     }
-
-            ROS_INFO("STELLE 4");
+    int debugNumb = bestPath.size();
+    ROS_INFO("STELLE 4: OwnPath Size is %d",debugNumb);
     ownPath.poses.clear();
 
     // Convert Own Local Path to Global Path
@@ -249,19 +268,26 @@ void plannerLib::handleNewCostmap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         geometry_msgs::PoseStamped ps;
         ps.pose.position.x = op.at(4);
         ps.pose.position.y = op.at(5);
+        ps.header.frame_id = "map" ;
         ownPath.poses.push_back(ps);
     }
 
+    // Set the frame to map
+    ownPath.header.frame_id = "map";
+
+    int debugNumb2 = restPath.size();
+    ROS_INFO("STELLE 4: OwnPath Size is %d",debugNumb2);
     // Append the rest of the old Path
     for (int i = 0; i < restPath.size(); i++)
     {
         geometry_msgs::PoseStamped ps;
         ps.pose.position.x = restPath.at(i).at(0);
         ps.pose.position.y = restPath.at(i).at(1);
+        ps.header.frame_id = "map" ;
         ownPath.poses.push_back(ps);
     }
 
-            ROS_INFO("Start to Publisch");
+    ROS_INFO("Start to Publisch");
 
     path_Pub.publish(ownPath);
 }

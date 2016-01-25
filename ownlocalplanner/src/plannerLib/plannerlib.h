@@ -22,6 +22,7 @@
 #define MAX_ANGLE       36      // Maximal Angle in Degree
 #define RESOLUTION      2       // Angle Resolution in Degree
 #define PI              3.1415926
+#define CALC_POINTS     100
 
 class plannerLib
 {
