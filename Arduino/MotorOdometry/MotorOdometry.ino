@@ -45,6 +45,9 @@ unsigned long last_sent = 0;
 // counter for toggling the LED with its LSB
 uint8_t ledcounter = 0;
 
+const char hello_str [] PROGMEM = "TAS Encoder Odometry\nLaurenz Altenmueller (ga68gug) 2015-01";
+
+
 // There was an error, handle this gracefully
 void error_reset() {
 	// temporarily disable interrupts
@@ -61,11 +64,13 @@ void error_reset() {
 	dirty = false;
 
 	// Efficiently build a string like "E: 100/110"
-	char err_str[] = {'E', ':', ' ',
-			(char) (A_old+'0'), (char) (B_old+'0'), (char) (C_old+'0'),
-			'/',
-			(char) (A+'0'), (char) (B+'0'), (char) (C+'0'),
-			0};
+	char err_str[] = "E: 000/000";
+	err_str[3] += A_old;
+	err_str[4] += B_old;
+	err_str[5] += C_old;
+	err_str[7] += A;
+	err_str[8] += B;
+	err_str[9] += C;
 
 	// re-enable interrupts
 	SREG = oldSREG;
@@ -79,9 +84,7 @@ void isr_a() {
 	// Measure inter-tick duration right at ISR entry and add it to time since last publishing
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	// Update channel value
-	A = digitalRead(pinA);
-	if (A) { // Rising edge
+	if (!A) { // Rising edge (b/c A was low before)
 		if (B && !C) // if channel B is high, channel C is low
 			counter++; // this indicates forward motion
 		else if (!B && C) // the other way round?
@@ -99,13 +102,14 @@ void isr_a() {
 	}
 	// Set dirty flag
 	dirty = true;
+	// Update channel value
+	A = digitalRead(pinA);
 }
 
 void isr_b() { // analogous to isr_a
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	B = digitalRead(pinB);
-	if (B) {
+	if (!B) {
 		if (!A && C)
 			counter++;
 		else if (A && !C)
@@ -121,13 +125,13 @@ void isr_b() { // analogous to isr_a
 			error_reset();
 	}
 	dirty = true;
+	B = digitalRead(pinB);
 }
 
 void isr_c() { // analogous to isr_a
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	C = digitalRead(pinC);
-	if (C) {
+	if (!C) {
 		if (A && !B)
 			counter++;
 		else if (!A && B)
@@ -143,6 +147,7 @@ void isr_c() { // analogous to isr_a
 			error_reset();
 	}
 	dirty = true;
+	C = digitalRead(pinC);
 }
 
 // The setup function is called once at startup of the sketch
@@ -170,6 +175,8 @@ void setup() {
 	// Setup ROS
 	nh.initNode();
 	nh.advertise(pub);
+
+	nh.loginfo(hello_str);
 }
 
 // The loop function is called in an endless loop
@@ -180,13 +187,13 @@ void loop() {
 
 	// If new data is available, publish it
 	if (dirty) {
-//		uint8_t oldSREG = SREG;
-//		cli();		// Temporarily disable interrupts to prevent race conditions
+		uint8_t oldSREG = SREG;
+		cli();		// Temporarily disable interrupts to prevent race conditions
 		msg.duration = accumulated_duration;
 		msg.encoder_ticks = counter;
 		counter = 0;
 		accumulated_duration = 0;
-//		SREG = oldSREG; // reactivate ISRs
+		SREG = oldSREG; // reactivate ISRs
 		ledcounter += msg.encoder_ticks;
 		dirty = false;
 		published_0vel = false;

@@ -38,7 +38,7 @@
       false, false, false]  # ax, ay, az
     </rosparam>
 
-    <param name="twist0" value="/motor_odom"/>
+    <param name="twist0" value="/motor_odometry/motor_odom"/>
     <rosparam param="twist0_config">
       [false,false, false,  # x, y, z,
       false, false, false,  # roll, pitch, yaw,
