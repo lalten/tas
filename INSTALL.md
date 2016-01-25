@@ -14,7 +14,7 @@ libgstreamer-0.10-dev libgstreamer-plugins-base0.10-dev
 
 ```
 roscd && cd ../src
-git clone https://github.com/cvg/px-ros-pkg.git
+git clone https://github.com/lalten/px-ros-pkg.git
 cd ..
 catkin_make
 ```
