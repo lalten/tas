@@ -79,6 +79,7 @@ class lqr
         void publish_sim();
         void publish_car();
         double max_vel;          //maximum allowd velocity
+        double corner_speed;
         double acc_distance;     //distance from pathstart after which max_vel shall be reached, in m
         double decc_distance;    //distance to pathend in which max_vel shall to 0, in m
         double dphi;            //current estimate of angular velocity in deg/s

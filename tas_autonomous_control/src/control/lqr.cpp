@@ -15,10 +15,11 @@ lqr::lqr()
 
       decc_distance = 1.5;
       acc_distance = 1;
+      corner_speed = 0.2;
 
-      int_err = 0;
+      int_err = 0;  //speed controller integtraged error
 
-      max_vel = 0.2;      //set maximum speed
+      max_vel = 1;      //set maximum speed
 
       inited=0;
 
@@ -339,10 +340,29 @@ void lqr::test_motor()
 
 void lqr::calc_des_speed()
 {
-    ROS_INFO_STREAM("calcspeed");
+    //ROS_INFO_STREAM("calcspeed");
     des_speed_vec.clear();
     des_speed_vec.resize(glpath.size());
-    ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
+    //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
+
+
+    for(int i= 0; i < des_speed_vec.size()-1; i++)      //setting corner speed velocities:
+    {
+        if(fabs(angle_diff_per_m.at(i)) > 1)
+        {
+            des_speed_vec.at(i) =  corner_speed;
+        }
+        else
+        {
+            des_speed_vec.at(i) = max_vel;
+        }
+    }
+
+  /*  ROS_INFO_STREAM("after corner ");
+    for(int i= 0; i < des_speed_vec.size(); i++)
+        ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+*/
+
     double intdistance = 0;
     for(int i= des_speed_vec.size()-1; i>= 0; i--)      //asigning velocities backwards from goal to start
     {
@@ -350,52 +370,125 @@ void lqr::calc_des_speed()
             intdistance += distance_to_last.at(i-1);
         if(intdistance < decc_distance)
         {
-            des_speed_vec.at(i) =  max_vel * intdistance/decc_distance;
+            double newspeed =  max_vel * intdistance/decc_distance;
+            if( newspeed < des_speed_vec.at(i))
+                des_speed_vec.at(i) = newspeed;
+
         }
-        else
-        {
-            des_speed_vec.at(i) = max_vel;
-        }
-        //ROS_INFO_STREAM("i  " << i  << "des speed  " << des_speed.at(i));
     }
 
-    intdistance = 0 ;
-    double min_vel = 0.1;
-    for(int i= 0; i < des_speed_vec.size()-1; i++)      //asigning velocities from start to acc_distance
-    {
-        intdistance += distance_to_last.at(i);
-        if(intdistance < acc_distance)
-        {
-            des_speed_vec.at(i) =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
-        }
+/*
+    ROS_INFO_STREAM("asigning velocities backwards from goal to star ");
+    for(int i= 0; i < des_speed_vec.size(); i++)
+        ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+*/
 
-        ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
-        ROS_INFO_STREAM("i  " << i << " dist to last:  " << distance_to_last.at(i)  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
-
-    }
-    ROS_INFO_STREAM("calc speed done  ");
-
-
-    vector <int> start_curve;
+    vector <int> start_curve;   /////////////// getting the start end points of curves:
     vector <int> end_curve;
+    start_curve.clear();
+    end_curve.clear();
+
+//    for(int i = 0; i < angle_diff_per_m.size(); i++)
+  //      ROS_INFO_STREAM("angle_diff_per_m  " << i << " "  << angle_diff_per_m.at(i));
 
     int last_angle_diff = angle_diff_per_m.at(0);
     for(int i = 1; i< angle_diff_per_m.size(); i++)
     {
-        if(angle_diff_per_m.at(i) > 1 && last_angle_diff < 1)
+        if(fabs(angle_diff_per_m.at(i)) > 1 &&  fabs(last_angle_diff) < 1)
         {
             start_curve.push_back(i);
-            ROS_INFO_STREAM("start curve at  " << i);
+            //ROS_INFO_STREAM("start curve at  " << i);
         }
-        if(angle_diff_per_m.at(i) < 1 && last_angle_diff > 1)
+        if(fabs(angle_diff_per_m.at(i)) < 1 && fabs(last_angle_diff) > 1)
         {
             end_curve.push_back(i);
-            ROS_INFO_STREAM("end curve at  " << i);
+            //ROS_INFO_STREAM("end curve at  " << i);
         }
+        last_angle_diff = angle_diff_per_m.at(i);
     }
 
-    ROS_INFO_STREAM("num start curve  " << start_curve.size());
-    ROS_INFO_STREAM("num start curve  " << end_curve.size());
+    //ROS_INFO_STREAM("num start curve  " << start_curve.size());
+    //ROS_INFO_STREAM("num start curve  " << end_curve.size());
+
+
+    double min_vel = 0.1;
+
+    // going through curv starting points, each iterating backwards
+    for(int i = 0; i < start_curve.size(); i++)
+    {
+        intdistance = 0;
+        int j = start_curve.at(i);
+        double firstspeed = des_speed_vec.at(j);
+        while(j > 0)
+        {
+            intdistance += distance_to_last.at(j);
+
+            double newspeed =   (max_vel-min_vel) * intdistance/acc_distance+ firstspeed;
+            if(newspeed < des_speed_vec.at(j))
+                des_speed_vec.at(j) = newspeed;
+            j--;
+        }
+    }
+    /*
+     ROS_INFO_STREAM("cout1  ");
+
+     ROS_INFO_STREAM("going through curv starting points, each iterating backwards ");
+     for(int i= 0; i < des_speed_vec.size(); i++)
+         ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+    */
+
+    intdistance = 0 ;
+
+    for(int i= 0; i < des_speed_vec.size()-1; i++)      //asigning velocities from start to acc_distance
+    {
+        intdistance += distance_to_last.at(i);        
+        if(intdistance < acc_distance)
+        {
+            double newspeed =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
+            if(newspeed < des_speed_vec.at(i))
+                des_speed_vec.at(i) =  newspeed;
+        }
+
+        //ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
+        //ROS_INFO_STREAM("i  " << i << " dist to last:  " << distance_to_last.at(i)  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
+
+    }
+
+    /*ROS_INFO_STREAM("asigning velocities from start to acc_distance ");
+    for(int i= 0; i < des_speed_vec.size(); i++)
+        ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+*/
+
+    //ROS_INFO_STREAM("cout2  ");
+
+    // going through curv ending points forward
+    for(int i = 0; i < end_curve.size(); i++)
+    {
+        intdistance = 0;
+        int j = end_curve.at(i);
+        double firstspeed =  des_speed_vec.at(j-1);
+        while(j < des_speed_vec.size() -1 )
+        {
+            intdistance += distance_to_last.at(i);
+
+            double newspeed =  (max_vel-min_vel) * intdistance/decc_distance + firstspeed;
+            if(newspeed < des_speed_vec.at(j))
+                des_speed_vec.at(j) = newspeed;
+
+            j++;
+        }
+    }
+    //ROS_INFO_STREAM("cout3  ");
+
+    /*for(int i= 0; i < des_speed_vec.size()-1; i++)
+    {
+        ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
+        ROS_INFO_STREAM("i  " << i  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
+    }*/
+
+    //for(int i= 0; i < des_speed_vec.size(); i++)
+    //    ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+
 
 }
 
@@ -408,6 +501,7 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
     glpath.clear();
     distance_to_last.clear();
     dir_vec.clear();
+    angle_diff_per_m.clear();
 
     vector <double> last_pt(3,0);
 
