@@ -85,10 +85,10 @@ void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 
 int main(int argc, char** argv) {
 	ros::init(argc, argv, "motor_odometry");
-	ros::NodeHandle n;
+	ros::NodeHandle n("~");
 
 	// ROS params
-	n.param<double>("ticks_per_meter", ticks_per_meter, 100);
+	n.param<double>("ticks_per_meter", ticks_per_meter, 310);
 	n.param<std::string>("frame_id", frame_id, "base_link");
 	n.param<double>("uncertainty_fixed", uncertainty_fixed, 1e-3);
 
