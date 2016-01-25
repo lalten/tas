@@ -63,16 +63,17 @@ double lqr::control()
 
     double kv = 2.0;
     double ki = 0.01;
-    double vel_err = vel*des_dir-des_vel;  //using desired movement direction
+    double vel_err = vel-des_vel*des_dir;  //using desired movement direction
     int_err += vel_err;
 
-    double pc = vel_err*kv;
-    double ic = int_err*ki;
+    double pc = -vel_err*kv;
+    double ic = -int_err*ki;
 
     if(ic > 0.2)
         ic=0.2;
     if(ic < -0.2)
         ic=-0.2;
+    ROS_INFO_STREAM("vel "  << vel << "des_vel " << des_vel*des_dir);
     ROS_INFO_STREAM("p-component "  << pc << "i-component " << ic);
 
     cmd_thrust =  pc + ic ; // 1 full thrust, 0 no thrust , -1 reverse full thrust
@@ -80,6 +81,8 @@ double lqr::control()
         cmd_thrust=1;
     if(cmd_thrust < -1)
         cmd_thrust=-1;
+
+
 
     publish_car();
     publish_sim();
@@ -342,7 +345,7 @@ void lqr::calc_des_speed()
     ROS_INFO_STREAM("calcspeed");
     des_speed_vec.clear();
     des_speed_vec.resize(glpath.size());
-    ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
+    //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
     double intdistance = 0;
     for(int i= des_speed_vec.size()-1; i>= 0; i--)      //asigning velocities backwards from goal to start
     {
@@ -369,8 +372,8 @@ void lqr::calc_des_speed()
             des_speed_vec.at(i) =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
         }
 
-        ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
-        ROS_INFO_STREAM("i  " << i << " dist to last:  " << distance_to_last.at(i)  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
+        //ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
+        //ROS_INFO_STREAM("i  " << i << " dist to last:  " << distance_to_last.at(i)  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
 
     }
     ROS_INFO_STREAM("calc speed done  ");
