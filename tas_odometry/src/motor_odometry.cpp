@@ -12,6 +12,8 @@
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <std_msgs/Int32.h>
 #include <tas_odometry/Encoder.h>
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
 
 ros::Publisher pose_publisher;
 ros::Publisher encoder_publisher;
@@ -22,7 +24,29 @@ int32_t encoder_abs = 0;
 std::string frame_id;
 double ticks_per_meter;
 double uncertainty_fixed;
-ros::Duration time_offset;
+
+// Timer gets called 1s after last message, every 1s
+static const double deadline_timeout_ms = 1000;
+boost::asio::io_service io_service;
+boost::asio::deadline_timer timer(io_service);
+
+void timer_callback (const boost::system::error_code& e) {
+
+	// Check if timer callback only occurs because timer expiry was prolonged
+	if(e == boost::asio::error::operation_aborted) {
+		return;
+	}
+
+	// Reset timer
+	timer.expires_from_now( boost::posix_time::milliseconds(deadline_timeout_ms) );
+	timer.async_wait(timer_callback);
+
+	// Send out a 0-vel message to make clear to the EKF that nothing happened
+	twist.header.stamp = ros::Time::now();
+	twist.header.seq++;
+	twist.twist.twist.linear.x = 0.0;
+	pose_publisher.publish(twist);
+}
 
 // We get new encoder values here
 void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
@@ -52,6 +76,10 @@ void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 
 	// Send out message
 	pose_publisher.publish(twist);
+
+	// Delay deadline timer
+	timer.expires_from_now( boost::posix_time::milliseconds(deadline_timeout_ms) );
+	timer.async_wait(timer_callback);
 }
 
 int main(int argc, char** argv) {
@@ -78,8 +106,15 @@ int main(int argc, char** argv) {
 	pose_publisher = n.advertise<geometry_msgs::TwistWithCovarianceStamped>("motor_odom", 50);
 	encoder_publisher = n.advertise<std_msgs::Int32>("motor_encoder_abs", 50);
 
+	// Set up deadline timer
+	timer.expires_from_now( boost::posix_time::milliseconds(deadline_timeout_ms) );
+	timer.async_wait(timer_callback);
+	boost::thread io_service_thread( boost::bind( &boost::asio::io_service::run, &io_service ) );
+
 	// Spin until node close
 	ros::spin();
+
+	io_service.stop();
 
 	return 0;
 }
