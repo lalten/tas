@@ -1,8 +1,15 @@
 /* Motor Odometry
  *
  * This node reads in encoder data from an Arduino monitoring a sensored
- * brushless motor. It append the length driven (according to the motor
- * encoders) to the X dimension of this pose.
+ *  brushless motor. It append the length driven (according to the motor
+ *  encoders) to the X dimension of this pose.
+ *
+ * ROS parameters:
+ * ticks_per_meter - calibrated number of encoder ticks per meter (default 310)
+ * frame_id - frame_id of header of Twist message (default: base_link)
+ * uncertainty_fixed - uncertainty in Covariance matrix of Twist (default 1e-3)
+ * deadline_timeout - after this amount of time (ms), 0 vel will be published
+ *  (default: 1000)
  *
  * Laurenz 2015-01
  * ga68gug / TUM LSR TAS
@@ -26,7 +33,7 @@ double ticks_per_meter;
 double uncertainty_fixed;
 
 // Timer gets called 1s after last message, every 1s
-static const double deadline_timeout_ms = 1000;
+double deadline_timeout_ms;
 boost::asio::io_service io_service;
 boost::asio::deadline_timer timer(io_service);
 
@@ -90,6 +97,7 @@ int main(int argc, char** argv) {
 	n.param<double>("ticks_per_meter", ticks_per_meter, 310);
 	n.param<std::string>("frame_id", frame_id, "base_link");
 	n.param<double>("uncertainty_fixed", uncertainty_fixed, 1e-3);
+	n.param<double>("deadline_timeout", deadline_timeout_ms, 1000);
 
 	// Setup twist message
 	twist.header.seq = 0;
