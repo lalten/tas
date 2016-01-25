@@ -403,10 +403,6 @@ bool calculate_start(int start_x, int start_y, double orientation)
 void sendStartPos (double mapStart_x, double mapStart_y, double orientation)
 {
 
-
-
-
-
     goal.target_pose.header.frame_id = "map";
     goal.target_pose.header.stamp = ros::Time::now();
 
