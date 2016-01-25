@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+
+
+
+  <node pkg="findpark" type="findpark" name="findpark" args="$(find tas)/launch/config/map_server/" output="screen" />
+
+</launch>

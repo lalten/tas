@@ -28,10 +28,6 @@ using namespace std;
  *
 */
 
-///ToDo siehe code + falsche position und winkel übertragen mit echten Auto, keine Ahnung warum
-///
-// KV:
-// Timer zum eintragen der Wegpunkte und zum Übermitteln der Wegpunkte
 
 
 
@@ -230,7 +226,7 @@ void wii_lib::sendGoal(tf::Vector3 position, tf::Quaternion ausrichtungQ)
 
   move_base_msgs::MoveBaseGoal goal;
 
-  //we'll send a goal to the robot to move 1 meter forward
+
   goal.target_pose.header.frame_id = "map";
   goal.target_pose.header.stamp = ros::Time::now();
 
