@@ -79,9 +79,7 @@ void isr_a() {
 	// Measure inter-tick duration right at ISR entry and add it to time since last publishing
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	// Update channel value
-	A = digitalRead(pinA);
-	if (A) { // Rising edge
+	if (!A) { // Rising edge (b/c A was low before)
 		if (B && !C) // if channel B is high, channel C is low
 			counter++; // this indicates forward motion
 		else if (!B && C) // the other way round?
@@ -99,13 +97,14 @@ void isr_a() {
 	}
 	// Set dirty flag
 	dirty = true;
+	// Update channel value
+	A = digitalRead(pinA);
 }
 
 void isr_b() { // analogous to isr_a
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	B = digitalRead(pinB);
-	if (B) {
+	if (!B) {
 		if (!A && C)
 			counter++;
 		else if (A && !C)
@@ -121,13 +120,13 @@ void isr_b() { // analogous to isr_a
 			error_reset();
 	}
 	dirty = true;
+	B = digitalRead(pinB);
 }
 
 void isr_c() { // analogous to isr_a
 	accumulated_duration += micros() - last_tick;
 	last_tick = micros();
-	C = digitalRead(pinC);
-	if (C) {
+	if (!C) {
 		if (A && !B)
 			counter++;
 		else if (!A && B)
@@ -143,6 +142,7 @@ void isr_c() { // analogous to isr_a
 			error_reset();
 	}
 	dirty = true;
+	C = digitalRead(pinC);
 }
 
 // The setup function is called once at startup of the sketch
