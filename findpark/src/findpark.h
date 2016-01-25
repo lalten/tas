@@ -42,6 +42,7 @@ bool calculate_start(int start_x, int start_y, double orientation);
 void find_spot(cv::Mat map, cv::Mat templateImg);
 void rotate_template(cv::Mat map);
 void sendStartPos (double mapStart_x, double mapStart_y, double orientation);
+void cornerDetection(cv::Mat map);
 
 //+++++ Variable ++++++/
 cv::Mat mapReal;    //Mat matrix for where real map is loaded

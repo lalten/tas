@@ -34,5 +34,34 @@ export ROS_HOSTNAME=$(hostname).local
  * on your laptop, start a terminal and connect to the car via ethernet or wifi
  * set the ROS master location: `export ROS_MASTER_URI=http://vettel.local:11311`
  * start your local nodes: e.g. `rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
+ 
+ ## Parking:
+ There are two nodes for the parking process. 
+ *The "findpark"-node detects parking spots with template matching or feature extraction. 
+ *The "parking"-node runs the actual parking procedure.
+ 
+ ### Find parking spot
+ Before starting the parking slot detection, you have to accquire a map, includeing at least one parking spot. After that run:
+ '''
+ roslaunch findpark findpark.launch
+ '''
+ Once the car reached the start position run the "parking"-node
+ 
+ Note: For showcasing without car, the findpark.cpp is now in testmode. This means, that the testMap.pgm is loaded instead of the real map. If you want, you may change this in the code with the TEST-flag. 
+ 
+ For more information about the findpark-node look into the readme at 
+ '''
+ tas/src/findpark/
+ '''
+ 
+ ### park the car
+ Once the car is at the right starting position (calculated by "findpark" or the marked spots at the floor) start:
+ '''
+ rosrun parking parking
+ '''
+ 
+ 
+ 
+ 
 
 

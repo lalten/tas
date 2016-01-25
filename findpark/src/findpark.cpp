@@ -65,6 +65,7 @@ int main(int argc, char** argv) {
 
     if(TESTMAP) {
         //display_mapTest();
+        cornerDetection(mapTest);
         rotate_template(mapTest);
     }
 
@@ -416,6 +417,53 @@ void sendStartPos (double mapStart_x, double mapStart_y, double orientation)
     goal.target_pose.pose.orientation.y = temp.getY();
     goal.target_pose.pose.orientation.z = temp.getZ();
     goal.target_pose.pose.orientation.w = temp.getW();
+
+
+
+}
+
+void cornerDetection(cv::Mat map)
+{
+
+    Mat gray = map;
+    int thresh = 50;
+    const char* corners_window = "Corners detected";
+
+    //function
+
+    Mat dst, dst_norm, dst_norm_scaled;
+    dst = Mat::zeros( map.size(), CV_32FC1 );
+
+    /// Detector parameters
+    int blockSize = 2;
+    int apertureSize = 3;
+    double k = 0.04;
+
+    /// Detecting corners
+    cornerHarris( gray, dst, blockSize, apertureSize, k, BORDER_DEFAULT );
+
+    /// Normalizing
+    normalize( dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
+    convertScaleAbs( dst_norm, dst_norm_scaled );
+
+    /// Drawing a circle around corners
+    for( int j = 0; j < dst_norm.rows ; j++ )
+    { for( int i = 0; i < dst_norm.cols; i++ )
+        {
+            if( (int) dst_norm.at<float>(j,i) > thresh )
+            {
+                circle( dst_norm_scaled, Point( i, j ), 5,  Scalar(0), 2, 8, 0 );
+            }
+        }
+    }
+    /// Showing the result
+    namedWindow( corners_window, CV_WINDOW_NORMAL );
+    resizeWindow( corners_window, 512, 512);
+    imshow( corners_window, dst_norm_scaled );
+
+    //function
+
+    //waitKey(0);
 
 
 
