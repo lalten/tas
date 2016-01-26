@@ -64,7 +64,7 @@ Code specific to motor encoder processing:
 Preparation and Simulation:
 
 For prepairing the algorithm and for visualization the Bézier Curve was programmed in Matlab. To execute the matlab functions:
- * Test 123
+ * addpath( [__laserscan_multi_merger__](https://github.com/iralabdisco/ira_laser_tools) )
 
 
 ### Parking:
