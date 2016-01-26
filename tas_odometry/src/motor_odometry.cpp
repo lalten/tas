@@ -8,8 +8,8 @@
  * ticks_per_meter - calibrated number of encoder ticks per meter (default 310)
  * frame_id - frame_id of header of Twist message (default: base_link)
  * uncertainty_fixed - uncertainty in Covariance matrix of Twist (default 1e-3)
- * deadline_timeout - after this amount of time (ms), 0 vel will be published
- *  (default: 1000)
+ * deadline_timeout - after this amount of time (s), 0 vel will be republished
+ *  (default: 0.1)
  *
  * Laurenz 2015-01
  * ga68gug / TUM LSR TAS
@@ -31,29 +31,11 @@ int32_t encoder_abs = 0;
 std::string frame_id;
 double ticks_per_meter;
 double uncertainty_fixed;
+double deadline_timeout;
 
-// Timer gets called 1s after last message, every 1s
-double deadline_timeout_ms;
-boost::asio::io_service io_service;
-boost::asio::deadline_timer timer(io_service);
+// timestamp (sec) of the last time a twist message was published
+double last_publish_time = 0;
 
-void timer_callback (const boost::system::error_code& e) {
-
-	// Check if timer callback only occurs because timer expiry was prolonged
-	if(e == boost::asio::error::operation_aborted) {
-		return;
-	}
-
-	// Reset timer
-	timer.expires_from_now( boost::posix_time::milliseconds(deadline_timeout_ms) );
-	timer.async_wait(timer_callback);
-
-	// Send out a 0-vel message to make clear to the EKF that nothing happened
-	twist.header.stamp = ros::Time::now();
-	twist.header.seq++;
-	twist.twist.twist.linear.x = 0.0;
-	pose_publisher.publish(twist);
-}
 
 // We get new encoder values here
 void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
@@ -64,6 +46,7 @@ void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 
 	// Convert and save time of message arrival
 	double time_now = twist.header.stamp.toSec();
+	last_publish_time = time_now;
 
 	// Publish integrated/absolute encoder value
 	encoder_abs += encoder_data->encoder_ticks;
@@ -84,9 +67,6 @@ void encoder_callback(const tas_odometry::Encoder::ConstPtr& encoder_data) {
 	// Send out message
 	pose_publisher.publish(twist);
 
-	// Delay deadline timer
-	timer.expires_from_now( boost::posix_time::milliseconds(deadline_timeout_ms) );
-	timer.async_wait(timer_callback);
 }
 
 int main(int argc, char** argv) {
@@ -97,7 +77,7 @@ int main(int argc, char** argv) {
 	n.param<double>("ticks_per_meter", ticks_per_meter, 310);
 	n.param<std::string>("frame_id", frame_id, "base_link");
 	n.param<double>("uncertainty_fixed", uncertainty_fixed, 1e-3);
-	n.param<double>("deadline_timeout", deadline_timeout_ms, 1000);
+	n.param<double>("deadline_timeout", deadline_timeout, 0.1);
 
 	// Setup twist message
 	twist.header.seq = 0;
@@ -114,15 +94,25 @@ int main(int argc, char** argv) {
 	pose_publisher = n.advertise<geometry_msgs::TwistWithCovarianceStamped>("motor_odom", 50);
 	encoder_publisher = n.advertise<std_msgs::Int32>("motor_encoder_abs", 50);
 
-	// Set up deadline timer
-	timer.expires_from_now( boost::posix_time::milliseconds(deadline_timeout_ms) );
-	timer.async_wait(timer_callback);
-	boost::thread io_service_thread( boost::bind( &boost::asio::io_service::run, &io_service ) );
 
-	// Spin until node close
-	ros::spin();
+	// Spin until node is shut down
+	while (ros::ok()) {
 
-	io_service.stop();
+		// Handle ROS
+		ros::spinOnce();
+
+		// After some time, send out a 0-vel message to make clear to the EKF that nothing happened
+		double time_now = ros::Time::now().toSec();
+		if(time_now - last_publish_time > deadline_timeout) {
+			last_publish_time = time_now;
+			twist.header.stamp = ros::Time::now();
+			twist.header.seq++;
+			twist.twist.twist.linear.x = 0.0;
+			pose_publisher.publish(twist);
+		}
+
+		// No rate-limiting, since this is (more or less) event-based
+	}
 
 	return 0;
 }

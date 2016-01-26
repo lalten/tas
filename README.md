@@ -37,8 +37,8 @@ export ROS_HOSTNAME=$(hostname).local
  
 ## Contributions
 Laurenz: [Odometry](#odometry)  
-Konrad: [Trajectory Rollout](#)  
-Frederik: [SBPL / LQR Controller](#)  
+Konrad: [Trajectory Rollout](#trajectory)  
+Frederik: [SBPL / LQR Controller](#sbpl)  
 Quirin: [Parking](#parking), [Rotated Template Matching](#)
 
 ### Odometry
@@ -60,6 +60,30 @@ Code specific to motor encoder processing:
  * [__MotorOdometry__](/Arduino/MotorOdometry/MotorOdometry.ino): Code running on Atmega32u4 MCU. Communicates with ROS via native USB using the rosserial protocol.
  * [__MotorTest__](/Arduino/MotorTest/MotorTest.ino): Test sketch for the MCU. Prints detected encoder revolutions via raw serial.
 
+### Trajectory
+#### Preparation and Simulation:
+
+For prepairing the algorithm and for visualization the Bézier Curve was programmed in Matlab. To execute the matlab functions:
+ * addpath( [matlab_code](/Matlab Code Konrad/) )
+ * read in Costmap [>>Example](/Matlab Code Konrad/Readme.md)
+ * alternatePath(Costmap, hight, width, resolution, minRadius)
+
+#### ROS C++ Code:
+The [ownLocalPlanner](/ownlocalplanner/) package subscribes the following Nodes:
+ * [__Global Plan__](http://docs.ros.org/api/nav_msgs/html/msg/Path.html): Subscribe to the Global Path wich is published by [move_base](http://wiki.ros.org/move_base)
+ * [__Local Costmap__](http://docs.ros.org/hydro/api/nav_msgs/html/msg/OccupancyGrid.html): Subscribe to the Local Costmap wich is published by [move_base](http://wiki.ros.org/move_base). The current position is in the middle point of the costmap.
+ * [__TF__](http://wiki.ros.org/tf): The TransformListener reads the transfrom between "/map" and "/base_link" to get the global postion of the car
+ 
+#### Run the ownlocalplanner
+```
+rosrun ownlocalplanner ownlocalplanner
+```
+
+The global Path with the ownlocal-Path on the first 3 Meter is published as ["/ownPath"](http://docs.ros.org/api/nav_msgs/html/msg/Path.html). This is, as the global Path, a nav_msgs. The Path can be visualized by RVIZ and can be used for the [Controller](#sbpl). Therefor change the String for Subscribtion from "/move_base_node/TrajectoryPlannerROS/global_plan" to "/ownPath".
+ 
+
+### Sbpl:
+
 ### Parking:
 There are two nodes for the parking process. 
  * The "findpark"-node detects parking spots with template matching or feature extraction. 
@@ -74,13 +98,19 @@ Once the car reached the start position run the "parking"-node
 
 Note: For showcasing without car, the findpark.cpp is now in testmode. This means, that the testMap.pgm is loaded instead of the real map. If you want, you may change this in the code with the TEST-flag. 
 
-For more information about the findpark-node look into the readme at 
-```
-tas/src/findpark/
-```
+For more detailed information how the findpark-node works, look into the readme: [__/findpark/readme__](/findpark/readme.md)
 
 #### Park the car
 Once the car is at the right starting position (calculated by "findpark" or the marked spots at the floor) start:
 ```
 rosrun parking parking
 ```
+The parking node uses the raw data of the messages
+* /scan_back
+* /scan
+
+These messages contain the laser distance table. 
+The movements a directly published to the node
+* /servo
+
+For more information how the parking-node works, look into the readme: [__/parking/readme__](/parking/readme.md)
