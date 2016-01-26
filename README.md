@@ -65,6 +65,7 @@ Preparation and Simulation:
 
 For prepairing the algorithm and for visualization the Bézier Curve was programmed in Matlab. To execute the matlab functions:
  * addpath( [matlab_code](/Matlab Code Konrad/) )
+ * read in Costmap [>>Example](/Matlab Code Konrad/Readme.md)
 
 
 ### Parking:
