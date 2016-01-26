@@ -38,7 +38,7 @@ export ROS_HOSTNAME=$(hostname).local
 ## Contributions
 Laurenz: [Odometry](#odometry)  
 Konrad: [Trajectory Rollout](#trajectory)  
-Frederik: [SBPL / LQR Controller](#)  
+Frederik: [SBPL / LQR Controller](#sbpl)  
 Quirin: [Parking](#parking), [Rotated Template Matching](#)
 
 ### Odometry
@@ -72,13 +72,17 @@ For prepairing the algorithm and for visualization the Bézier Curve was program
 The [ownLocalPlanner](/ownlocalplanner/) package subscribes the following Nodes:
  * [__Global Plan__](http://docs.ros.org/api/nav_msgs/html/msg/Path.html): Subscribe to the Global Path wich is published by [move_base](http://wiki.ros.org/move_base)
  * [__Local Costmap__](http://docs.ros.org/hydro/api/nav_msgs/html/msg/OccupancyGrid.html): Subscribe to the Local Costmap wich is published by [move_base](http://wiki.ros.org/move_base). The current position is in the middle point of the costmap.
- * [__TF__](http://wiki.ros.org/tf): The TransformListener reads the transfrom between "/map" and "/base_link" to get the global postion
-
+ * [__TF__](http://wiki.ros.org/tf): The TransformListener reads the transfrom between "/map" and "/base_link" to get the global postion of the car
+ 
+#### Run the ownlocalplanner
 ```
 rosrun ownlocalplanner ownlocalplanner
 ```
+
+The global Path with the ownlocal-Path on the first 3 Meter is published as ["/ownPath"](http://docs.ros.org/api/nav_msgs/html/msg/Path.html). This is, as the global Path, a nav_msgs. The Path can be visualized by RVIZ and can be used for the [Controller](#sbpl). Therefor change the String for Subscribtion from "/move_base_node/TrajectoryPlannerROS/global_plan" to "/ownPath".
  
 
+### Spbl:
 
 ### Parking:
 There are two nodes for the parking process. 
