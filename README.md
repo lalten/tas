@@ -35,11 +35,11 @@ export ROS_HOSTNAME=$(hostname).local
  * set the ROS master location: `export ROS_MASTER_URI=http://vettel.local:11311`
  * start your local nodes: e.g. `rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
  
- ## Parking:
- There are two nodes for the parking process. 
+## Parking:
+There are two nodes for the parking process. 
  * The "findpark"-node detects parking spots with template matching or feature extraction. 
  * The "parking"-node runs the actual parking procedure.
- 
+
 ### Find parking spot
 Before starting the parking slot detection, you have to accquire a map, includeing at least one parking spot. After that run:
 ```
