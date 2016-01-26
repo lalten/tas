@@ -89,8 +89,7 @@ private:
 
     MoveBaseClient ac;
 
-    // KV:
-    // Timer zum eintragen der Wegpunkte und zum Übermitteln der Wegpunkte
+
     double lastTime;
     double secondsToWait;
 

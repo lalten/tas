@@ -5,7 +5,7 @@
 rosrun map_server map_saver -f "$(rospack find tas)/launch/config/map_server/hectormap"
 
 # kill ROS nodes we don't need anymore
-kill $(pidof hector_mapping) $(pidof ekf_localization_node)
+rosnode kill hector_mapping map_to_odom
 
 # ROS-Launch the nodes needed for amcl mode
-roslaunch tas odom_amcl.launch
+roslaunch tas odom_amcl.launch &

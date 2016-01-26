@@ -1,17 +1,21 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="/use_sim_time" value="false"/>
 
-  <!-- run serial connection -->
-  <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py" args="/dev/arduino"/>
+  <!-- Rosserial to servo-controlling Arduino -->
+  <node name="rosserial_servos" pkg="rosserial_python" type="serial_node.py" args="/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_75330303035351E0E1A0-if00"/>
 
+  <!-- Rosserial to motor-encoder Arduino -->
+  <node name="rosserial_encoder" pkg="rosserial_python" type="serial_node.py" args="/dev/serial/by-id/usb-Arduino_LLC_Arduino_Micro-if00"/>
+  <node name="motor_odometry" pkg="tas_odometry" type="motor_odometry">
+    <param name="ticks_per_meter" value="310" />
+    <param name="deadline_timeout" value="50" />
+  </node>
 
   <!-- run wii stack -->
   <node respawn="true" pkg="wiimote"  type="wiimote_node.py" name="wiimote" output="screen">
-	<remap from="imu/data" to="wii_imu/data"/>
-	<remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
+	  <remap from="imu/data" to="wii_imu/data"/>
+	  <remap from="imu/is_calibrated" to="wii_imu/is_calibrated" />
   </node>
-
   <node pkg="wii_control" type="wii_node" name="wii_control" output="screen"/>
 
 
@@ -44,9 +48,15 @@
 
   <!-- IMU -->
   <node pkg="tf" type="static_transform_publisher" name="base_link_to_imu" args="-0.28 0.0 0.15 0.0 0.0 0.0 /base_link /base_imu 50" />
-  <!-- increase rate? -->
   <node pkg="xsens_driver" type="mtnode.py" name="xsens_driver" output="screen" >
     <param name="frame_id" value="base_imu"/>
   </node>
 
+  <!-- Optical Flow Sensor
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_px4flow" args="0.14 0 0 0 0 0 /base_link /px4flow 50" />
+  <node name="px4flow" pkg="px4flow" type="px4flow_node" respawn="true" output="screen">
+    <param name="serial_port" value="/dev/serial/by-id/usb-3D_Robotics_PX4Flow_v1.3_000000000000-if00"/>
+  </node>
+  <node pkg="tas_odometry" type="optflow_odometry" name="optflow_odometry" output="screen"/>
+  -->
 </launch>

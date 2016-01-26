@@ -15,15 +15,17 @@ lqr::lqr()
 
       decc_distance = 1.5;
       acc_distance = 1;
+      corner_speed = 0.2;
 
-      int_err = 0;
+      int_err = 0;  //speed controller integtraged error
 
-      max_vel = 0.2;      //set maximum speed
+      max_vel = 1;      //set maximum speed
 
       inited=0;
 
       glpath_sub_ = node.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &lqr::glpathCallback,this);
       imu_sub_ = node.subscribe<sensor_msgs::Imu>("/imu", 100, &lqr::imuCallback,this);
+      odom_sub_ = node.subscribe<nav_msgs::Odometry>("/odometry/filtered", 100, &lqr::odomCallback,this);
 
       pub_ball = node.advertise<visualization_msgs::Marker>( "closest_pt", 0, true);
       pub_arrow = node.advertise<visualization_msgs::Marker>( "closest_pt_dir", 0);
@@ -61,28 +63,14 @@ double lqr::control()
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
 
-    double kv = 2.0;
-    double ki = 0.01;
-    double vel_err = vel-des_vel*des_dir;  //using desired movement direction
-    int_err += vel_err;
+    double speed_with_full_gas = 8;
+    double pc = des_dir*des_vel/speed_with_full_gas;
 
-    double pc = -vel_err*kv;
-    double ic = -int_err*ki;
-
-    if(ic > 0.2)
-        ic=0.2;
-    if(ic < -0.2)
-        ic=-0.2;
-    ROS_INFO_STREAM("vel "  << vel << "des_vel " << des_vel*des_dir);
-    ROS_INFO_STREAM("p-component "  << pc << "i-component " << ic);
-
-    cmd_thrust =  pc + ic ; // 1 full thrust, 0 no thrust , -1 reverse full thrust
+    cmd_thrust =  pc; // 1 full thrust, 0 no thrust , -1 reverse full thrust
     if(cmd_thrust > 1)
         cmd_thrust=1;
     if(cmd_thrust < -1)
         cmd_thrust=-1;
-
-
 
     publish_car();
     publish_sim();
@@ -91,8 +79,8 @@ double lqr::control()
 void lqr::getclosestpoint()
 {
     double shortestdistance = 100000;
-    int indclose = 0;
-    //ROS_INFO_STREAM("glpath.size  "  << glpath.size());
+    int indclose = 0;    
+    //ROS_INFO_STREAM("calc closestpt  " );
     for(int i = 0; i<glpath.size(); i++)
     {
         double px = glpath.at(i).at(0);
@@ -113,7 +101,20 @@ void lqr::getclosestpoint()
     closestpt.push_back( glpath.at(indclose).at(1));
     closestpt.push_back( glpath.at(indclose).at(2));
 
+    //ROS_INFO_STREAM("des_speed_vec  ");
+    //for(int i=0; i<des_speed_vec.size(); i++)
+    //    ROS_INFO_STREAM("des_speed_vec  " << des_speed_vec.at(i));
     des_vel = des_speed_vec.at(indclose);
+
+
+    //ROS_INFO_STREAM("des_dir_vec  ");
+    //for(int i=0; i<dir_vec.size(); i++)
+     //   ROS_INFO_STREAM("des_dir_vec  " << dir_vec.at(i));
+
+
+    //ROS_INFO_STREAM("indclose  " << indclose);
+    if(indclose > dir_vec.size()-1)
+        indclose = dir_vec.size()-2;
     des_dir = dir_vec.at(indclose);
 
     //ROS_INFO_STREAM("closes pt index  "  << indclose);
@@ -346,6 +347,26 @@ void lqr::calc_des_speed()
     des_speed_vec.clear();
     des_speed_vec.resize(glpath.size());
     //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
+
+
+
+    for(int i= 0; i < des_speed_vec.size()-1; i++)      //setting corner speed velocities:
+    {
+        if(fabs(angle_diff_per_m.at(i)) > 1)
+        {
+            des_speed_vec.at(i) =  corner_speed;
+        }
+        else
+        {
+            des_speed_vec.at(i) = max_vel;
+        }
+    }
+
+    ROS_INFO_STREAM("after corner ");
+   /* for(int i= 0; i < des_speed_vec.size(); i++)
+        ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+*/
+
     double intdistance = 0;
     for(int i= des_speed_vec.size()-1; i>= 0; i--)      //asigning velocities backwards from goal to start
     {
@@ -353,41 +374,140 @@ void lqr::calc_des_speed()
             intdistance += distance_to_last.at(i-1);
         if(intdistance < decc_distance)
         {
-            des_speed_vec.at(i) =  max_vel * intdistance/decc_distance;
+            double newspeed =  max_vel * intdistance/decc_distance;
+            if( newspeed < des_speed_vec.at(i))
+                des_speed_vec.at(i) = newspeed;
+
         }
-        else
-        {
-            des_speed_vec.at(i) = max_vel;
-        }
-        //ROS_INFO_STREAM("i  " << i  << "des speed  " << des_speed.at(i));
     }
 
-    intdistance = 0 ;
+/*
+    ROS_INFO_STREAM("asigning velocities backwards from goal to star ");
+    for(int i= 0; i < des_speed_vec.size(); i++)
+        ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+*/
+
+    vector <int> start_curve;   /////////////// getting the start end points of curves:
+    vector <int> end_curve;
+    start_curve.clear();
+    end_curve.clear();
+
+//    for(int i = 0; i < angle_diff_per_m.size(); i++)
+  //      ROS_INFO_STREAM("angle_diff_per_m  " << i << " "  << angle_diff_per_m.at(i));
+
+    int last_angle_diff = angle_diff_per_m.at(0);
+    for(int i = 1; i< angle_diff_per_m.size(); i++)
+    {
+        if(fabs(angle_diff_per_m.at(i)) > 1 &&  fabs(last_angle_diff) < 1)
+        {
+            start_curve.push_back(i);
+            //ROS_INFO_STREAM("start curve at  " << i);
+        }
+        if(fabs(angle_diff_per_m.at(i)) < 1 && fabs(last_angle_diff) > 1)
+        {
+            end_curve.push_back(i);
+            //ROS_INFO_STREAM("end curve at  " << i);
+        }
+        last_angle_diff = angle_diff_per_m.at(i);
+    }
+
+    //ROS_INFO_STREAM("num start curve  " << start_curve.size());
+    //ROS_INFO_STREAM("num start curve  " << end_curve.size());
+
+
     double min_vel = 0.1;
+
+    // going through curv starting points, each iterating backwards
+    for(int i = 0; i < start_curve.size(); i++)
+    {
+        intdistance = 0;
+        int j = start_curve.at(i);
+        double firstspeed = des_speed_vec.at(j);
+        while(j > 0)
+        {
+            intdistance += distance_to_last.at(j);
+
+            double newspeed =   (max_vel-min_vel) * intdistance/acc_distance+ firstspeed;
+            if(newspeed < des_speed_vec.at(j))
+                des_speed_vec.at(j) = newspeed;
+            j--;
+        }
+    }
+
+     ROS_INFO_STREAM("cout1  ");
+/*
+     ROS_INFO_STREAM("going through curv starting points, each iterating backwards ");
+     for(int i= 0; i < des_speed_vec.size(); i++)
+         ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+    */
+
+    intdistance = 0 ;
+
     for(int i= 0; i < des_speed_vec.size()-1; i++)      //asigning velocities from start to acc_distance
     {
-        intdistance += distance_to_last.at(i);
+        intdistance += distance_to_last.at(i);        
         if(intdistance < acc_distance)
         {
-            des_speed_vec.at(i) =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
+            double newspeed =  (max_vel-min_vel) * intdistance/acc_distance + min_vel;
+            if(newspeed < des_speed_vec.at(i))
+                des_speed_vec.at(i) =  newspeed;
         }
 
         //ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
         //ROS_INFO_STREAM("i  " << i << " dist to last:  " << distance_to_last.at(i)  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
 
+
     }
-    ROS_INFO_STREAM("calc speed done  ");
+
+    /*ROS_INFO_STREAM("asigning velocities from start to acc_distance ");
+    for(int i= 0; i < des_speed_vec.size(); i++)
+        ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+*/
+
+    ROS_INFO_STREAM("cout2  ");
+
+    // going through curv ending points forward
+    for(int i = 0; i < end_curve.size(); i++)
+    {
+        intdistance = 0;
+        int j = end_curve.at(i);
+        double firstspeed =  des_speed_vec.at(j-1);
+        while(j < des_speed_vec.size() -1 )
+        {
+            intdistance += distance_to_last.at(i);
+
+            double newspeed =  (max_vel-min_vel) * intdistance/decc_distance + firstspeed;
+            if(newspeed < des_speed_vec.at(j))
+                des_speed_vec.at(j) = newspeed;
+
+            j++;
+        }
+    }
+    ROS_INFO_STREAM("cout3  ");
+
+    /*for(int i= 0; i < des_speed_vec.size()-1; i++)
+    {
+        ROS_INFO_STREAM("i  " << i << " des speed  " << des_speed_vec.at(i) <<  " dir  " << dir_vec.at(i));
+        ROS_INFO_STREAM("i  " << i  << "  angle_diff_per_m:  " << angle_diff_per_m.at(i));
+    }*/
+
+    //for(int i= 0; i < des_speed_vec.size(); i++)
+    //    ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
+
+
 }
 
 
 void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
 {
+    ROS_INFO_STREAM("new path received  ");
     int num_points = path->poses.size();
 
     inited = 1;
     glpath.clear();
     distance_to_last.clear();
     dir_vec.clear();
+    angle_diff_per_m.clear();
 
     vector <double> last_pt(3,0);
 
@@ -440,7 +560,7 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
         pathpoint.push_back(zangle);
         glpath.push_back(pathpoint);
     }
-
+    ROS_INFO_STREAM("new path saved  ");
 
     calc_des_speed();
 }
@@ -450,6 +570,12 @@ void lqr::imuCallback(const sensor_msgs::Imu::ConstPtr& data)
     imu_angular_z_vel_uf = data->angular_velocity.z;
     //ROS_INFO_STREAM("imu ang z "  << imu_angular_z_vel_uf );
 
+}
+
+void lqr::odomCallback(const nav_msgs::Odometry::ConstPtr &data)
+{
+    odom_vel = data->twist.twist.linear.x;
+    //ROS_INFO_STREAM("odomvel "  <<  odom_vel);
 }
 
 void lqr::publish_sim()
@@ -479,7 +605,7 @@ void lqr::publish_car()
     }
 
 
-    double addition = 50;
+    double addition = 500;
     double forward_treshold = 1539;
     double backward_treshold = 1488;
 
@@ -491,7 +617,35 @@ void lqr::publish_car()
 
     control_servo.y = cmd_steeringAngle;
 
+    ROS_INFO_STREAM("servo x " << control_servo.x << "servo y " << control_servo.y);
+
     pub_servo.publish(control_servo);
+}
+
+void lqr::test_speed_control()
+{
+    double speed_with_full_gas = 8;
+    double pc = des_dir*des_vel/speed_with_full_gas;
+
+    cmd_thrust =  pc; // 1 full thrust, 0 no thrust , -1 reverse full thrust
+    if(cmd_thrust > 1)
+        cmd_thrust=1;
+    if(cmd_thrust < -1)
+        cmd_thrust=-1;
+
+    ROS_INFO_STREAM("thrust "  << cmd_thrust << "des_vel "  << des_dir*des_vel << "odom_vel "  << odom_vel  );
+
+    steering_deg =0;
+
+    publish_car();
+
+    std_msgs::Float32MultiArray lqr_vel;
+    lqr_vel.data.resize(2);
+    lqr_vel.data.at(0)=odom_vel;
+    lqr_vel.data.at(1)=des_vel;
+
+    pub_vel.publish(lqr_vel);
+
 }
 
 

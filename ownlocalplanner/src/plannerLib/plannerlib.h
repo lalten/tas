@@ -22,17 +22,17 @@
 #define MAX_ANGLE       36      // Maximal Angle in Degree
 #define RESOLUTION      2       // Angle Resolution in Degree
 #define PI              3.1415926
+#define CALC_POINTS     100
 
 class plannerLib
 {
 public:
-    plannerLib();
+    plannerLib(ros::NodeHandle nh);
 
-    ros::NodeHandle nh;
     ros::Subscriber costmap_Sub, globalPath_Sub;
     ros::Publisher path_Pub;
 
-    void refreshGlobalPosition();
+    void refreshGlobalPosition(ros::NodeHandle nh);
 
 
 private:

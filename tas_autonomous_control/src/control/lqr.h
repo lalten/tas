@@ -5,6 +5,7 @@ using namespace std;
 
 #include "ros/ros.h"
 #include "nav_msgs/Path.h"
+#include <nav_msgs/Odometry.h>
 #include "visualization_msgs/MarkerArray.h"
 #include "std_msgs/Float32MultiArray.h"
 #include "ackermann_msgs/AckermannDriveStamped.h"
@@ -43,6 +44,7 @@ class lqr
         lqr();
         ros::Subscriber glpath_sub_;
         ros::Subscriber imu_sub_;
+        ros::Subscriber odom_sub_;
         ros::NodeHandle node;
         double control();                   // calculate control output and publish
         void getclosestpoint();             // calculate piont on the path with smallest distance to vehicle
@@ -62,6 +64,11 @@ class lqr
         double angular_vel_offset;
         void test_motor();
 
+        void test_speed_control();
+
+        double des_vel;         //desired velocity derived from path geometry in m/s
+        int des_dir;            //1 forward -1 backwards
+
     private:
         double Kvec[3];                     // LQR-control gains (computed by Matlab)
         double Kvec_1[3];                     // LQR-control gains at vel_ref (computed by Matlab)
@@ -76,17 +83,23 @@ class lqr
         void calc_des_speed();
         void glpathCallback(const nav_msgs::Path::ConstPtr& path);      //called when there is a new global path
         void imuCallback(const sensor_msgs::Imu::ConstPtr& data);      //called when there is a new global path
+        void odomCallback(const nav_msgs::Odometry::ConstPtr& data);      //called when there is a new global path
         void publish_sim();
         void publish_car();
+
+
+
+        double odom_vel;
         double max_vel;          //maximum allowd velocity
+        double corner_speed;
         double acc_distance;     //distance from pathstart after which max_vel shall be reached, in m
         double decc_distance;    //distance to pathend in which max_vel shall to 0, in m
         double dphi;            //current estimate of angular velocity in deg/s
         double vel;             //current estimate of linear velocity in m/s
-        double des_vel;         //desired velocity derived from path geometry in m/s
+
         double steering_deg;    //positive makes left turn
         double int_err;         //integrated error of PI-speed-controller
-        int des_dir;            //1 forward -1 backwards
+
         iir filter_phi, filter_vel, filter_imu;
         ros::Publisher pub_ball;
         ros::Publisher pub_arrow;

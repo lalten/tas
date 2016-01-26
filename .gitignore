@@ -1,3 +1,10 @@
+# Eclipse builds
+Release/
+Debug/
+spec.d
+.ino.cpp
+.settings
+
 # Editor temp files
 *~
 *.swp

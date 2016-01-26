@@ -10,6 +10,7 @@
     <param name="odom_frame" value="base_link"/>
     <param name="laser_max_dist" value="100"/>
     <param name="map_size" value="2048"/>
+
   </node>
 
    

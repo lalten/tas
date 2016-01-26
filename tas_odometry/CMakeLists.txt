@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tas_odometry)
 
-set(ROS_BUILD_TYPE Debug)
-set(CMAKE_BUILD_TYPE Debug)
+# set(ROS_BUILD_TYPE Debug)
+# set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -10,16 +10,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  px_comm
   gazebo_msgs
   nav_msgs
   sensor_msgs
+  std_msgs
   roscpp
   tf
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(message_generation)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -51,11 +53,12 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+add_message_files(
+    FILES
 #   Message1.msg
 #   Message2.msg
-# )
+    Encoder.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -72,10 +75,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   gazebo_msgs#   nav_msgs
-# )
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -108,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS gazebo_msgs nav_msgs sensor_msgs roscpp tf
+  CATKIN_DEPENDS gazebo_msgs nav_msgs sensor_msgs std_msgs roscpp tf message_runtime
 )
 
 ###########
@@ -134,6 +137,8 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(perfect_odometry src/perfect_odometry.cpp)
+add_executable(optflow_odometry src/optflow_odometry.cpp)
+add_executable(motor_odometry src/motor_odometry.cpp)
 add_executable(imu_bias_compensation src/imu_bias_compensation.cpp)
 
 ## Add cmake target dependencies of the executable
@@ -141,13 +146,10 @@ add_executable(imu_bias_compensation src/imu_bias_compensation.cpp)
 # add_dependencies(tas_odometry_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(perfect_odometry
-  ${catkin_LIBRARIES}
-)
-
-target_link_libraries(imu_bias_compensation
-  ${catkin_LIBRARIES}
-)
+target_link_libraries(perfect_odometry ${catkin_LIBRARIES})
+target_link_libraries(optflow_odometry ${catkin_LIBRARIES})
+target_link_libraries(motor_odometry ${catkin_LIBRARIES})
+target_link_libraries(imu_bias_compensation ${catkin_LIBRARIES})
 
 #############
 ## Install ##

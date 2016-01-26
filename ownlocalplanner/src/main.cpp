@@ -3,9 +3,11 @@
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "ownLocalPlanner");
-    plannerLib pl;
 
-    pl.refreshGlobalPosition();
+    ros::NodeHandle nh;
+    plannerLib pl(nh);
+
+    pl.refreshGlobalPosition(nh);
 
     /*
     while(ros::ok())
@@ -15,6 +17,8 @@ int main(int argc, char** argv)
         loop_rate.sleep();
     }
     */
+
+    ROS_INFO("END PROGRAM");
 
     return 0;
 }
