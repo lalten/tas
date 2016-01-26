@@ -70,7 +70,7 @@ For prepairing the algorithm and for visualization the Bézier Curve was program
 
 #### ROS C++ Code:
 The [ownLocalPlanner](/ownlocalplanner/) package subscribes the following Nodes:
- * [__Test123__](http://www.google.de/)
+ * [__Global Plan__](http://www.google.de/)
 
 ```
 rosrun ownlocalplanner ownlocalplanner
