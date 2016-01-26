@@ -393,8 +393,8 @@ bool calculate_start(int start_x, int start_y, double orientation)
     double mapStart_y;
     double mapOrientation;
 
-    mapStart_x = start_x;
-    mapStart_y = start_y;
+    mapStart_x = start_x*2.5/100;
+    mapStart_y = start_y*2.5/100;
     mapOrientation = orientation+3.14;
 
 
