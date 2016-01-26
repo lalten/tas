@@ -1,8 +1,9 @@
-##################### 
-Readme for running the findpark node.
+#Readme for running the findpark node.
+
 #####################
 author: Quirin Körner | ga34diz 
 #####################
+
 cmake is changed, do not forget:
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -10,13 +11,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 #####################
 
 If you want to run it with the real car. Roslaunch the run_system
-#roslaunch tas run_system
+```
+roslaunch tas run_system
+```
 
 Once you want to find a parking spot start findpark. You need to generate a map before (make a real round).
-#roslaunch findpark findpark.launch
+```
+roslaunch findpark findpark.launch
+```
 
 Once the start position for parking is reached. Run the parking node.
-#rosrun parking parking
+```
+rosrun parking parking
+```
 
 ######################
 How it works:
@@ -35,15 +42,15 @@ Once the car detected a possible parking spot. The current goal of the pathplann
 As the parking node only support parkingspots left of the car, the findpark node only uses parkingspots at the left.
 
 Once the goal is reached the findpark node is shut down, and the user can start the parking node manually. This starts the parking procedure discribed in the readme of the parking node.
-#######################
-HOW IT WORKS
-######################
-Harris corner detector
+
+##HOW IT WORKS
+
+
+###Harris corner detector
 
 The first approach was to use corner detection to find a parking spot. As the results weren't robust enough, I switched to the roatated template detection. A reason for the poor robustness is the the low resultion of the map. With higher resultion the results are better, but this causes problems with the localization during the race. Therefore I tried template matching.
 
-######################
-Rotated templated matching
+###Rotated templated matching
 
 Template matching uses a template (map of parking spot) which shows the ideal parking spot (see /tas/config/Map_server/static). which is shifted horizontal and vertical over the recorded/test map of the whole corridor.
 But as the yaw of the map is not known (build in first round) the template matching does not give good results. Therefore I implemented a turning algorithm of the template map. The matching is done with 1° offset each round. The highest score of each round is saved and compared to all rounds. The highest score is the location of the parking spot with it's corresponding angle.
