@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 
     //Subscriber
     ros::Subscriber laser_back_sub = n.subscribe("/scan_back", 1000, parkingCallback);
-    ros::Subscriber laser_front_sub = n.subscribe("/scan", 1000, scanFrontCallback);
+    ros::Subscriber laser_front_sub = n.subscribe("/scan_front", 1000, scanFrontCallback);
 
     //Publisher
     parking_servo_publisher = n.advertise<geometry_msgs::Vector3>("servo",1);
