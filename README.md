@@ -69,7 +69,12 @@ For prepairing the algorithm and for visualization the Bézier Curve was program
  * alternatePath(Costmap, hight, width, resolution, minRadius)
 
 #### ROS C++ Code:
-Test 123
+The [ownLocalPlanner](/ownlocalplanner/) package subscribes the following Nodes:
+ * [__Test123](http://www.google.de/)
+
+'''
+roslaunch ownlocalplanner ownlocalplanner
+'''
  
 
 
