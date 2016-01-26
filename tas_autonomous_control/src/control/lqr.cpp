@@ -93,8 +93,8 @@ double lqr::control()
 void lqr::getclosestpoint()
 {
     double shortestdistance = 100000;
-    int indclose = 0;
-    //ROS_INFO_STREAM("glpath.size  "  << glpath.size());
+    int indclose = 0;    
+    //ROS_INFO_STREAM("calc closestpt  " );
     for(int i = 0; i<glpath.size(); i++)
     {
         double px = glpath.at(i).at(0);
@@ -115,7 +115,20 @@ void lqr::getclosestpoint()
     closestpt.push_back( glpath.at(indclose).at(1));
     closestpt.push_back( glpath.at(indclose).at(2));
 
+    //ROS_INFO_STREAM("des_speed_vec  ");
+    //for(int i=0; i<des_speed_vec.size(); i++)
+    //    ROS_INFO_STREAM("des_speed_vec  " << des_speed_vec.at(i));
     des_vel = des_speed_vec.at(indclose);
+
+
+    //ROS_INFO_STREAM("des_dir_vec  ");
+    //for(int i=0; i<dir_vec.size(); i++)
+     //   ROS_INFO_STREAM("des_dir_vec  " << dir_vec.at(i));
+
+
+    //ROS_INFO_STREAM("indclose  " << indclose);
+    if(indclose > dir_vec.size()-1)
+        indclose = dir_vec.size()-2;
     des_dir = dir_vec.at(indclose);
 
     //ROS_INFO_STREAM("closes pt index  "  << indclose);
@@ -344,7 +357,7 @@ void lqr::test_motor()
 
 void lqr::calc_des_speed()
 {
-    //ROS_INFO_STREAM("calcspeed");
+    ROS_INFO_STREAM("calcspeed");
     des_speed_vec.clear();
     des_speed_vec.resize(glpath.size());
     //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
@@ -362,8 +375,8 @@ void lqr::calc_des_speed()
         }
     }
 
-  /*  ROS_INFO_STREAM("after corner ");
-    for(int i= 0; i < des_speed_vec.size(); i++)
+    ROS_INFO_STREAM("after corner ");
+   /* for(int i= 0; i < des_speed_vec.size(); i++)
         ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
 */
 
@@ -433,9 +446,9 @@ void lqr::calc_des_speed()
             j--;
         }
     }
-    /*
-     ROS_INFO_STREAM("cout1  ");
 
+     ROS_INFO_STREAM("cout1  ");
+/*
      ROS_INFO_STREAM("going through curv starting points, each iterating backwards ");
      for(int i= 0; i < des_speed_vec.size(); i++)
          ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
@@ -463,7 +476,7 @@ void lqr::calc_des_speed()
         ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
 */
 
-    //ROS_INFO_STREAM("cout2  ");
+    ROS_INFO_STREAM("cout2  ");
 
     // going through curv ending points forward
     for(int i = 0; i < end_curve.size(); i++)
@@ -482,7 +495,7 @@ void lqr::calc_des_speed()
             j++;
         }
     }
-    //ROS_INFO_STREAM("cout3  ");
+    ROS_INFO_STREAM("cout3  ");
 
     /*for(int i= 0; i < des_speed_vec.size()-1; i++)
     {
@@ -499,6 +512,7 @@ void lqr::calc_des_speed()
 
 void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
 {
+    ROS_INFO_STREAM("new path received  ");
     int num_points = path->poses.size();
 
     inited = 1;
@@ -558,7 +572,7 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
         pathpoint.push_back(zangle);
         glpath.push_back(pathpoint);
     }
-
+    ROS_INFO_STREAM("new path saved  ");
 
     calc_des_speed();
 }
@@ -625,13 +639,13 @@ void lqr::test_speed_control()
 
     double pc = vel_err*kv;
 
-    ROS_INFO_STREAM("p-component "  << pc );
-
     cmd_thrust =  pc; // 1 full thrust, 0 no thrust , -1 reverse full thrust
     if(cmd_thrust > 1)
         cmd_thrust=1;
     if(cmd_thrust < -1)
         cmd_thrust=-1;
+
+    ROS_INFO_STREAM("thrust "  << pc << "des_vel "  << des_vel << "odom_vel "  << odom_vel  );
 
     steering_deg =0;
 

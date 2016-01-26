@@ -62,25 +62,31 @@ int main(int argc, char** argv)
 
         //ROS_INFO_STREAM("Current Pos   x:   " << lqr1.mapcoord[0]  << "y:   " << lqr1.mapcoord[0] <<   "z-angle:   " << lqr1.mapcoord[2] );
 
-        //lqr1.test_motor();
-
-        lqr1.des_vel =0;
+        /*lqr1.des_vel =0;
         while(1)
         {
             for(int i = 0; i<5 ; i+= 0.03)
+            {
                 lqr1.des_vel = i;
-
+                test_speed_control();
+            }
 
             for(int i = 5; i>-5; i-= 0.03)
+            {
                 lqr1.des_vel = i;
-        }
+                test_speed_control();
+            }
+        }*/
 
 
         if( lqr1.inited == 1)
         {           
-            lqr1.getclosestpoint();            
+            lqr1.getclosestpoint();
+            ROS_INFO_STREAM("got closest pt");
             lqr1.visualize();
+            ROS_INFO_STREAM("visualize");
             lqr1.estimate_state();
+            ROS_INFO_STREAM("state est");
             lqr1.control();
             ROS_INFO_STREAM("closest point on path:   " << lqr1.closestpt.at(0) << "  " << lqr1.closestpt.at(1) << "  " << lqr1.closestpt.at(2));
             ROS_INFO_STREAM("glpath size:   " << lqr1.glpath.size());
