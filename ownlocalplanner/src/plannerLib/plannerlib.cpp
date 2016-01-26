@@ -1,6 +1,6 @@
 #include "plannerlib.h"
 #include <math.h>
-#include <vector>
+
 
 // Bezierkurve
 
@@ -82,30 +82,41 @@ void plannerLib::refreshGlobalPath(const nav_msgs::Path::ConstPtr& path)
     // Clear the current RestList
     restPath.clear();
 
+    cp = getIndexClosesedPathPoint(path->poses);
+    int firstcp = cp;
+    int dddd = path->poses.size();
+    ROS_INFO("Nah: %d, Size: %d",cp,dddd);
     while (cp < path->poses.size())
     {
         if (distance < PATH_LENGTH)
         {
+            ROS_INFO("P1");
             std::vector<float> pose;
             pose.push_back(path->poses.at(cp).pose.position.x); // 0
             pose.push_back(path->poses.at(cp).pose.position.y); // 1
 
+            ROS_INFO("P2");
             // Move x,y
             pose.push_back(pose.at(0)-globalCoords[0]);         // 2
             pose.push_back(pose.at(1)-globalCoords[1]);         // 3
 
+            ROS_INFO("P3");
             // Rotate
             pose.push_back(pose.at(2)*cos(globalCoords[2]) - pose.at(3)*sin(globalCoords[2]));  // 4
             pose.push_back(pose.at(2)*sin(globalCoords[2]) + pose.at(3)*cos(globalCoords[2]));  // 5
 
+            ROS_INFO("P4");
             // Save Value
             originalPathX.push_back(pose.at(4));
             originalPathY.push_back(pose.at(5));
 
+            ROS_INFO("P5");
             // Update Distance
-            if (cp > 0)
-                distance += sqrt(pow( (pose.at(0) - originalPathX.at(cp-1)), 2) +
-                                 pow( (pose.at(1) - originalPathY.at(cp-1)), 2));
+            if (cp > firstcp){
+                ROS_INFO("P6: cp is %d - 0 ist %f",cp,pose.at(0));
+                distance += sqrt(pow( (pose.at(0) - originalPathX.at((cp-firstcp)-1)), 2) +
+                                 pow( (pose.at(1) - originalPathY.at((cp-firstcp)-1)), 2));
+            }
 
             ROS_INFO("Distance: %f", distance);
 
@@ -469,6 +480,20 @@ int plannerLib::getPt_bezier(int n1, int n2, float perc)
     return n1 + ((n2-n1)*perc);
 }
 
+int plannerLib::getIndexClosesedPathPoint(std::vector<geometry_msgs::PoseStamped> poses)
+{
+    float bestDistance = 99999;
+    int result = 0;
+    for (int i = 0; i < poses.size(); i++)
+    {
+        float distance = sqrt(pow(poses.at(i).pose.position.x - globalCoords[0],2) +
+                              pow(poses.at(i).pose.position.y - globalCoords[1],2));
 
-
+        if (bestDistance > distance){
+            bestDistance = distance;
+            result = i;
+        }
+    }
+    return result;
+}
 

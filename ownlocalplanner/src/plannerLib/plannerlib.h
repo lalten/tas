@@ -12,6 +12,7 @@
 #include <nav_msgs/Path.h>
 
 #include <tf/tf.h>
+#include <vector>
 
 
 #define COST_OUTSIDE    50      // Sets the cost out of the Costmap to 50
@@ -73,6 +74,8 @@ private:
     std::vector< std::vector<float> > convertToBestPath(std::vector<float> xVals, std::vector<float> yVals);
 
 
+    // Get the index out of the Global Path, closest to the current Position
+    int getIndexClosesedPathPoint(std::vector<geometry_msgs::PoseStamped> poses);
 
 
     void refreshGlobalPath(const nav_msgs::Path::ConstPtr& path);
