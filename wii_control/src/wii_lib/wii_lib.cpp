@@ -99,7 +99,7 @@ void wii_lib::wiiStateCallback(const wiimote::State::ConstPtr& wiiState)
             servo.y = 1500 + SCALE_FAKTOR_STEERING*wiiState.get()->nunchuk_joystick_zeroed[0];
         }
 
-        wii_servo_pub_.publish(servo); /*publish servo messages to arduino*/
+        // wii_servo_pub_.publish(servo); /*publish servo messages to arduino*/
     }
 
     if (wiiState.get()->buttons[WII_BUTTON_A]==1){
