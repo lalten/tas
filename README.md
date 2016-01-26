@@ -81,7 +81,7 @@ Once the car reached the start position run the "parking"-node
 
 Note: For showcasing without car, the findpark.cpp is now in testmode. This means, that the testMap.pgm is loaded instead of the real map. If you want, you may change this in the code with the TEST-flag. 
 
-For more information about the findpark-node look into the readme at 
+For more information about the findpark-node look into the readme: [__findparkReadme__](/findpark/readme)
 ```
 tas/src/findpark/
 ```
