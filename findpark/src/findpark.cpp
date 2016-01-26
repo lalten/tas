@@ -426,7 +426,7 @@ void cornerDetection(cv::Mat map)
 {
 
     Mat gray = map;
-    int thresh = 50;
+    int thresh = 70;
     const char* corners_window = "Corners detected";
 
     //function
@@ -452,7 +452,7 @@ void cornerDetection(cv::Mat map)
         {
             if( (int) dst_norm.at<float>(j,i) > thresh )
             {
-                circle( dst_norm_scaled, Point( i, j ), 5,  Scalar(0), 2, 8, 0 );
+                circle( dst_norm_scaled, Point( i, j ), 1,  Scalar(255,255,255), 1, 8, 0 );
             }
         }
     }
