@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="/use_sim_time" value="false"/>
   
   <!-- merge lasers -->
   <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
@@ -20,6 +19,7 @@
   
   <node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen" args="0 0 0  0 0 0 map odom 100" />
 
+
   <!-- Hector mapping -->
   <node pkg="hector_mapping" type="hector_mapping" name="hector_mapping" output="screen">
     <rosparam>
@@ -27,7 +27,8 @@
       odom_frame: base_link
       map_update_distance_thresh: 0.01
       map_update_angle_thresh: 0.001
-      map_size: 2048
+      map_resolution: 0.01
+      map_size: 6000
 #      map_pub_period: 0.2
 #      update_factor_free: 0.2
 #      update_factor_occupied: 0.9
@@ -37,8 +38,5 @@
       pub_map_scanmatch_transform: false
     </rosparam>
   </node>
-
-
-
 
 </launch>
