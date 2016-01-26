@@ -35,12 +35,37 @@ export ROS_HOSTNAME=$(hostname).local
  * set the ROS master location: `export ROS_MASTER_URI=http://vettel.local:11311`
  * start your local nodes: e.g. `rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
  
-## Parking:
+## Contributions
+Laurenz: [Odometry](#odometry)  
+Konrad: [Trajectory Rollout](#)  
+Frederik: [SBPL / LQR Controller](#)  
+Quirin: [Parking](#parking), [Rotated Template Matching](#)
+
+### Odometry
+The enhanced odometry stack uses the following external nodes:
+ * [robot_localization __ekf_localization_node__] (http://wiki.ros.org/robot_localization#ekf_localization_node) as extended kalman filter
+ * [__laserscan_multi_merger__](https://github.com/iralabdisco/ira_laser_tools) for merging front and back laser scans
+ * [__laser_scan_matcher__](http://wiki.ros.org/laser_scan_matcher) Laser-based odometry estimation
+ * Custom [__px4flow_node__ fork](https://github.com/lalten/px-ros-pkg) for communication with visual odometry sensor
+ * [mtnode.py __xsens_driver__](http://wiki.ros.org/xsens_driver) for IMU communication
+ * [__rosserial_arduino__](http://wiki.ros.org/rosserial_arduino) and [__rosserial_python__](http://wiki.ros.org/rosserial_python) for communication during motor encoder processing
+
+The [__tas_odometry__ package](/tas_odometry/package.xml) contains the following nodes created by us:
+ * [__perfect_odometry__](/tas_odometry/src/imu_bias_compensation.cpp), which analyzes gazebo link states to provide "perfect" odometry during simulation
+ * [__imu_bias_compensation__](/tas_odometry/src/imu_bias_compensation.cpp), which tries to compensate constant acceleration offsets in the IMU (when EKFs gravity compensation is not used)
+ * [__optflow_odometry__](/tas_odometry/src/optflow_odometry.cpp), which converts data from the PX4flow sensor to usable odometry (twist) messages. It calculates EKF uncertainty covariance matrix value from image quality data.
+ * [__motor_odometry__](/tas_odometry/src/motor_odometry.cpp), which generates odometry (twist messages) from encoder inter-tick times as reported from the encoder microcontroller unit
+
+Code specific to motor encoder processing:
+ * [__MotorOdometry__](/Arduino/MotorOdometry/MotorOdometry.ino): Code running on Atmega32u4 MCU. Communicates with ROS via native USB using the rosserial protocol.
+ * [__MotorTest__](/Arduino/MotorTest/MotorTest.ino): Test sketch for the MCU. Prints detected encoder revolutions via raw serial.
+
+### Parking:
 There are two nodes for the parking process. 
  * The "findpark"-node detects parking spots with template matching or feature extraction. 
  * The "parking"-node runs the actual parking procedure.
 
-### Find parking spot
+#### Find parking spot
 Before starting the parking slot detection, you have to accquire a map, includeing at least one parking spot. After that run:
 ```
 roslaunch findpark findpark.launch
@@ -54,7 +79,7 @@ For more information about the findpark-node look into the readme at
 tas/src/findpark/
 ```
 
-### park the car
+#### Park the car
 Once the car is at the right starting position (calculated by "findpark" or the marked spots at the floor) start:
 ```
 rosrun parking parking
