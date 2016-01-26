@@ -37,7 +37,7 @@ export ROS_HOSTNAME=$(hostname).local
  
 ## Contributions
 Laurenz: [Odometry](#odometry)  
-Konrad: [Trajectory Rollout](#)  
+Konrad: [Trajectory Rollout](#trajectory)  
 Frederik: [SBPL / LQR Controller](#)  
 Quirin: [Parking](#parking), [Rotated Template Matching](#)
 
@@ -59,6 +59,13 @@ The [__tas_odometry__ package](/tas_odometry/package.xml) contains the following
 Code specific to motor encoder processing:
  * [__MotorOdometry__](/Arduino/MotorOdometry/MotorOdometry.ino): Code running on Atmega32u4 MCU. Communicates with ROS via native USB using the rosserial protocol.
  * [__MotorTest__](/Arduino/MotorTest/MotorTest.ino): Test sketch for the MCU. Prints detected encoder revolutions via raw serial.
+
+### Trajectory
+Preparation and Simulation:
+
+For prepairing the algorithm and for visualization the Bézier Curve was programmed in Matlab. To execute the matlab functions:
+ * Test 123
+
 
 ### Parking:
 There are two nodes for the parking process. 
