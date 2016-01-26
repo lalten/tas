@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Rosserial to motor-encoder Arduino -->
-  <node name="rosserial_encoder" pkg="rosserial_python" type="serial_node.py" args="/dev/serial/by-id/usb-Arduino_LLC_Arduino_Micro-if00" output="screen" respawn="true"/>
-  <node name="motor_odometry" pkg="tas_odometry" type="motor_odometry" output="screen" respawn="true">
+  <node name="rosserial_encoder" pkg="rosserial_python" type="serial_node.py" args="/dev/serial/by-id/usb-Arduino_LLC_Arduino_Micro-if00" output="screen"/>
+  <node name="motor_odometry" pkg="tas_odometry" type="motor_odometry" output="screen">
     <param name="ticks_per_meter" value="310" />
+    <param name="deadline_timeout" value="0.100" />
   </node>
 </launch>

@@ -38,7 +38,7 @@ ylabel('y')
 
 a22=0.001;
 
-v= 1;
+v= 0.2;
 
 A = [a22/v 0   0;
      -1    0   0;
@@ -93,8 +93,6 @@ ypos(1)=x0(2);
 psi(1) = x0(3);
 
 x(2,1)=x0(3);
-
-v=1;
 
 
 for t = 1:nsim-1
@@ -168,7 +166,6 @@ legend('epsidot','eyd')
 subplot(2,1,2)
 plot(1:nsim-1,e(2,:)*180/pi)
 legend('etheta')
-
 
 
 figure

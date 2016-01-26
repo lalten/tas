@@ -47,28 +47,86 @@ int main(int argc, char** argv)
         lqr1.mapcoord[1] = transform.getOrigin().y();
         lqr1.mapcoord[2] = transform.getRotation().getAngle()/PI*180.0* transform.getRotation().getAxis().getZ();  //this assumes rotation only around z axis!
 
-        if(lqr1.inited==0){
+        if(lqr1.inited==0) //if not inited yet:
+        {
             memcpy(lqr1.last_mapcoord, lqr1.mapcoord, 3*sizeof(double));
             lqr1.timelast = ros::Time::now();
-            ROS_INFO_STREAM("inited " << lqr1.inited);
+            ROS_INFO_STREAM("inited" << lqr1.inited);
+
+            while(lqr1.angular_vel_offset == 0.0)     // spin as long as /imu message has not been read
+            {
+                ros::spinOnce();
+                lqr1.angular_vel_offset = lqr1.imu_angular_z_vel_uf;
+            }
         }
 
         //ROS_INFO_STREAM("Current Pos   x:   " << lqr1.mapcoord[0]  << "y:   " << lqr1.mapcoord[0] <<   "z-angle:   " << lqr1.mapcoord[2] );
+        /*
+        double maxtestspeed = 1;
+        lqr1.des_vel =0;
+        for(double i = 0; i<maxtestspeed ; i+= 0.03)
+        {
+            lqr1.des_vel = i;
+            lqr1.des_dir = 1;
+            lqr1.test_speed_control();
+            ros::spinOnce();
+            rate.sleep();
+
+        }
+        while(ros::ok())
+        {
+
+            for(double i = maxtestspeed; i>-maxtestspeed; i-= 0.03)
+            {
+                if( i > 0)
+                    lqr1.des_dir = 1;
+                else
+                    lqr1.des_dir = -1;
+
+                lqr1.des_vel = fabs(i);
+
+                lqr1.test_speed_control();
+                ros::spinOnce();
+                rate.sleep();
+            }
+
+            for(double i = -maxtestspeed; i<maxtestspeed; i+= 0.03)
+            {
+                if( i > 0)
+                    lqr1.des_dir = 1;
+                else
+                    lqr1.des_dir = -1;
+
+                lqr1.des_vel = fabs(i);
+
+                lqr1.test_speed_control();
+                ros::spinOnce();
+                rate.sleep();
+            }
+
+
+        }
+        */
+
 
         if( lqr1.inited == 1)
         {           
-            lqr1.getclosestpoint();            
+            lqr1.getclosestpoint();
+            //ROS_INFO_STREAM("got closest pt");
             lqr1.visualize();
+            //ROS_INFO_STREAM("visualize");
             lqr1.estimate_state();
+            //ROS_INFO_STREAM("state est");
             lqr1.control();
             //ROS_INFO_STREAM("closest point on path:   " << lqr1.closestpt.at(0) << "  " << lqr1.closestpt.at(1) << "  " << lqr1.closestpt.at(2));
-            /*ROS_INFO_STREAM("glpath size:   " << lqr1.glpath.size());
-            for (int i=0; i< lqr1.glpath.size()/1.0; i++)
+            //ROS_INFO_STREAM("glpath size:   " << lqr1.glpath.size());
+            /*for (int i=0; i< lqr1.glpath.size()/1.0; i++)
             {
                 int j= i*1;
                 ROS_INFO_STREAM("glpath_point x: " << lqr1.glpath.at(j).at(0) << " y: " << lqr1.glpath.at(j).at(1) <<  " zangle: " << lqr1.glpath.at(j).at(2));
 
             }*/
+
         }
 
         ros::spinOnce();

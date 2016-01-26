@@ -35,33 +35,82 @@ export ROS_HOSTNAME=$(hostname).local
  * set the ROS master location: `export ROS_MASTER_URI=http://vettel.local:11311`
  * start your local nodes: e.g. `rviz`, or `rosrun image_view image_view image:=/px4flow/camera_image`
  
- ## Parking:
- There are two nodes for the parking process. 
- *The "findpark"-node detects parking spots with template matching or feature extraction. 
- *The "parking"-node runs the actual parking procedure.
+## Contributions
+Laurenz: [Odometry](#odometry)  
+Konrad: [Trajectory Rollout](#trajectory)  
+Frederik: [SBPL / LQR Controller](#sbpl)  
+Quirin: [Parking](#parking), [Rotated Template Matching](#)
+
+### Odometry
+The enhanced odometry stack uses the following external nodes:
+ * [robot_localization __ekf_localization_node__] (http://wiki.ros.org/robot_localization#ekf_localization_node) as extended kalman filter
+ * [__laserscan_multi_merger__](https://github.com/iralabdisco/ira_laser_tools) for merging front and back laser scans
+ * [__laser_scan_matcher__](http://wiki.ros.org/laser_scan_matcher) Laser-based odometry estimation
+ * Custom [__px4flow_node__ fork](https://github.com/lalten/px-ros-pkg) for communication with visual odometry sensor
+ * [mtnode.py __xsens_driver__](http://wiki.ros.org/xsens_driver) for IMU communication
+ * [__rosserial_arduino__](http://wiki.ros.org/rosserial_arduino) and [__rosserial_python__](http://wiki.ros.org/rosserial_python) for communication during motor encoder processing
+
+The [__tas_odometry__ package](/tas_odometry/package.xml) contains the following nodes created by us:
+ * [__perfect_odometry__](/tas_odometry/src/imu_bias_compensation.cpp), which analyzes gazebo link states to provide "perfect" odometry during simulation
+ * [__imu_bias_compensation__](/tas_odometry/src/imu_bias_compensation.cpp), which tries to compensate constant acceleration offsets in the IMU (when EKFs gravity compensation is not used)
+ * [__optflow_odometry__](/tas_odometry/src/optflow_odometry.cpp), which converts data from the PX4flow sensor to usable odometry (twist) messages. It calculates EKF uncertainty covariance matrix value from image quality data.
+ * [__motor_odometry__](/tas_odometry/src/motor_odometry.cpp), which generates odometry (twist messages) from encoder inter-tick times as reported from the encoder microcontroller unit
+
+Code specific to motor encoder processing:
+ * [__MotorOdometry__](/Arduino/MotorOdometry/MotorOdometry.ino): Code running on Atmega32u4 MCU. Communicates with ROS via native USB using the rosserial protocol.
+ * [__MotorTest__](/Arduino/MotorTest/MotorTest.ino): Test sketch for the MCU. Prints detected encoder revolutions via raw serial.
+
+### Trajectory
+#### Preparation and Simulation:
+
+For prepairing the algorithm and for visualization the Bézier Curve was programmed in Matlab. To execute the matlab functions:
+ * addpath( [matlab_code](/Matlab Code Konrad/) )
+ * read in Costmap [>>Example](/Matlab Code Konrad/Readme.md)
+ * alternatePath(Costmap, hight, width, resolution, minRadius)
+
+#### ROS C++ Code:
+The [ownLocalPlanner](/ownlocalplanner/) package subscribes the following Nodes:
+ * [__Global Plan__](http://docs.ros.org/api/nav_msgs/html/msg/Path.html): Subscribe to the Global Path wich is published by [move_base](http://wiki.ros.org/move_base)
+ * [__Local Costmap__](http://docs.ros.org/hydro/api/nav_msgs/html/msg/OccupancyGrid.html): Subscribe to the Local Costmap wich is published by [move_base](http://wiki.ros.org/move_base). The current position is in the middle point of the costmap.
+ * [__TF__](http://wiki.ros.org/tf): The TransformListener reads the transfrom between "/map" and "/base_link" to get the global postion of the car
  
- ### Find parking spot
- Before starting the parking slot detection, you have to accquire a map, includeing at least one parking spot. After that run:
- '''
- roslaunch findpark findpark.launch
- '''
- Once the car reached the start position run the "parking"-node
- 
- Note: For showcasing without car, the findpark.cpp is now in testmode. This means, that the testMap.pgm is loaded instead of the real map. If you want, you may change this in the code with the TEST-flag. 
- 
- For more information about the findpark-node look into the readme at 
- '''
- tas/src/findpark/
- '''
- 
- ### park the car
- Once the car is at the right starting position (calculated by "findpark" or the marked spots at the floor) start:
- '''
- rosrun parking parking
- '''
- 
- 
- 
+#### Run the ownlocalplanner
+```
+rosrun ownlocalplanner ownlocalplanner
+```
+
+The global Path with the ownlocal-Path on the first 3 Meter is published as ["/ownPath"](http://docs.ros.org/api/nav_msgs/html/msg/Path.html). This is, as the global Path, a nav_msgs. The Path can be visualized by RVIZ and can be used for the [Controller](#sbpl). Therefor change the String for Subscribtion from "/move_base_node/TrajectoryPlannerROS/global_plan" to "/ownPath".
  
 
+### Sbpl:
 
+### Parking:
+There are two nodes for the parking process. 
+ * The "findpark"-node detects parking spots with template matching or feature extraction. 
+ * The "parking"-node runs the actual parking procedure.
+
+#### Find parking spot
+Before starting the parking slot detection, you have to accquire a map, includeing at least one parking spot. After that run:
+```
+roslaunch findpark findpark.launch
+```
+Once the car reached the start position run the "parking"-node
+
+Note: For showcasing without car, the findpark.cpp is now in testmode. This means, that the testMap.pgm is loaded instead of the real map. If you want, you may change this in the code with the TEST-flag. 
+
+For more detailed information how the findpark-node works, look into the readme: [__/findpark/readme__](/findpark/readme.md)
+
+#### Park the car
+Once the car is at the right starting position (calculated by "findpark" or the marked spots at the floor) start:
+```
+rosrun parking parking
+```
+The parking node uses the raw data of the messages
+* /scan_back
+* /scan
+
+These messages contain the laser distance table. 
+The movements a directly published to the node
+* /servo
+
+For more information how the parking-node works, look into the readme: [__/parking/readme__](/parking/readme.md)

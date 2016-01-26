@@ -13,6 +13,11 @@
       range_max: 100
     </rosparam>
   </node>
+  
+  
+  
+  
+  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen" args="0 0 0  0 0 0 map odom 100" />
 
 
   <!-- Hector mapping -->
@@ -22,8 +27,8 @@
       odom_frame: base_link
       map_update_distance_thresh: 0.01
       map_update_angle_thresh: 0.001
-      map_resolution: 0.01
-      map_size: 6000
+      map_resolution: 0.025
+      map_size: 2048
 #      map_pub_period: 0.2
 #      update_factor_free: 0.2
 #      update_factor_occupied: 0.9
@@ -33,7 +38,5 @@
       pub_map_scanmatch_transform: false
     </rosparam>
   </node>
-  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" output="screen" args="0 0 0  0 0 0 map odom 100" />
-
 
 </launch>
