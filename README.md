@@ -70,7 +70,8 @@ For prepairing the algorithm and for visualization the Bézier Curve was program
 
 #### ROS C++ Code:
 The [ownLocalPlanner](/ownlocalplanner/) package subscribes the following Nodes:
- * [__Global Plan__](http://www.google.de/)
+ * [__Global Plan__](http://docs.ros.org/api/nav_msgs/html/msg/Path.html): Subscribe to the Global Path wich is published by [move_base](http://wiki.ros.org/move_base)
+ * [__Local Costmap__](http://docs.ros.org/hydro/api/nav_msgs/html/msg/OccupancyGrid.html): Subscribe to the Local Costmap wich is published by [move_base](http://wiki.ros.org/move_base)
 
 ```
 rosrun ownlocalplanner ownlocalplanner
