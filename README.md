@@ -82,7 +82,7 @@ rosrun ownlocalplanner ownlocalplanner
 The global Path with the ownlocal-Path on the first 3 Meter is published as ["/ownPath"](http://docs.ros.org/api/nav_msgs/html/msg/Path.html). This is, as the global Path, a nav_msgs. The Path can be visualized by RVIZ and can be used for the [Controller](#sbpl). Therefor change the String for Subscribtion from "/move_base_node/TrajectoryPlannerROS/global_plan" to "/ownPath".
  
 
-### Spbl:
+### Sbpl:
 
 ### Parking:
 There are two nodes for the parking process. 
