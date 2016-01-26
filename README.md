@@ -61,11 +61,16 @@ Code specific to motor encoder processing:
  * [__MotorTest__](/Arduino/MotorTest/MotorTest.ino): Test sketch for the MCU. Prints detected encoder revolutions via raw serial.
 
 ### Trajectory
-Preparation and Simulation:
+#### Preparation and Simulation:
 
 For prepairing the algorithm and for visualization the Bézier Curve was programmed in Matlab. To execute the matlab functions:
  * addpath( [matlab_code](/Matlab Code Konrad/) )
  * read in Costmap [>>Example](/Matlab Code Konrad/Readme.md)
+ * alternatePath(Costmap, hight, width, resolution, minRadius)
+
+#### ROS C++ Code:
+Test 123
+ 
 
 
 ### Parking:
