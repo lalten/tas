@@ -14,12 +14,12 @@ lqr::lqr()
       Kvec[2]=-5.4772;
 
       decc_distance = 1.5;
-      acc_distance = 1;
-      corner_speed = 0.2;
+      acc_distance = 0.8;
+      corner_speed = 0.1;
 
       int_err = 0;  //speed controller integtraged error
 
-      max_vel = 1;      //set maximum speed
+      max_vel = 0.8;      //set maximum speed
 
       inited=0;
 
