@@ -64,6 +64,18 @@ int main(int argc, char** argv)
 
         //lqr1.test_motor();
 
+        lqr1.des_vel =0;
+        while(1)
+        {
+            for(int i = 0; i<5 ; i+= 0.03)
+                lqr1.des_vel = i;
+
+
+            for(int i = 5; i>-5; i-= 0.03)
+                lqr1.des_vel = i;
+        }
+
+
         if( lqr1.inited == 1)
         {           
             lqr1.getclosestpoint();            

@@ -25,6 +25,7 @@ lqr::lqr()
 
       glpath_sub_ = node.subscribe<nav_msgs::Path>("/move_base_node/TrajectoryPlannerROS/global_plan", 100, &lqr::glpathCallback,this);
       imu_sub_ = node.subscribe<sensor_msgs::Imu>("/imu", 100, &lqr::imuCallback,this);
+      odom_sub_ = node.subscribe<nav_msgs::Odometry>("/odometry/filtered", 100, &lqr::odomCallback,this);
 
       pub_ball = node.advertise<visualization_msgs::Marker>( "closest_pt", 0, true);
       pub_arrow = node.advertise<visualization_msgs::Marker>( "closest_pt_dir", 0);
@@ -62,21 +63,24 @@ double lqr::control()
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
 
-    double kv = 2.0;
+    double kv = 5.0;
     double ki = 0.01;
-    double vel_err = vel*des_dir-des_vel;  //using desired movement direction
-    int_err += vel_err;
+    //double vel_err = vel*des_dir-des_vel;  //using desired movement direction
+    double vel_err = odom_vel*des_dir-des_vel;  //using desired movement direction
 
     double pc = vel_err*kv;
+    /*
+    int_err += vel_err;
     double ic = int_err*ki;
 
     if(ic > 0.2)
         ic=0.2;
     if(ic < -0.2)
         ic=-0.2;
-    ROS_INFO_STREAM("p-component "  << pc << "i-component " << ic);
+    */
+    ROS_INFO_STREAM("p-component "  << pc );
 
-    cmd_thrust =  pc + ic ; // 1 full thrust, 0 no thrust , -1 reverse full thrust
+    cmd_thrust =  pc; // 1 full thrust, 0 no thrust , -1 reverse full thrust
     if(cmd_thrust > 1)
         cmd_thrust=1;
     if(cmd_thrust < -1)
@@ -566,6 +570,11 @@ void lqr::imuCallback(const sensor_msgs::Imu::ConstPtr& data)
 
 }
 
+void lqr::odomCallback(const nav_msgs::Odometry::ConstPtr &data)
+{
+    odom_vel = data->twist.twist.linear.x;
+}
+
 void lqr::publish_sim()
 {
     ackermann_msgs::AckermannDriveStamped ackermannMsg;
@@ -606,6 +615,35 @@ void lqr::publish_car()
     control_servo.y = cmd_steeringAngle;
 
     pub_servo.publish(control_servo);
+}
+
+void lqr::test_speed_control()
+{
+    double kv = 5.0;
+    //double vel_err = vel*des_dir-des_vel;  //using desired movement direction
+    double vel_err = odom_vel*des_dir-des_vel;  //using desired movement direction
+
+    double pc = vel_err*kv;
+
+    ROS_INFO_STREAM("p-component "  << pc );
+
+    cmd_thrust =  pc; // 1 full thrust, 0 no thrust , -1 reverse full thrust
+    if(cmd_thrust > 1)
+        cmd_thrust=1;
+    if(cmd_thrust < -1)
+        cmd_thrust=-1;
+
+    steering_deg =0;
+
+    publish_car();
+
+    std_msgs::Float32MultiArray lqr_vel;
+    lqr_vel.data.resize(2);
+    lqr_vel.data.at(0)=vel;
+    lqr_vel.data.at(1)=des_vel;
+
+    pub_vel.publish(lqr_vel);
+
 }
 
 
