@@ -2,24 +2,41 @@
 
 lqr::lqr()
 {    
-      vel_ref=1.0;      //veloctiy at which control gains match Kvec_1
+      double dKvec_11;
+      double dKvec_12;
+      double dKvec_13;
 
-      //gains at speed vel_ref:
-      Kvec_1[0]=0.8232;   //phi-dot gain
-      Kvec_1[1]=-2.0107;  //dphi error gain
-      Kvec_1[2]=-1.4772;  //laterl d error gain
+      double dKvec_01;
+      double dKvec_02;
+      double dKvec_03;
 
-      Kvec[0]=0.5232;       //gains at speed 0
-      Kvec[1]=-3.0107;
-      Kvec[2]=-5.4772;
+      node.param<double>("vel_ref", vel_ref , 1.0 );
 
-      decc_distance = 1.5;
-      acc_distance = 1;
-      corner_speed = 0.2;
 
-      int_err = 0;  //speed controller integtraged error
+      node.param<double>("kvec_1vel_dotphi", dKvec_11, 0.8232);
+      node.param<double>("kvec_1vel_phi", dKvec_12, -2.0107);
+      node.param<double>("kvec_1vel_d", dKvec_13 ,-1.4772 );
 
-      max_vel = 1.5;      //set maximum speed
+      node.param<double>("kvec_0vel_dotphi", dKvec_01, 0.5232);
+      node.param<double>("kvec_0vel_phi", dKvec_02, -3.0107);
+      node.param<double>("kvec_0vel_d", dKvec_03 ,-5.4772 );
+
+
+      Kvec[0] = dKvec_01;
+      Kvec[1] = dKvec_02;
+      Kvec[2] = dKvec_03;
+
+      Kvec_1[0] = dKvec_11;
+      Kvec_1[1] = dKvec_12;
+      Kvec_1[2] = dKvec_13;
+
+      node.param<double>("decc_distance", decc_distance , 3);
+      node.param<double>("acc_distance" ,acc_distance , 2);
+      node.param<double>("corner_speed" ,corner_speed , 0.15);
+
+      node.param<double>("max_vel", max_vel, 1);      //set maximum speed
+
+      int_err = 0;  //speed controller integtraged error     
 
       inited=0;
 
@@ -33,6 +50,7 @@ lqr::lqr()
       pub_vel = node.advertise<std_msgs::Float32MultiArray>( "lqr_vel", 0);
       pub_ackermann_sim = node.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_vehicle/ackermann_cmd", 10);
       pub_servo = node.advertise<geometry_msgs::Vector3>("servo", 1);
+
 }
 
 

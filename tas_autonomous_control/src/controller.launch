@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node pkg="tas_autonomous_control" type="longitudinal_lateral_controller" name="longitudinal_lateral_controller" output="screen" >
+
+	<param name="vel_ref" value= "1.0"/>
+	<param name="kvec_1vel_dotphi" value= "0.8232"/>
+	<param name="kvec_1vel_phi" value="-2.0107"/>
+	<param name="kvec_1vel_d" value="-1.4772"/>
+
+	<param name="kvec_0vel_dotphi" value="0.5232"/>
+	<param name="kvec_0vel_phi" value="-3.0107"/>
+	<param name="kvec_0vel_d" value="-5.4772"/>
+
+	<param name="decc_distance" value="3"/>
+	<param name="acc_distance" value="2"/>
+	<param name="corner_speed" value="0.15"/>
+
+	<param name="max_vel" value="1"/>
+  </node>
+</launch>
