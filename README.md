@@ -91,6 +91,7 @@ rosrun parking parking
 The parking node uses the raw data of the messages
 * /scan_back
 * /scan
+
 These messages contain the laser distance table. 
 The movements a directly published to the node
 * /servo
