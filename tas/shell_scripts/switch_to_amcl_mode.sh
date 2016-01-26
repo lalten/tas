@@ -9,3 +9,6 @@ rosnode kill hector_mapping map_to_odom
 
 # ROS-Launch the nodes needed for amcl mode
 roslaunch tas odom_amcl.launch &
+
+#ROS-Launch the controller node
+roslaunch tas_autonomous_control controller.launch &
