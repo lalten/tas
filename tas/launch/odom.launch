@@ -32,7 +32,7 @@
 #      map_pub_period: 0.2
 #      update_factor_free: 0.2
 #      update_factor_occupied: 0.9
-      laser_min_dist: 0.1
+      laser_min_dist: 0.3
       laser_max_dist: 100
       pub_map_odom_transform: true
       pub_map_scanmatch_transform: false

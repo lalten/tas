@@ -9,7 +9,7 @@
       laserscan_topics: /scan_front /scan_back
       angle_min: -3.14159
       angle_max: 3.14159
-      range_min: 0
+      range_min: 0.1
       range_max: 100
     </rosparam>
   </node>
@@ -52,8 +52,8 @@
   <!-- Run AMCL for map->odom -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <rosparam>
-      update_min_d: 0.005   # Translational movement required before performing a filter update. (default 0.2)
-      update_min_a: 0.005   # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
+      update_min_d: 0.0     # Translational movement required before performing a filter update. (default 0.2)
+      update_min_a: 0.0     # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
       odom_model_type: diff
       odom_alpha1: 0.1      # expected noise in odometry rotation from rotational robot motion (default 0.2)
       odom_alpha2: 0.2      # expected noise in odometry rotation from translational robot motion (default 0.2)  

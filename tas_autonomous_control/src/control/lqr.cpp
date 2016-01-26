@@ -14,12 +14,12 @@ lqr::lqr()
       Kvec[2]=-5.4772;
 
       decc_distance = 1.5;
-      acc_distance = 0.8;
-      corner_speed = 0.1;
+      acc_distance = 1;
+      corner_speed = 0.2;
 
       int_err = 0;  //speed controller integtraged error
 
-      max_vel = 0.8;      //set maximum speed
+      max_vel = 1.5;      //set maximum speed
 
       inited=0;
 
@@ -415,7 +415,7 @@ void lqr::calc_des_speed()
     //ROS_INFO_STREAM("num start curve  " << end_curve.size());
 
 
-    double min_vel = 0.1;
+    double min_vel = 0.15;
 
     // going through curv starting points, each iterating backwards
     for(int i = 0; i < start_curve.size(); i++)
@@ -606,7 +606,7 @@ void lqr::publish_car()
 
 
     double addition = 500;
-    double forward_treshold = 1539;
+    double forward_treshold = 1549;
     double backward_treshold = 1488;
 
     geometry_msgs::Vector3 control_servo;

@@ -305,7 +305,8 @@ void setSpeed(int speedOffset, int turnOffset)
 {
     geometry_msgs::Vector3 servo;
     servo.x = 1500 + speedOffset;
-    servo.y = 1500 + turnOffset;
+    servo.y = 1500 + turnOffset; // KONRAD
+    //servo.y = turnOffset; // KONRAD
     servo.z = 0;
 
     parking_servo_publisher.publish(servo);
@@ -328,12 +329,21 @@ int calcTurnRate (double distance)
 
     }
 
-    //set turnrate relative to distance
-    int temp_turnRate=((distance / sollDistance)-1)*DistanceTurnRateRatio;
-    if (distance < sollDistance - 0.005 || distance > sollDistance +0.005)
-    {
-        //rechts lenken
-        turnRate = temp_turnRate;
+    if (false) {// KONRAD
+        //set turnrate relative to distance
+        int temp_turnRate=((distance / sollDistance)-1)*DistanceTurnRateRatio;
+        if (distance < sollDistance - 0.005 || distance > sollDistance +0.005)
+        {
+            //rechts lenken
+            turnRate = temp_turnRate;
+        }
+    } else {
+        if (distance > (sollDistance + 0.01))
+            turnRate = -400;
+        else if (distance < (sollDistance -0.01))
+            turnRate = 400;
+        else
+            turnRate = 0;
     }
 
     return turnRate;

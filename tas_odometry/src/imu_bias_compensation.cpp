@@ -1,3 +1,20 @@
+/* IMU bias compensation
+ *
+ * This node reads in data from a IMU topic. In its internal state machine's
+ * first state, it calculates the average over the first 1000 samples. In the
+ * second state, it subtracts this average from later samples, effectively
+ * removing gravity and orientation-induced acceleration.
+ *
+ * ROS input topics:
+ * /imu/data - IMU sensor data
+ *
+ * ROS output topics:
+ * /imu/calibrated - average-compensated IMU data
+ *
+ * Laurenz 2015-01
+ * ga68gug / TUM LSR TAS
+ */
+
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
 

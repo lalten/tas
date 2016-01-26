@@ -1,3 +1,17 @@
+/* Perfect Odometry
+ *
+ * This node reads in gazebo link states and publishes the corresponding odom-
+ * base transform as if it came from (a very good) odometry.
+ *
+ * ROS parameters:
+ * odom_frame - frame_id of odom tf
+ * base_frame - frame_id of base tf
+ * pub_odom_base_tf - determines if transforms should be published
+ *
+ * Laurenz 2015-01
+ * ga68gug / TUM LSR TAS
+ */
+
 #include <tas_odometry/perfect_odometry.h>
 
 ros::Publisher odom_publisher;
