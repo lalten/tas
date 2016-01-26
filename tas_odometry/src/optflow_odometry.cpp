@@ -1,3 +1,19 @@
+/* Optflow Odometry
+ *
+ * This node reads in data from a PX4flow rosnode and converts it to a twist
+ * message which is usable in a robot_localization EKF. Uncertainty values in
+ * the covariance matrix are calculated from optical flow image quality.
+ *
+ * ROS input topics:
+ * opt_flow_rad - px4flow sensor data
+ *
+ * ROS output topics:
+ * visual_odom - Twist message as calculated from optical flow
+ *
+ * Laurenz 2015-01
+ * ga68gug / TUM LSR TAS
+ */
+
 #include <ros/ros.h>
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <px_comm/OpticalFlowRad.h>
