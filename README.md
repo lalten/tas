@@ -81,10 +81,18 @@ Once the car reached the start position run the "parking"-node
 
 Note: For showcasing without car, the findpark.cpp is now in testmode. This means, that the testMap.pgm is loaded instead of the real map. If you want, you may change this in the code with the TEST-flag. 
 
-For more information about the findpark-node look into the readme: [__/findpark/readme__](/findpark/readme)
+For more detailed information how the findpark-node works, look into the readme: [__/findpark/readme__](/findpark/readme)
 
 #### Park the car
 Once the car is at the right starting position (calculated by "findpark" or the marked spots at the floor) start:
 ```
 rosrun parking parking
 ```
+The parking node uses the raw data of the messages
+* /scan_back
+* /scan
+These messages contain the laser distance table. 
+The movements a directly published to the node
+* /servo
+
+For more information how the parking-node works, look into the readme: [__/parking/readme__](/parking/readme)
