@@ -9,7 +9,7 @@
       laserscan_topics: /scan_front /scan_back
       angle_min: -3.14159
       angle_max: 3.14159
-      range_min: 0.1
+      range_min: 0.3
       range_max: 100
     </rosparam>
   </node>

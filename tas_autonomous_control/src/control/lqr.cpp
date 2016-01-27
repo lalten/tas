@@ -10,16 +10,19 @@ lqr::lqr()
       double dKvec_02;
       double dKvec_03;
 
-      node.param<double>("vel_ref", vel_ref , 1.0 );
+      node.param<double>("/longitudinal_lateral_controller/vel_ref", vel_ref , 1.0);
 
+      node.param<double>("/longitudinal_lateral_controller/kvec_1vel_dotphi", dKvec_11, 0.8232);
+      node.param<double>("/longitudinal_lateral_controller/kvec_1vel_phi", dKvec_12, -2.0107);
+      node.param<double>("/longitudinal_lateral_controller/kvec_1vel_d", dKvec_13 ,-1.4772 );
 
-      node.param<double>("kvec_1vel_dotphi", dKvec_11, 0.8232);
-      node.param<double>("kvec_1vel_phi", dKvec_12, -2.0107);
-      node.param<double>("kvec_1vel_d", dKvec_13 ,-1.4772 );
+      node.param<double>("/longitudinal_lateral_controller/kvec_0vel_dotphi", dKvec_01, 0.5232);
+      node.param<double>("/longitudinal_lateral_controller/kvec_0vel_phi", dKvec_02, -3.0107);
+      node.param<double>("/longitudinal_lateral_controller/kvec_0vel_d", dKvec_03 ,-5.4772 );
 
-      node.param<double>("kvec_0vel_dotphi", dKvec_01, 0.5232);
-      node.param<double>("kvec_0vel_phi", dKvec_02, -3.0107);
-      node.param<double>("kvec_0vel_d", dKvec_03 ,-5.4772 );
+      node.param<double>("/longitudinal_lateral_controller/decc_distance", decc_distance , 3);
+      node.param<double>("/longitudinal_lateral_controller/acc_distance" ,acc_distance , 2);
+      node.param<double>("/longitudinal_lateral_controller/corner_speed" ,corner_speed , 0.15);
 
 
       Kvec[0] = dKvec_01;
@@ -30,9 +33,18 @@ lqr::lqr()
       Kvec_1[1] = dKvec_12;
       Kvec_1[2] = dKvec_13;
 
-      node.param<double>("decc_distance", decc_distance , 3);
-      node.param<double>("acc_distance" ,acc_distance , 2);
-      node.param<double>("corner_speed" ,corner_speed , 0.15);
+      for(int i =0; i< 3; i++)
+        ROS_INFO_STREAM( "Kvec" << Kvec[i]);
+
+      for(int i =0; i< 3; i++)
+        ROS_INFO_STREAM( "Kvec1" << Kvec_1[i]);
+
+      ROS_INFO_STREAM( "vel_ref" << vel_ref);
+      ROS_INFO_STREAM( "decc_distance" << decc_distance);
+      ROS_INFO_STREAM( "acc_distance" << acc_distance);
+      ROS_INFO_STREAM( "corner_speed" << corner_speed);
+
+
 
       node.param<double>("max_vel", max_vel, 1);      //set maximum speed
 
@@ -51,6 +63,7 @@ lqr::lqr()
       pub_ackermann_sim = node.advertise<ackermann_msgs::AckermannDriveStamped>("/ackermann_vehicle/ackermann_cmd", 10);
       pub_servo = node.advertise<geometry_msgs::Vector3>("servo", 1);
 
+
 }
 
 
@@ -65,8 +78,15 @@ double lqr::control()
     double lateral_d= perpen_vec[0]* con_vec[0] + perpen_vec[1] * con_vec[1];       //lateral distance
 
     err[0] = dphi/180*PI;    //angular velocity
-    err[1] = (closestpt[2] - mapcoord[2])/180*PI;  //angle deviation
+    err[1] = (closestpt[2] - mapcoord[2]);  //angle deviation
     err[2] = lateral_d;
+
+    // constrain to -180..180 deg
+    while(err[1] > 180) err[1] -= 360;
+    while(err[1] <-180) err[1] += 360;
+
+    err[1] = err[1]*PI/180;
+
 
     double Kvec_res[3];
     for(int i=0; i< 3; i++)
@@ -75,11 +95,12 @@ double lqr::control()
         Kvec_res[i]= vel_t/vel_ref*Kvec_1[i] + Kvec[i]*(1-vel_t/vel_ref);
     }
 
-    steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180/PI * des_dir;
+    steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180.0/PI * des_dir;
     //steering_deg = -(Kvec[0]*err[0] + Kvec[1]*err[1]  + Kvec[2]*err[2])*180/PI;
 
-    ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
-    ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
+    ROS_INFO_STREAM( "(dot phi) "  <<  err[0]  << "(delt phi) "  <<  err[1] << "lateral_d " << lateral_d);
+    ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel << "current speed: " << vel << "dir " << des_dir);
+    ROS_INFO_STREAM( "Kvec_res 0: "  <<  Kvec_res[0]  << " ; "  <<  Kvec_res[1] << " ; " << Kvec_res[2]);
 
     double speed_with_full_gas = 8;
     double pc = des_dir*des_vel/speed_with_full_gas;
@@ -274,7 +295,7 @@ void lqr::estimate_state()
     double dt = rosdt.toSec();
 
     double dphi_uf = (mapcoord[2] - last_mapcoord[2])/dt;  //unfiltered
-    dphi = filter_phi.filter(dphi_uf, 0.1);
+    dphi = filter_phi.filter(dphi_uf, 0.3);
 
     double hvec[2];
     hvec[0]= cos(mapcoord[2]/180*PI);         //heading unit-vector
@@ -284,7 +305,7 @@ void lqr::estimate_state()
     shiftvec[0]= mapcoord[0] - last_mapcoord[0];
     shiftvec[1]= mapcoord[1] - last_mapcoord[1];
     double vel_uf = (hvec[0]*shiftvec[0] +  hvec[1]*shiftvec[1]) / dt; //unfiltered
-    vel = filter_vel.filter(vel_uf,0.05);
+    vel = filter_vel.filter(vel_uf,0.1);
 
     memcpy(last_mapcoord, mapcoord, 3*sizeof(double));
     timelast = timenow;
@@ -361,7 +382,7 @@ void lqr::test_motor()
 
 void lqr::calc_des_speed()
 {
-    ROS_INFO_STREAM("calcspeed");
+    //ROS_INFO_STREAM("calcspeed");
     des_speed_vec.clear();
     des_speed_vec.resize(glpath.size());
     //ROS_INFO_STREAM("size des speed" << des_speed_vec.size());
@@ -380,7 +401,7 @@ void lqr::calc_des_speed()
         }
     }
 
-    ROS_INFO_STREAM("after corner ");
+    //ROS_INFO_STREAM("after corner ");
    /* for(int i= 0; i < des_speed_vec.size(); i++)
         ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
 */
@@ -452,7 +473,7 @@ void lqr::calc_des_speed()
         }
     }
 
-     ROS_INFO_STREAM("cout1  ");
+     //ROS_INFO_STREAM("cout1  ");
 /*
      ROS_INFO_STREAM("going through curv starting points, each iterating backwards ");
      for(int i= 0; i < des_speed_vec.size(); i++)
@@ -482,7 +503,7 @@ void lqr::calc_des_speed()
         ROS_INFO_STREAM(" "   << des_speed_vec.at(i));
 */
 
-    ROS_INFO_STREAM("cout2  ");
+    //ROS_INFO_STREAM("cout2  ");
 
     // going through curv ending points forward
     for(int i = 0; i < end_curve.size(); i++)
@@ -501,7 +522,7 @@ void lqr::calc_des_speed()
             j++;
         }
     }
-    ROS_INFO_STREAM("cout3  ");
+    //ROS_INFO_STREAM("cout3  ");
 
     /*for(int i= 0; i < des_speed_vec.size()-1; i++)
     {
@@ -518,7 +539,7 @@ void lqr::calc_des_speed()
 
 void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
 {
-    ROS_INFO_STREAM("new path received  ");
+    //ROS_INFO_STREAM("new path received  ");
     int num_points = path->poses.size();
 
     inited = 1;
@@ -578,7 +599,7 @@ void lqr::glpathCallback(const nav_msgs::Path::ConstPtr& path)
         pathpoint.push_back(zangle);
         glpath.push_back(pathpoint);
     }
-    ROS_INFO_STREAM("new path saved  ");
+    //ROS_INFO_STREAM("new path saved  ");
 
     calc_des_speed();
 }
@@ -601,7 +622,7 @@ void lqr::publish_sim()
     ackermann_msgs::AckermannDriveStamped ackermannMsg;
 
     ackermannMsg.drive.speed = des_vel*des_dir;
-    ackermannMsg.drive.steering_angle = steering_deg/180*PI;
+    ackermannMsg.drive.steering_angle = steering_deg/180.0*PI;
 
     pub_ackermann_sim.publish(ackermannMsg);
 
@@ -611,7 +632,7 @@ void lqr::publish_car()
 {
     double cmd_steeringAngle = steering_deg;
 
-    cmd_steeringAngle = 1500 + 500/30*cmd_steeringAngle;
+    cmd_steeringAngle = 1500 + 500.0/30.0*cmd_steeringAngle;
 
     if(cmd_steeringAngle > 2000)
     {
@@ -623,12 +644,12 @@ void lqr::publish_car()
     }
 
 
-    double addition = 500;
-    double forward_treshold = 1549;
+    double addition = 400;
+    double forward_treshold = 1535;
     double backward_treshold = 1488;
 
     geometry_msgs::Vector3 control_servo;
-    if (cmd_thrust > 0 )
+    if (cmd_thrust >= 0 )
         control_servo.x = forward_treshold + addition*cmd_thrust;
     if (cmd_thrust < 0 )
         control_servo.x = backward_treshold + addition*cmd_thrust;
