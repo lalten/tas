@@ -102,6 +102,7 @@ double lqr::control()
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel << "current speed: " << vel << "dir " << des_dir);
     ROS_INFO_STREAM( "Kvec_res 0: "  <<  Kvec_res[0]  << " ; "  <<  Kvec_res[1] << " ; " << Kvec_res[2]);
 
+
     double speed_with_full_gas = 8;
     double pc = des_dir*des_vel/speed_with_full_gas;
 
@@ -111,8 +112,8 @@ double lqr::control()
     if(cmd_thrust < -1)
         cmd_thrust=-1;
 
-    publish_car();
-    publish_sim();
+    //publish_car();
+    //publish_sim();
 }
 
 void lqr::getclosestpoint()
