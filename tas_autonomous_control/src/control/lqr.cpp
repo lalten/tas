@@ -15,7 +15,7 @@ lqr::lqr()
 
       node.param<double>("kvec_1vel_dotphi", dKvec_11, 0.8232);
       node.param<double>("kvec_1vel_phi", dKvec_12, -2.0107);
-      node.param<double>("kvec_1vel_d", dKvec_13 ,-1.4772 );
+      node.param<double>("kvec_1vel_d", dKvec_13 ,-1.4772 );    
 
       node.param<double>("kvec_0vel_dotphi", dKvec_01, 0.5232);
       node.param<double>("kvec_0vel_phi", dKvec_02, -3.0107);
@@ -78,6 +78,7 @@ double lqr::control()
     steering_deg = -(Kvec_res[0]*err[0] + Kvec_res[1]*err[1]  + Kvec_res[2]*err[2])*180/PI * des_dir;
     //steering_deg = -(Kvec[0]*err[0] + Kvec[1]*err[1]  + Kvec[2]*err[2])*180/PI;
 
+    ROS_INFO_STREAM( "Kvec_res"  << Kvec_res[0] << "Kvec_res"  << Kvec_res[0] << "Kvec_res"  << Kvec_res[0]);
     ROS_INFO_STREAM( "err[0] (dphi)"  <<  err[0]  << "err[1] (delt phi)"  <<  err[1] << "lateral_d err err[2]" << lateral_d);
     ROS_INFO_STREAM("steering angle  "  << steering_deg << "desired speed: " << des_vel);
 
@@ -90,8 +91,8 @@ double lqr::control()
     if(cmd_thrust < -1)
         cmd_thrust=-1;
 
-    publish_car();
-    publish_sim();
+    //publish_car();
+    //publish_sim();
 }
 
 void lqr::getclosestpoint()

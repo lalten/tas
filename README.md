@@ -38,7 +38,7 @@ export ROS_HOSTNAME=$(hostname).local
 ## Contributions
 Laurenz: [Odometry](#odometry)  
 Konrad: [Trajectory Rollout](#trajectory)  
-Frederik: [SBPL / LQR Controller](#sbpl)  
+Frederik: [SBPL](#sbpl)   [LQR Controller](#LQR Controller)  
 Quirin: [Parking](#parking), [Rotated Template Matching](#)
 
 ### Odometry
@@ -80,9 +80,21 @@ rosrun ownlocalplanner ownlocalplanner
 ```
 
 The global Path with the ownlocal-Path on the first 3 Meter is published as ["/ownPath"](http://docs.ros.org/api/nav_msgs/html/msg/Path.html). This is, as the global Path, a nav_msgs. The Path can be visualized by RVIZ and can be used for the [Controller](#sbpl). Therefor change the String for Subscribtion from "/move_base_node/TrajectoryPlannerROS/global_plan" to "/ownPath".
+
  
 
 ### Sbpl:
+Sbpl is installed from the repo:
+```
+git@github.com:MASKOR/maskor_navigation.git
+```
+
+### LQR Controller:
+The controller is launched with:
+```
+roslaunch tas_autonomous_control controller.launch 
+```
+
 
 ### Parking:
 There are two nodes for the parking process. 
