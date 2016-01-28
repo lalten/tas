@@ -112,8 +112,8 @@ double lqr::control()
     if(cmd_thrust < -1)
         cmd_thrust=-1;
 
-    //publish_car();
-    //publish_sim();
+    publish_car();
+    publish_sim();
 }
 
 void lqr::getclosestpoint()
@@ -650,10 +650,13 @@ void lqr::publish_car()
     double backward_treshold = 1488;
 
     geometry_msgs::Vector3 control_servo;
-    if (cmd_thrust >= 0 )
+    if (cmd_thrust > 0 )
         control_servo.x = forward_treshold + addition*cmd_thrust;
     if (cmd_thrust < 0 )
         control_servo.x = backward_treshold + addition*cmd_thrust;
+
+    if(fabs(cmd_thrust)==0)
+        control_servo.x = 1500;
 
     control_servo.y = cmd_steeringAngle;
 
