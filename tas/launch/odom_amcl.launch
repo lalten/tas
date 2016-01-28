@@ -54,10 +54,12 @@
     <rosparam>
       update_min_d: 0.0     # Translational movement required before performing a filter update. (default 0.2)
       update_min_a: 0.0     # Translational movement required before performing a filter update. (default π/6.0=0.523598776 radians)
+      min_particles: 800
+      max_particles: 8000
       odom_model_type: diff
       odom_alpha1: 0.5      # expected noise in odometry rotation from rotational robot motion (default 0.2)
-      odom_alpha2: 0.4      # expected noise in odometry rotation from translational robot motion (default 0.2)  
-      odom_alpha3: 2.0      # expected noise in odometry translation from translational robot motion (default 0.2)
+      odom_alpha2: 0.8      # expected noise in odometry rotation from translational robot motion (default 0.2)  
+      odom_alpha3: 2.5      # expected noise in odometry translation from translational robot motion (default 0.2)
       odom_alpha4: 0.2      # expected noise in odometry translation from rotational robot motion (default 0.2)
       odom_alpha5: 0.2      # Translation-related noise parameter (default 0.2)
       tf_broadcast: true    # allow amcl to publish the transform between the global frame and the odometry frame
